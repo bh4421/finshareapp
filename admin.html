@@ -1,103 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinShare - Admin Control Panel</title>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>FinShare - Private Admin Dashboard</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #f4f7fe; color: #2b3674; padding: 20px; }
-        
-        .admin-container { max-width: 600px; margin: 0 auto; }
-        
-        .admin-header { background: linear-gradient(135deg, #11009e, #47b5ff); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(17,0,158,0.15); }
-        .admin-header h2 { font-size: 20px; margin-bottom: 5px; }
-        .admin-header p { font-size: 13px; opacity: 0.9; }
-
-        .section-title { font-size: 16px; font-weight: 700; color: #1b2559; margin-bottom: 12px; }
-
-        /* Request Card */
-        .request-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
-        .req-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .req-name { font-size: 15px; font-weight: 700; color: #1b2559; }
-        .req-amount { font-size: 16px; font-weight: 800; color: #05cd99; }
-        
-        .req-details { font-size: 13px; color: #4b5563; margin-bottom: 10px; line-height: 1.5; }
-        .req-details span { font-weight: 600; color: #11009e; }
-
-        .no-data { text-align: center; color: #707ebe; padding: 40px; font-size: 14px; background: white; border-radius: 14px; }
-        
-        .loading { text-align: center; color: #47b5ff; padding: 20px; font-weight: 600; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: auto; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2, h3 { color: #1a73e8; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #1a73e8; color: white; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .pending { background-color: #ff9800; }
+        .completed { background-color: #4caf50; }
+        .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-approve:hover { background: #45a049; }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
-        <!-- Header -->
-        <div class="admin-header">
-            <h2>Admin Dashboard</h2>
-            <p>Live Withdrawal Requests from Users</p>
-        </div>
+<div class="container">
+    <h2>FinShare Admin Dashboard</h2>
 
-        <div class="section-title">Pending Requests</div>
-
-        <!-- Requests List Container -->
-        <div id="requestsList">
-            <div class="loading">Loading requests from database...</div>
+    <!-- SECTION 1: Registered Users & Payment Details -->
+    <div class="card">
+        <h3>1. Registered Users & Bank/UPI Details</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Mobile/Email</th>
+                        <th>Bank Account</th>
+                        <th>UPI ID</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr><td colspan="4">Data load ho raha hai...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Firebase Connection & Script -->
-    <script type="module">
-        import { db } from './firebase-config.js';
-        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <!-- SECTION 2: Referral & Product Fulfillment Tracking -->
+    <div class="card">
+        <h3>2. Product Task Fulfillment (Referrals)</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Product</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="referralsTable">
+                    <tr><td colspan="4">Tasks load ho rahe hain...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        const requestsList = document.getElementById('requestsList');
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        async function loadWithdrawals() {
-            try {
-                // Fetch withdrawals collection ordered by time (newest first)
-                const q = query(collection(db, "withdrawals"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
+    // --- APNA FIREBASE CONFIG HERE ---
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
 
-                if (querySnapshot.empty) {
-                    requestsList.innerHTML = `<div class="no-data">No withdrawal requests found yet.</div>`;
-                    return;
-                }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-                let html = '';
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const dateStr = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleString() : 'Just now';
-                    
-                    html += `
-                        <div class="request-card">
-                            <div class="req-header">
-                                <span class="req-name"><i class="fa-solid fa-user"></i> ${data.fullName}</span>
-                                <span class="req-amount">₹${data.amount}</span>
-                            </div>
-                            <div class="req-details">
-                                <div><i class="fa-solid fa-phone"></i> Mobile: <span>${data.phone}</span></div>
-                                <div><i class="fa-solid fa-building-columns"></i> Account/UPI: <span>${data.accountDetails}</span></div>
-                                <div><i class="fa-solid fa-clock"></i> Time: <small>${dateStr}</small></div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                requestsList.innerHTML = html;
-
-            } catch (error) {
-                console.error("Error loading withdrawals: ", error);
-                requestsList.innerHTML = `<div class="no-data" style="color: #d32f2f;">Error loading data. Check console or Firestore rules.</div>`;
+    // 1. Fetch Users & Bank Details
+    async function loadUsers() {
+        const tbody = document.getElementById('usersTable');
+        tbody.innerHTML = "";
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            if (querySnapshot.empty) {
+                tbody.innerHTML = "<tr><td colspan='4'>Koi user nahi mila.</td></tr>";
+                return;
             }
+            querySnapshot.forEach((doc) => {
+                const u = doc.data();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.name || 'N/A'}</td>
+                        <td>${u.phone || u.email || 'N/A'}</td>
+                        <td>${u.bankAccount || 'N/A'}</td>
+                        <td>${u.upiId || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            tbody.innerHTML = "<tr><td colspan='4' style='color:red;'>Error loading users!</td></tr>";
         }
+    }
 
-        // Load data on page open
-        loadWithdrawals();
-    </script>
+    // 2. Fetch Tasks & Fulfillment Status
+    async function loadReferrals() {
+        const tbody = document.getElementById('referralsTable');
+        tbody.innerHTML = "";
+        try {
+            const querySnapshot = await getDocs(collection(db, "conversions"));
+            if (querySnapshot.empty) {
+                tbody.innerHTML = "<tr><td colspan='4'>Koi task tracking data nahi hai.</td></tr>";
+                return;
+            }
+            querySnapshot.forEach((document) => {
+                const ref = document.data();
+                const isPending = ref.status === 'Pending';
+                const statusBadge = isPending 
+                    ? `<span class="badge pending">Pending</span>` 
+                    : `<span class="badge completed">Completed</span>`;
+                
+                const actionBtn = isPending 
+                    ? `<button class="btn-approve" onclick="approveTask('${document.id}')">Approve</button>` 
+                    : `Done`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${ref.userName || 'N/A'}</td>
+                        <td>${ref.productTitle || 'N/A'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            tbody.innerHTML = "<tr><td colspan='4' style='color:red;'>Error loading tasks!</td></tr>";
+        }
+    }
+
+    // 3. Approve Task Functionality
+    window.approveTask = async function(docId) {
+        try {
+            const taskRef = doc(db, "conversions", docId);
+            await updateDoc(taskRef, { status: "Completed" });
+            alert("Task Approve ho gaya hai!");
+            loadReferrals(); // Refresh list
+        } catch (e) {
+            alert("Approve karne me error aayi: " + e.message);
+        }
+    };
+
+    // Load Data on Startup
+    loadUsers();
+    loadReferrals();
+</script>
+
 </body>
 </html>
-
