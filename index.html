@@ -3,45 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinShare - Best Refer & Earn Apps</title>
+    <title>FinShare - Financial Refer & Earn App</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #f4f6f9; color: #333; padding: 20px; }
-        header { text-align: center; padding: 30px 10px; background: #0d6efd; color: white; border-radius: 10px; }
-        header h1 { font-size: 28px; margin-bottom: 8px; }
-        .container { max-width: 600px; margin: 20px auto; }
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card h3 { font-size: 20px; color: #0d6efd; margin-bottom: 8px; }
-        .card p { font-size: 14px; color: #666; margin-bottom: 15px; }
-        .btn { display: inline-block; width: 100%; text-align: center; background: #28a745; color: white; padding: 12px; text-decoration: none; border-radius: 6px; font-weight: bold; }
-        footer { text-align: center; font-size: 12px; color: #888; margin-top: 30px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f4f7fe; color: #2b3674; padding-bottom: 80px; }
+        
+        /* Top App Bar */
+        .app-header { background: linear-gradient(135deg, #11009e, #47b5ff); color: white; padding: 20px 16px 30px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 10px 20px rgba(17,0,158,0.15); }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid rgba(255,255,255,0.4); }
+        .user-id { font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 12px; }
+
+        /* Balance Card */
+        .wallet-card { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(10px); padding: 18px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.3); display: flex; justify-content: space-between; align-items: center; }
+        .wallet-info h4 { font-size: 12px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+        .wallet-info h2 { font-size: 26px; font-weight: 800; margin-top: 4px; }
+        .withdraw-btn { background: #ffb800; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(255,184,0,0.3); }
+
+        /* Container */
+        .container { max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+        /* Quick Stats Banner */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: -15px; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 14px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 12px; }
+        .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* Section Headings */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
+        .section-title { font-size: 16px; font-weight: 700; color: #1b2559; }
+
+        /* Categories */
+        .category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .cat-card { background: white; padding: 14px 6px; border-radius: 14px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: 0.2s; }
+        .cat-card i { font-size: 22px; color: #47b5ff; margin-bottom: 6px; display: block; }
+        .cat-card p { font-size: 11px; font-weight: 600; color: #4b5563; }
+
+        /* Product Cards */
+        .product-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); position: relative; border: 1px solid #edf2f7; }
+        .product-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .p-icon { width: 46px; height: 46px; border-radius: 12px; background: #f0f4ff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #11009e; }
+        .p-details h3 { font-size: 15px; font-weight: 700; color: #1b2559; }
+        .p-details p { font-size: 12px; color: #a3edb0; color: #707ebe; }
+        
+        .p-profit { background: #e6f9f0; color: #05cd99; padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-block; }
+        
+        .product-actions { display: flex; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2e8f0; }
+        .btn-share { flex: 1; background: #25d366; color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+        .btn-copy { background: #f4f7fe; color: #47b5ff; border: 1px solid #e0e8ff; width: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+
+        /* Modal / Popup for Withdrawal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal-content { background: white; width: 100%; max-width: 480px; padding: 24px; border-top-left-radius: 24px; border-top-right-radius: 24px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #4b5563; display: block; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; }
+        .submit-btn { width: 100%; background: #11009e; color: white; padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #edf2f7; box-shadow: 0 -4px 15px rgba(0,0,0,0.03); max-width: 480px; margin: 0 auto; }
+        .nav-link { text-align: center; color: #a3edd0; color: #a3b1cc; text-decoration: none; font-size: 11px; font-weight: 600; }
+        .nav-link i { font-size: 18px; display: block; margin-bottom: 3px; }
+        .nav-link.active { color: #11009e; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>FinShare</h1>
-        <p>Top Banking & Financial Refer & Earn Deals</p>
-    </header>
-
-    <div class="container">
-        <div class="card">
-            <h3>Angel One Demat Account</h3>
-            <p>Open free Demat account and earn up to ₹750 per referral.</p>
-            <a href="#" class="btn" target="_blank">Open Account Now</a>
+    <!-- Header Section -->
+    <div class="app-header">
+        <div class="user-bar">
+            <div class="user-profile">
+                <div class="avatar">FS</div>
+                <div>
+                    <h3 style="font-size: 14px; font-weight: 600;">FinShare Partner</h3>
+                    <span class="user-id">ID: #FS8892</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-bell" style="font-size: 18px; opacity: 0.8;"></i>
         </div>
 
-        <div class="card">
-            <h3>Savings Account Offer</h3>
-            <p>Zero balance digital savings account with instant rewards.</p>
-            <a href="#" class="btn" target="_blank">Apply Now</a>
+        <div class="wallet-card">
+            <div class="wallet-info">
+                <h4>Total Earnings</h4>
+                <h2>₹<span id="userBalance">0</span>.00</h2>
+            </div>
+            <button class="withdraw-btn" onclick="openWithdrawModal()">Withdraw</button>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 FinShare. All Rights Reserved.</p>
-    </footer>
+    <!-- Main Content -->
+    <div class="container">
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #eef2ff; color: #47b5ff;"><i class="fa-solid fa-share-nodes"></i></div>
+                <div>
+                    <p style="font-size: 11px; color: #707ebe;">Total Shared</p>
+                    <h4 style="font-size: 15px;">12 Offers</h4>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #fff7ed; color: #ff9800;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div>
+                    <p style="font-size: 11px; color: #707ebe;">Pending</p>
+                    <h4 style="font-size: 15px;">₹0.00</h4>
+                </div>
+            </div>
+        </div>
 
+        <!-- Categories -->
+        <div class="section-header">
+            <span class="section-title">Categories</span>
+        </div>
+        <div class="category-grid">
+            <div class="cat-card"><i class="fa-solid fa-chart-line"></i><p>Demat</p></div>
+            <div class="cat-card"><i class="fa-solid fa-building-columns"></i><p>Banking</p></div>
+            <div class="cat-card"><i class="fa-solid fa-credit-card"></i><p>Credit Card</p></div>
+            <div class="cat-card"><i class="fa-solid fa-hand-holding-dollar"></i><p>Loans</p></div>
+        </div>
+
+        <!-- Product Offers List -->
+        <div class="section-header">
+            <span class="section-title">Top Earning Products</span>
+        </div>
+
+        <!-- Offer 1 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="p-icon" style="background: #eef2ff; color: #11009e;">AO</div>
+                <div class="p-details">
+                    <h3>Angel One Demat</h3>
+                    <p>Free Account Opening + 1st Trade</p>
+                </div>
+            </div>
+            <div class="p-profit">Earn ₹750 Profit</div>
+            <div class="product-actions">
+                <a href="https://api.whatsapp.com/send?text=Open%20Free%20Angel%20One%20Demat%20Account%20and%20Start%20Trading!%20Link:%20YOUR_ANGELONE_LINK" class="btn-share" target="_blank">
+                    <i class="fa-brands fa-whatsapp"></i> Share Offer
+                </a>
+                <button class="btn-copy" onclick="copyLink('YOUR_ANGELONE_LINK')"><i class="fa-regular fa-copy"></i></button>
+            </div>
+        </div>
+
+        <!-- Offer 2 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="p-icon" style="background: #fff0f0; color: #d32f2f;">KM</div>
+                <div class="p-details">
+                    <h3>Kotak 811 Savings</h3>
+                    <p>Zero Balance Account Opening</p>
+                </div>
+            </div>
+            <div class="p-profit">Earn ₹320 Profit</div>
+            <div class="product-actions">
+                <a href="https://api.whatsapp.com/send?text=Open%20Kotak%20811%20Zero%20Balance%20Savings%20Account%20Instantly!%20Link:%20YOUR_KOTAK_LINK" class="btn-share" target="_blank">
+                    <i class="fa-brands fa-whatsapp"></i> Share Offer
+                </a>
+                <button class="btn-copy" onclick="copyLink('YOUR_KOTAK_LINK')"><i class="fa-regular fa-copy"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Withdrawal Form Modal / Popup -->
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; color: #1b2559;">Request Withdrawal</h3>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 18px;" onclick="closeWithdrawModal()"></i>
+            </div>
+            <form id="withdrawForm" onsubmit="submitWithdrawal(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="As per Bank account" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" placeholder="10 Digit Number" required>
+                </div>
+                <div class="form-group">
+                    <label>Withdrawal Amount (₹)</label>
+                    <input type="number" placeholder="Enter amount" required min="100">
+                </div>
+                <div class="form-group">
+                    <label>UPI ID or Bank Account Details</label>
+                    <input type="text" placeholder="e.g. mobile@upi or A/C + IFSC" required>
+                </div>
+                <button type="submit" class="submit-btn">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-link active"><i class="fa-solid fa-house"></i>Home</a>
+        <a href="#" class="nav-link"><i class="fa-solid fa-briefcase"></i>Products</a>
+        <a href="#" class="nav-link"><i class="fa-solid fa-wallet"></i>Earnings</a>
+        <a href="#" class="nav-link"><i class="fa-solid fa-user"></i>Account</a>
+    </div>
+
+    <script>
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'none';
+        }
+        function copyLink(link) {
+            navigator.clipboard.writeText(link);
+            alert("Referral Link Copied!");
+        }
+        function submitWithdrawal(e) {
+            e.preventDefault();
+            alert("Withdrawal request submitted successfully! Admin will process payment soon.");
+            closeWithdrawModal();
+        }
+    </script>
 </body>
 </html>
-
