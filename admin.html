@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinShare - Admin Control Panel</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f4f7fe; color: #2b3674; padding: 20px; }
+        
+        .admin-container { max-width: 600px; margin: 0 auto; }
+        
+        .admin-header { background: linear-gradient(135deg, #11009e, #47b5ff); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(17,0,158,0.15); }
+        .admin-header h2 { font-size: 20px; margin-bottom: 5px; }
+        .admin-header p { font-size: 13px; opacity: 0.9; }
+
+        .section-title { font-size: 16px; font-weight: 700; color: #1b2559; margin-bottom: 12px; }
+
+        /* Request Card */
+        .request-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
+        .req-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .req-name { font-size: 15px; font-weight: 700; color: #1b2559; }
+        .req-amount { font-size: 16px; font-weight: 800; color: #05cd99; }
+        
+        .req-details { font-size: 13px; color: #4b5563; margin-bottom: 10px; line-height: 1.5; }
+        .req-details span { font-weight: 600; color: #11009e; }
+
+        .no-data { text-align: center; color: #707ebe; padding: 40px; font-size: 14px; background: white; border-radius: 14px; }
+        
+        .loading { text-align: center; color: #47b5ff; padding: 20px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <p>Live Withdrawal Requests from Users</p>
+        </div>
+
+        <div class="section-title">Pending Requests</div>
+
+        <!-- Requests List Container -->
+        <div id="requestsList">
+            <div class="loading">Loading requests from database...</div>
+        </div>
+    </div>
+
+    <!-- Firebase Connection & Script -->
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const requestsList = document.getElementById('requestsList');
+
+        async function loadWithdrawals() {
+            try {
+                // Fetch withdrawals collection ordered by time (newest first)
+                const q = query(collection(db, "withdrawals"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    requestsList.innerHTML = `<div class="no-data">No withdrawal requests found yet.</div>`;
+                    return;
+                }
+
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const dateStr = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleString() : 'Just now';
+                    
+                    html += `
+                        <div class="request-card">
+                            <div class="req-header">
+                                <span class="req-name"><i class="fa-solid fa-user"></i> ${data.fullName}</span>
+                                <span class="req-amount">₹${data.amount}</span>
+                            </div>
+                            <div class="req-details">
+                                <div><i class="fa-solid fa-phone"></i> Mobile: <span>${data.phone}</span></div>
+                                <div><i class="fa-solid fa-building-columns"></i> Account/UPI: <span>${data.accountDetails}</span></div>
+                                <div><i class="fa-solid fa-clock"></i> Time: <small>${dateStr}</small></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                requestsList.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error loading withdrawals: ", error);
+                requestsList.innerHTML = `<div class="no-data" style="color: #d32f2f;">Error loading data. Check console or Firestore rules.</div>`;
+            }
+        }
+
+        // Load data on page open
+        loadWithdrawals();
+    </script>
+</body>
+</html>
 
