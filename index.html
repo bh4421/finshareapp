@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinShare - Financial Refer & Earn App</title>
     
-    <!-- Security / Login Check: Agar logged in nahi hai toh login.html par bhej do -->
+    <!-- Security / Login Check -->
     <script>
         if (!localStorage.getItem("isLoggedIn")) {
             window.location.href = "login.html";
@@ -87,12 +87,12 @@
                 <div class="avatar">FS</div>
                 <div>
                     <h3 style="font-size: 14px; font-weight: 600;">FinShare Partner</h3>
-                    <span class="user-id">ID: #FS8892</span>
+                    <span class="user-id" id="userEmailDisplay">ID: #FS8892</span>
                 </div>
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
                 <i class="fa-solid fa-bell" style="font-size: 18px; opacity: 0.8; cursor: pointer;"></i>
-                <i class="fa-solid fa-right-from-bracket" style="font-size: 18px; opacity: 0.8; cursor: pointer;" onclick="logout()" title="Logout"></i>
+                <i class="fa-solid fa-right-from-bracket" style="font-size: 18px; opacity: 0.8; cursor: pointer;" onclick="logoutUser()" title="Logout"></i>
             </div>
         </div>
 
@@ -217,6 +217,36 @@
         <a href="#" class="nav-link"><i class="fa-solid fa-user"></i>Account</a>
     </div>
 
+    <!-- Firebase SDK for Logout & Auth management -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.logoutUser = function() {
+            signOut(auth).then(() => {
+                localStorage.removeItem("isLoggedIn");
+                window.location.href = "login.html";
+            }).catch((error) => {
+                // Agar firebase signout mein error aaye toh bhi local session clear karke bhej do
+                localStorage.removeItem("isLoggedIn");
+                window.location.href = "login.html";
+            });
+        }
+    </script>
+
     <script>
         function openWithdrawModal() {
             document.getElementById('withdrawModal').style.display = 'flex';
@@ -232,10 +262,6 @@
             e.preventDefault();
             alert("Withdrawal request submitted successfully! Admin will process payment soon.");
             closeWithdrawModal();
-        }
-        function logout() {
-            localStorage.removeItem("isLoggedIn");
-            window.location.href = "login.html";
         }
     </script>
 </body>
