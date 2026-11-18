@@ -176,8 +176,8 @@
             </div>
 
             <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="email" placeholder="Enter email address" required>
+                <label id="identifierLabel">Email Address</label>
+                <input type="text" id="email" placeholder="Enter email address or mobile number" required>
             </div>
 
             <div class="form-group">
@@ -207,7 +207,7 @@
             updateProfile,
             sendPasswordResetEmail 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -241,8 +241,9 @@
             hideMessage();
             document.getElementById('formTitle').innerText = isSignup ? "Create New Account" : "Login to your account";
             document.getElementById('submitBtn').innerText = isSignup ? "Register" : "Login";
+            document.getElementById('identifierLabel').innerText = isSignup ? "Email Address" : "Email Address or Mobile Number";
+            document.getElementById('email').placeholder = isSignup ? "Enter email address" : "Enter email or mobile number";
             
-            // Show/Hide Name and Phone fields during signup
             document.getElementById('nameField').style.display = isSignup ? "block" : "none";
             document.getElementById('phoneField').style.display = isSignup ? "block" : "none";
             
@@ -259,24 +260,24 @@
             event.preventDefault();
             hideMessage();
 
-            const email = document.getElementById('email').value.trim();
+            let inputVal = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const fullName = document.getElementById('fullName').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const submitBtn = document.getElementById('submitBtn');
 
             submitBtn.disabled = true;
             submitBtn.innerText = isSignup ? "Creating Account..." : "Logging in...";
 
             if (isSignup) {
+                const fullName = document.getElementById('fullName').value.trim();
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                const email = inputVal;
+
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
 
-                    // Update user's display name in Auth
                     await updateProfile(user, { displayName: fullName });
 
-                    // Save user details including mobile number in Cloud Firestore
                     await setDoc(doc(db, "users", user.uid), {
                         name: fullName,
                         email: email,
@@ -297,14 +298,37 @@
                 }
             } else {
                 try {
-                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    let emailToUse = inputVal;
+
+                    // Agar user ne email ki jagah mobile number dala hai (no '@' symbol)
+                    if (!inputVal.includes('@')) {
+                        const q = query(collection(db, "users"), where("phone", "==", inputVal));
+                        const querySnapshot = await getDocs(q);
+                        
+                        if (querySnapshot.empty) {
+                            throw new Error("No account found with this mobile number.");
+                        }
+                        
+                        // Us mobile number ki registered email nikal lo
+                        querySnapshot.forEach((docSnap) => {
+                            emailToUse = docSnap.data().email;
+                        });
+                    }
+
+                    const userCredential = await signInWithEmailAndPassword(auth, emailToUse, password);
                     localStorage.setItem("isLoggedIn", "true");
                     if (userCredential.user.displayName) {
                         localStorage.setItem("userName", userCredential.user.displayName);
                     }
                     window.location.href = "index.html";
                 } catch (error) {
-                    showMessage("Invalid email or password. Please try again.", true);
+                    let errMessage = error.message;
+                    if (errMessage.includes("No account found")) {
+                        errMessage = "No account found with this mobile number.";
+                    } else {
+                        errMessage = "Invalid credentials. Please check your email/mobile and password.";
+                    }
+                    showMessage(errMessage, true);
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Login";
                 }
@@ -313,14 +337,26 @@
 
         window.handleForgotPassword = async function() {
             hideMessage();
-            const email = document.getElementById('email').value.trim();
-            if (!email) {
-                showMessage("Please enter your registered Email Address first.", true);
+            let inputVal = document.getElementById('email').value.trim();
+            if (!inputVal) {
+                showMessage("Please enter your registered Email Address or Mobile Number first.", true);
                 return;
             }
             try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage("Password reset link sent to your email! Check inbox or spam folder.", false);
+                let emailToReset = inputVal;
+                if (!inputVal.includes('@')) {
+                    const q = query(collection(db, "users"), where("phone", "==", inputVal));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) {
+                        throw new Error("No account found with this mobile number.");
+                    }
+                    querySnapshot.forEach((docSnap) => {
+                        emailToReset = docSnap.data().email;
+                    });
+                }
+
+                await sendPasswordResetEmail(auth, emailToReset);
+                showMessage("Password reset link sent to your registered email! Check inbox or spam folder.", false);
             } catch (error) {
                 showMessage(error.message.replace("Firebase: ", ""), true);
             }
