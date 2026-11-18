@@ -85,6 +85,35 @@
             background-color: #ffffff;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
+        .forgot-pass {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        .forgot-pass span {
+            font-size: 13px;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .status-msg {
+            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 500;
+        }
+        .status-error {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .status-success {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
         .btn-main {
             width: 100%;
             padding: 13px;
@@ -95,13 +124,17 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 5px;
             margin-bottom: 12px;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
             transition: opacity 0.2s;
         }
         .btn-main:hover {
             opacity: 0.9;
+        }
+        .btn-main:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .toggle-text {
             text-align: center;
@@ -129,6 +162,8 @@
 
         <h1 id="formTitle">Login to your account</h1>
 
+        <div id="statusBox" class="status-msg"></div>
+
         <form id="authForm" onsubmit="handleAuth(event)">
             <div class="form-group" id="nameField" style="display: none;">
                 <label>Full Name</label>
@@ -145,6 +180,10 @@
                 <input type="password" id="password" placeholder="Enter password" required>
             </div>
 
+            <div class="forgot-pass" id="forgotPassBox">
+                <span onclick="handleForgotPassword()">Forgot Password?</span>
+            </div>
+
             <button type="submit" class="btn-main" id="submitBtn">Login</button>
         </form>
 
@@ -153,12 +192,18 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs & Auth Logic -->
+    <!-- Firebase SDKs & Auth + Firestore Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            updateProfile,
+            sendPasswordResetEmail 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Aapka exact Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
           authDomain: "finshareapp-3421a.firebaseapp.com",
@@ -171,45 +216,100 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         let isSignup = false;
 
+        function showMessage(msg, isError = true) {
+            const box = document.getElementById('statusBox');
+            box.innerText = msg;
+            box.className = isError ? 'status-msg status-error' : 'status-msg status-success';
+            box.style.display = 'block';
+        }
+
+        function hideMessage() {
+            document.getElementById('statusBox').style.display = 'none';
+        }
+
         window.toggleMode = function() {
             isSignup = !isSignup;
+            hideMessage();
             document.getElementById('formTitle').innerText = isSignup ? "Create New Account" : "Login to your account";
             document.getElementById('submitBtn').innerText = isSignup ? "Register" : "Login";
             document.getElementById('nameField').style.display = isSignup ? "block" : "none";
+            document.getElementById('fullName').required = isSignup;
+            document.getElementById('forgotPassBox').style.display = isSignup ? "none" : "block";
             document.getElementById('switchText').innerHTML = isSignup ? 
                 `Already have an account? <span onclick="toggleMode()">Login</span>` : 
                 `Don't have an account? <span onclick="toggleMode()">Create New Account</span>`;
         }
 
-        window.handleAuth = function(event) {
+        window.handleAuth = async function(event) {
             event.preventDefault();
-            const email = document.getElementById('email').value;
+            hideMessage();
+
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = isSignup ? "Creating Account..." : "Logging in...";
 
             if (isSignup) {
-                // Register New User in Firebase
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        alert("Account created successfully!");
-                        localStorage.setItem("isLoggedIn", "true");
-                        window.location.href = "index.html";
-                    })
-                    .catch((error) => {
-                        alert("Error: " + error.message);
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    // Update user's display name in Auth
+                    await updateProfile(user, { displayName: fullName });
+
+                    // Save user details in Cloud Firestore
+                    await setDoc(doc(db, "users", user.uid), {
+                        name: fullName,
+                        email: email,
+                        balance: 0,
+                        createdAt: new Date().toISOString()
                     });
+
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("userName", fullName);
+                    
+                    // Directly redirect without alert popup
+                    window.location.href = "index.html";
+                } catch (error) {
+                    showMessage(error.message.replace("Firebase: ", ""), true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Register";
+                }
             } else {
-                // Login Existing User from Firebase
-                signInWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        localStorage.setItem("isLoggedIn", "true");
-                        window.location.href = "index.html";
-                    })
-                    .catch((error) => {
-                        alert("Login Failed: " + error.message);
-                    });
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    localStorage.setItem("isLoggedIn", "true");
+                    if (userCredential.user.displayName) {
+                        localStorage.setItem("userName", userCredential.user.displayName);
+                    }
+                    window.location.href = "index.html";
+                } catch (error) {
+                    showMessage("Invalid email or password. Please try again.", true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Login";
+                }
+            }
+        }
+
+        window.handleForgotPassword = async function() {
+            hideMessage();
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showMessage("Please enter your registered Email Address first.", true);
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage("Password reset link sent to your email! Check inbox or spam folder.", false);
+            } catch (error) {
+                showMessage(error.message.replace("Firebase: ", ""), true);
             }
         }
     </script>
