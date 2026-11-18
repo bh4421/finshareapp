@@ -170,6 +170,11 @@
                 <input type="text" id="fullName" placeholder="Enter your full name">
             </div>
 
+            <div class="form-group" id="phoneField" style="display: none;">
+                <label>Mobile Number</label>
+                <input type="tel" id="phoneNumber" placeholder="Enter mobile number" maxlength="10">
+            </div>
+
             <div class="form-group">
                 <label>Email Address</label>
                 <input type="email" id="email" placeholder="Enter email address" required>
@@ -236,9 +241,15 @@
             hideMessage();
             document.getElementById('formTitle').innerText = isSignup ? "Create New Account" : "Login to your account";
             document.getElementById('submitBtn').innerText = isSignup ? "Register" : "Login";
+            
+            // Show/Hide Name and Phone fields during signup
             document.getElementById('nameField').style.display = isSignup ? "block" : "none";
+            document.getElementById('phoneField').style.display = isSignup ? "block" : "none";
+            
             document.getElementById('fullName').required = isSignup;
+            document.getElementById('phoneNumber').required = isSignup;
             document.getElementById('forgotPassBox').style.display = isSignup ? "none" : "block";
+            
             document.getElementById('switchText').innerHTML = isSignup ? 
                 `Already have an account? <span onclick="toggleMode()">Login</span>` : 
                 `Don't have an account? <span onclick="toggleMode()">Create New Account</span>`;
@@ -251,6 +262,7 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const fullName = document.getElementById('fullName').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const submitBtn = document.getElementById('submitBtn');
 
             submitBtn.disabled = true;
@@ -264,18 +276,19 @@
                     // Update user's display name in Auth
                     await updateProfile(user, { displayName: fullName });
 
-                    // Save user details in Cloud Firestore
+                    // Save user details including mobile number in Cloud Firestore
                     await setDoc(doc(db, "users", user.uid), {
                         name: fullName,
                         email: email,
+                        phone: phoneNumber,
                         balance: 0,
                         createdAt: new Date().toISOString()
                     });
 
                     localStorage.setItem("isLoggedIn", "true");
                     localStorage.setItem("userName", fullName);
+                    localStorage.setItem("userPhone", phoneNumber);
                     
-                    // Directly redirect without alert popup
                     window.location.href = "index.html";
                 } catch (error) {
                     showMessage(error.message.replace("Firebase: ", ""), true);
