@@ -346,23 +346,157 @@
         }
         .detail-label { color: #64748b; }
         .detail-value { font-weight: 600; color: #0f172a; }
-        .terms-box {
+        .activity-text {
             font-size: 13px;
             line-height: 1.55;
             color: #475569;
         }
-        .terms-box p { margin-bottom: 8px; }
-        .btn-logout-full {
+
+        /* Account Menu Cards (Matching Reference Screenshot in Website Theme) */
+        .menu-group-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+        .account-menu-item {
             width: 100%;
+            background: #ffffff;
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 15px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            text-align: left;
+            color: #0f172a;
+            transition: background 0.15s;
+        }
+        .account-menu-item:last-child {
+            border-bottom: none;
+        }
+        .account-menu-item:hover {
+            background: #f8fafc;
+        }
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-icon-wrap {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .menu-icon-wrap.danger {
             background: #fee2e2;
             color: #dc2626;
-            border: 1px solid #fecaca;
+        }
+        .menu-item-label {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .menu-item-label.danger {
+            color: #dc2626;
+        }
+        .menu-sub-badge {
+            font-size: 11px;
+            color: #16a34a;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        .menu-chevron {
+            color: #94a3b8;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .other-links-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin: 4px 2px 8px;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 1200;
+        }
+        .modal-backdrop.open {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .modal-close {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #0f172a;
+        }
+        .btn-primary-modal {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
             border-radius: 12px;
-            padding: 12px;
+            padding: 11px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 6px;
         }
 
         /* Inline Toast */
@@ -377,7 +511,7 @@
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            z-index: 1100;
+            z-index: 1300;
             display: none;
             max-width: 90%;
             text-align: center;
@@ -454,7 +588,6 @@
         </header>
 
         <main id="homeView" class="view-panel active">
-            <!-- Stats Row: My Leads & Pending -->
             <div class="stats-grid">
                 <div class="stat-card clickable" onclick="window.location.href='leads.html'" title="Open My Leads">
                     <div class="stat-icon blue">
@@ -564,7 +697,7 @@
 
             <div class="info-card">
                 <h3>Recent Activity</h3>
-                <p class="terms-box">Jab aapki koi lead database mein <strong>Confirm</strong> hoti hai, toh uska payout automatically aapke wallet mein add ho jata hai.</p>
+                <p class="activity-text">Jab aapki koi lead database mein <strong>Confirm</strong> hoti hai, toh uska payout automatically aapke wallet mein add ho jata hai.</p>
             </div>
         </section>
 
@@ -593,17 +726,153 @@
                 </div>
             </div>
 
-            <div class="info-card">
-                <h3>Terms & Conditions</h3>
-                <div class="terms-box">
-                    <p>1. Referral payout tabhi confirm hota hai jab referred user offer ki terms (jaise KYC / account opening / first transaction) poori karta hai.</p>
-                    <p>2. Fake signups, self-referrals ya policy violation par account aur pending balance hold kiya ja sakta hai.</p>
-                    <p>3. Payout verification aur bank settlement mein offer ke hisaab se kuch samay lag sakta hai.</p>
-                </div>
+            <!-- Main Account Options Card -->
+            <div class="menu-group-card">
+                <button class="account-menu-item" onclick="switchTab('earnings')">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                <line x1="2" y1="10" x2="22" y2="10"></line>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label">My Earnings</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+
+                <button class="account-menu-item" onclick="window.location.href='leads.html'">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label">My Leads</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+
+                <button class="account-menu-item" onclick="openBankModal()">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="22" x2="21" y2="22"></line>
+                                <line x1="6" y1="18" x2="6" y2="11"></line>
+                                <line x1="10" y1="18" x2="10" y2="11"></line>
+                                <line x1="14" y1="18" x2="14" y2="11"></line>
+                                <line x1="18" y1="18" x2="18" y2="11"></line>
+                                <polygon points="12 2 2 7 22 7 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="menu-item-label">Add Bank</span>
+                            <span class="menu-sub-badge" id="bankStatusBadge"></span>
+                        </div>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
             </div>
 
-            <button class="btn-logout-full" onclick="handleLogout()">Logout from Account</button>
+            <!-- OTHER LINKS Card -->
+            <div class="other-links-title">OTHER LINKS</div>
+            <div class="menu-group-card">
+                <button class="account-menu-item" onclick="openSupportModal()">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label">Help and Support</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+
+                <button class="account-menu-item" onclick="handleDeleteAccount()">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap danger">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label danger">Delete Account</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+
+                <button class="account-menu-item" onclick="handleLogout()">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap danger">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label danger">Logout</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+            </div>
         </section>
+
+        <!-- Add Bank Modal -->
+        <div class="modal-backdrop" id="bankModal" onclick="closeModalById(event, 'bankModal')">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 style="font-size:17px;font-weight:700;color:#0f172a;">Bank Account Details</h3>
+                    <button class="modal-close" onclick="closeModal('bankModal')">✕</button>
+                </div>
+                <form id="bankForm" onsubmit="saveBankDetails(event)">
+                    <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="bankHolderName" placeholder="Enter account holder name" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" id="bankAccountNumber" placeholder="Enter bank account number" required />
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" id="bankIfsc" placeholder="e.g. HDFC0001234" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" id="bankNameInput" placeholder="e.g. HDFC Bank / Bank of India" required />
+                    </div>
+                    <button type="submit" class="btn-primary-modal" id="saveBankBtn">Save Bank Details</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help & Support Modal -->
+        <div class="modal-backdrop" id="supportModal" onclick="closeModalById(event, 'supportModal')">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 style="font-size:17px;font-weight:700;color:#0f172a;">Help and Support</h3>
+                    <button class="modal-close" onclick="closeModal('supportModal')">✕</button>
+                </div>
+                <p style="font-size:13.5px;color:#475569;line-height:1.55;margin-bottom:14px;">
+                    Lead status, payout ya account se judi kisi bhi sahayata ke liye FinShare support se sampark karein.
+                </p>
+                <div class="detail-row">
+                    <span class="detail-label">Support Email</span>
+                    <span class="detail-value">support@finshareapp.in</span>
+                </div>
+                <div class="detail-row" style="margin-bottom:14px;">
+                    <span class="detail-label">Platform</span>
+                    <span class="detail-value">FinShare Partner</span>
+                </div>
+                <button class="btn-primary-modal" onclick="closeModal('supportModal')">Close</button>
+            </div>
+        </div>
 
         <div class="toast-bar" id="toastBar"></div>
 
@@ -672,6 +941,7 @@
         ];
         window.FINSHARE_HOME_CAT = "ALL";
         window.FINSHARE_BALANCE = 0;
+        window.CURRENT_USER_ID = null;
 
         function showToast(msg) {
             const toast = document.getElementById("toastBar");
@@ -818,6 +1088,25 @@
             window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
+        function openBankModal() {
+            document.getElementById("bankModal").classList.add("open");
+        }
+
+        function openSupportModal() {
+            document.getElementById("supportModal").classList.add("open");
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove("open");
+        }
+
+        function closeModalById(e, id) {
+            if (e.target && e.target.id === id) {
+                closeModal(id);
+            }
+        }
+
         function shareProduct(title, profitText, url) {
             const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
             if (navigator.share) {
@@ -850,8 +1139,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -871,6 +1160,49 @@
             const num = Number(amount || 0);
             return "₹" + num.toFixed(2);
         }
+
+        function updateBankBadge(bankData) {
+            const badge = document.getElementById("bankStatusBadge");
+            if (!badge) return;
+            if (bankData && bankData.accountNumber) {
+                const last4 = String(bankData.accountNumber).slice(-4);
+                badge.innerText = `(•••• ${last4})`;
+            } else {
+                badge.innerText = "";
+            }
+        }
+
+        window.saveBankDetails = async function(e) {
+            e.preventDefault();
+            if (!window.CURRENT_USER_ID) return;
+
+            const btn = document.getElementById("saveBankBtn");
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            const bankPayload = {
+                holderName: document.getElementById("bankHolderName").value.trim(),
+                accountNumber: document.getElementById("bankAccountNumber").value.trim(),
+                ifsc: document.getElementById("bankIfsc").value.trim().toUpperCase(),
+                bankName: document.getElementById("bankNameInput").value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
+                    bankDetails: bankPayload
+                }, { merge: true });
+                updateBankBadge(bankPayload);
+                closeModal("bankModal");
+                showToast("Bank details saved!");
+            } catch (err) {
+                console.error("Bank save error:", err);
+                showToast("Could not save bank details.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Save Bank Details";
+            }
+        };
 
         async function loadProductsFromFirestore() {
             try {
@@ -933,6 +1265,23 @@
             document.getElementById("accWalletBalance").innerText = formatRupees(fallbackBalance);
         }
 
+        window.handleDeleteAccount = async function() {
+            const ok = confirm("Kya aap waqai apna account delete karna chahte hain?");
+            if (!ok) return;
+
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                await deleteUser(user);
+                localStorage.clear();
+                window.location.href = "login.html";
+            } catch (err) {
+                console.error("Delete account error:", err);
+                showToast("Security ke liye dobara login karke account delete karein.");
+            }
+        };
+
         window.handleLogout = async function() {
             try {
                 await signOut(auth);
@@ -949,6 +1298,7 @@
                 return;
             }
 
+            window.CURRENT_USER_ID = user.uid;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
             let userName = user.displayName || localStorage.getItem("userName") || "FinShare Partner";
             let userEmail = user.email || "-";
@@ -965,6 +1315,14 @@
                     if (data.phone) userPhone = data.phone;
                     if (typeof data.balance === "number") balance = data.balance;
                     if (typeof data.pending === "number") pending = data.pending;
+
+                    if (data.bankDetails) {
+                        document.getElementById("bankHolderName").value = data.bankDetails.holderName || "";
+                        document.getElementById("bankAccountNumber").value = data.bankDetails.accountNumber || "";
+                        document.getElementById("bankIfsc").value = data.bankDetails.ifsc || "";
+                        document.getElementById("bankNameInput").value = data.bankDetails.bankName || "";
+                        updateBankBadge(data.bankDetails);
+                    }
                 }
             } catch (err) {
                 console.error("Firestore read error:", err);
