@@ -32,7 +32,10 @@
         .completed { background-color: #4caf50; }
         .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; }
         .btn-approve:hover { background: #45a049; }
+        .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
         .btn-edit-mini { background: #eff6ff; color: #1a73e8; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
+        .btn-del-mini { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
+        .thumb-mini { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; padding: 2px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -88,7 +91,7 @@
                 </div>
                 <div class="field">
                     <label>Logo URL (Image Link)</label>
-                    <input type="text" id="prodLogoUrl" placeholder="./logos/angel-one.png" />
+                    <input type="text" id="prodLogoUrl" placeholder="./IMG-20260322-WA0013.jpg" />
                 </div>
             </div>
 
@@ -141,12 +144,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Order</th>
+                        <th>Logo</th>
                         <th>Title</th>
                         <th>Category</th>
                         <th>Payout</th>
                         <th>Home</th>
-                        <th>Edit</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="productsAdminTable">
@@ -209,7 +212,8 @@
         getDoc,
         addDoc,
         setDoc,
-        updateDoc
+        updateDoc,
+        deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -233,7 +237,7 @@
             category: "Demat",
             profitText: "Earn ₹750",
             shareUrl: "https://finshareapp.in/offer/angel-one",
-            logoUrl: "",
+            logoUrl: "./IMG-20260322-WA0013.jpg",
             code: "AO",
             order: 1,
             trackingTime: "24 - 72 Hours",
@@ -390,6 +394,23 @@
         }
     };
 
+    window.deleteProductById = async function(id) {
+        const item = productsCache[id];
+        const label = item?.title ? `"${item.title}"` : "is product";
+        if (!confirm(`Kya aap ${label} ko delete karna chahte hain?`)) return;
+
+        try {
+            await deleteDoc(doc(db, "products", id));
+            if (selectEl.value === id) fillFormForProduct(null);
+            prodMsg.style.color = "#16a34a";
+            prodMsg.innerText = "Product delete ho gaya!";
+            await loadProductsAdmin();
+        } catch (err) {
+            prodMsg.style.color = "#dc2626";
+            prodMsg.innerText = "Delete error: " + err.message;
+        }
+    };
+
     selectEl.addEventListener("change", () => {
         const id = selectEl.value;
         fillFormForProduct(id ? productsCache[id] : null);
@@ -411,7 +432,7 @@
                 }, { merge: true });
             }
             prodMsg.style.color = "#16a34a";
-            prodMsg.innerText = "Default offers database mein save ho gaye! Ab kisi bhi offer ke aage Edit dabayein.";
+            prodMsg.innerText = "Default offers database mein save ho gaye!";
             await loadProductsAdmin();
         } catch (err) {
             prodMsg.style.color = "#dc2626";
@@ -448,16 +469,27 @@
                 return;
             }
 
-            tbody.innerHTML = list.map((p) => `
-                <tr>
-                    <td>${p.order ?? "-"}</td>
-                    <td>${p.title || "N/A"}</td>
-                    <td>${p.category || "-"}</td>
-                    <td>${p.profitText || "-"}</td>
-                    <td>${p.showOnHome ? "Yes" : "No"}</td>
-                    <td><button class="btn-edit-mini" onclick="editProductById('${p.id}')">Edit</button></td>
-                </tr>
-            `).join("");
+            tbody.innerHTML = list.map((p) => {
+                const logoHtml = p.logoUrl
+                    ? `<img src="${p.logoUrl}" alt="${p.title || ""}" class="thumb-mini" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;font-weight:700;">${p.code || "FS"}</span>`
+                    : `<span style="font-weight:700;">${p.code || "FS"}</span>`;
+
+                return `
+                    <tr>
+                        <td>${logoHtml}</td>
+                        <td>${p.title || "N/A"}</td>
+                        <td>${p.category || "-"}</td>
+                        <td>${p.profitText || "-"}</td>
+                        <td>${p.showOnHome ? "Yes" : "No"}</td>
+                        <td>
+                            <div class="action-group">
+                                <button type="button" class="btn-edit-mini" onclick="editProductById('${p.id}')">Edit</button>
+                                <button type="button" class="btn-del-mini" onclick="deleteProductById('${p.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
         } catch (err) {
             tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Products load karne mein error!</td></tr>";
         }
