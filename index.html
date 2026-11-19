@@ -257,8 +257,8 @@
             width: 42px;
             height: 42px;
             border-radius: 12px;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -317,6 +317,7 @@
             gap: 7px;
             margin-top: 12px;
         }
+        /* Single uniform blue Share button across all cards */
         .btn-offer-share {
             flex: 1;
             background: #2563eb;
@@ -327,6 +328,10 @@
             font-size: 12.5px;
             font-weight: 700;
             cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-offer-share:hover {
+            background: #1d4ed8;
         }
         .btn-offer-copy {
             width: 36px;
@@ -351,53 +356,78 @@
             text-align: center;
         }
 
-        /* Most Trusted Brand Section */
+        /* Original FinShare Partner Highlights Section (Distinct from external templates) */
         .trusted-section {
-            padding: 28px 16px 12px;
+            padding: 24px 16px 12px;
+        }
+        .finshare-trust-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 18px 16px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .finshare-trust-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 10px;
         }
         .trusted-heading {
-            font-size: 32px;
+            font-size: 22px;
             font-weight: 800;
-            color: #64748b;
-            line-height: 1.12;
-            letter-spacing: -0.6px;
+            color: #0f172a;
+            line-height: 1.2;
+            letter-spacing: -0.3px;
         }
         .made-in-india {
-            margin-top: 14px;
-            font-size: 17px;
+            margin-top: 8px;
+            font-size: 13.5px;
             font-weight: 600;
-            color: #64748b;
+            color: #475569;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
         .heart-icon {
-            color: #f43f5e;
-            font-size: 18px;
+            color: #2563eb;
+            font-size: 14px;
         }
         .trust-metrics-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 22px;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .trust-mini-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 11px 8px;
+            text-align: center;
         }
         .metric-num {
-            font-size: 19px;
+            font-size: 14.5px;
             font-weight: 800;
-            color: #64748b;
+            color: #1d4ed8;
         }
         .metric-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #64748b;
-            margin-top: 4px;
-            line-height: 1.3;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 3px;
+            line-height: 1.25;
         }
 
         /* Social Media Row */
         .social-footer-box {
-            margin-top: 24px;
-            padding-top: 18px;
+            margin-top: 18px;
+            padding-top: 16px;
             border-top: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
@@ -888,7 +918,7 @@
                 </div>
             </section>
 
-            <!-- Top Earning Products Section (Original FinShare Design + Database showOnHome: true) -->
+            <!-- Top Earning Products Section (Uniform Blue Share Button + Database showOnHome: true) -->
             <section class="section" id="homeProductsSection">
                 <div class="section-header">
                     <h2 class="section-title" id="homeProductsHeading">Top Earning Products</h2>
@@ -897,58 +927,60 @@
                 <div class="finshare-products-list" id="homeProductsContainer"></div>
             </section>
 
-            <!-- Most Trusted Brand Banner + Social Media Icons -->
+            <!-- Original FinShare Partner Highlights + Social Media Icons -->
             <section class="trusted-section" id="trustedBrandSection">
-                <h2 class="trusted-heading" id="trustedTitle">Most Trusted<br>Brand!</h2>
-                <div class="made-in-india">
-                    <span>Made with</span>
-                    <span class="heart-icon">♥</span>
-                    <span>in India</span>
-                </div>
-
-                <div class="trust-metrics-grid">
-                    <div>
-                        <div class="metric-num" id="metricPartnersNum">50 Lakh</div>
-                        <div class="metric-label" id="metricPartnersLbl">Happy Partners</div>
+                <div class="finshare-trust-card">
+                    <span class="finshare-trust-badge">FINSHARE PARTNER NETWORK</span>
+                    <h2 class="trusted-heading" id="trustedTitle">Smart Referrals,<br>Real Earnings</h2>
+                    <div class="made-in-india">
+                        <span class="heart-icon">✦</span>
+                        <span>Built for Independent FinShare Partners</span>
                     </div>
-                    <div>
-                        <div class="metric-num" id="metricPayoutNum">₹100 Cr.+</div>
-                        <div class="metric-label" id="metricPayoutLbl">Payout Given</div>
+
+                    <div class="trust-metrics-grid">
+                        <div class="trust-mini-box">
+                            <div class="metric-num" id="metricPartnersNum">₹0 Joining</div>
+                            <div class="metric-label" id="metricPartnersLbl">Free to Start</div>
+                        </div>
+                        <div class="trust-mini-box">
+                            <div class="metric-num" id="metricPayoutNum">Bank Payout</div>
+                            <div class="metric-label" id="metricPayoutLbl">Direct Transfer</div>
+                        </div>
+                        <div class="trust-mini-box">
+                            <div class="metric-num" id="metricBrandsNum">Live Leads</div>
+                            <div class="metric-label" id="metricBrandsLbl">Easy Tracking</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="metric-num" id="metricBrandsNum">100+</div>
-                        <div class="metric-label" id="metricBrandsLbl">Popular Brands</div>
-                    </div>
-                </div>
 
-                <div class="social-footer-box">
-                    <span class="social-label">Follow Us</span>
-                    <div class="social-icons-row">
-                        <a class="social-icon-btn" id="linkInstagram" href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                            </svg>
-                        </a>
+                    <div class="social-footer-box">
+                        <span class="social-label">Follow Us</span>
+                        <div class="social-icons-row">
+                            <a class="social-icon-btn" id="linkInstagram" href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
 
-                        <a class="social-icon-btn" id="linkFacebook" href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877f2">
-                                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
-                            </svg>
-                        </a>
+                            <a class="social-icon-btn" id="linkFacebook" href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877f2">
+                                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
+                                </svg>
+                            </a>
 
-                        <a class="social-icon-btn" id="linkYoutube" href="https://youtube.com" target="_blank" rel="noopener noreferrer" title="YouTube">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#dc2626">
-                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path>
-                            </svg>
-                        </a>
+                            <a class="social-icon-btn" id="linkYoutube" href="https://youtube.com" target="_blank" rel="noopener noreferrer" title="YouTube">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#dc2626">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path>
+                                </svg>
+                            </a>
 
-                        <a class="social-icon-btn" id="linkTwitter" href="https://x.com" target="_blank" rel="noopener noreferrer" title="X / Twitter">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0f172a">
-                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-                            </svg>
-                        </a>
+                            <a class="social-icon-btn" id="linkTwitter" href="https://x.com" target="_blank" rel="noopener noreferrer" title="X / Twitter">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#0f172a">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1227,7 +1259,6 @@
                 id: "angel-one-demat",
                 code: "AO",
                 logoUrl: "",
-                accentColor: "#2563eb",
                 category: "Demat",
                 title: "Angel One Demat",
                 subtitle: "Free Demat + 1st Trade",
@@ -1240,7 +1271,6 @@
                 id: "kotak-811-bank",
                 code: "K8",
                 logoUrl: "",
-                accentColor: "#0ea5e9",
                 category: "Banking",
                 title: "Kotak 811 Savings",
                 subtitle: "Zero Balance Account",
@@ -1253,7 +1283,6 @@
                 id: "axis-cc",
                 code: "AX",
                 logoUrl: "",
-                accentColor: "#9333ea",
                 category: "Credit Card",
                 title: "Axis Rewards Card",
                 subtitle: "Lifetime Free / Cashback",
@@ -1266,7 +1295,6 @@
                 id: "instant-loan",
                 code: "LN",
                 logoUrl: "",
-                accentColor: "#16a34a",
                 category: "Loans",
                 title: "Quick Personal Loan",
                 subtitle: "Instant Paperless Approval",
@@ -1279,7 +1307,6 @@
                 id: "bond-invest",
                 code: "IV",
                 logoUrl: "",
-                accentColor: "#d97706",
                 category: "Investment",
                 title: "Fixed Income Bonds",
                 subtitle: "High Yield Regulated Bonds",
@@ -1292,7 +1319,6 @@
                 id: "more-offer",
                 code: "FS",
                 logoUrl: "",
-                accentColor: "#4f46e5",
                 category: "More",
                 title: "Partner Referral Bonus",
                 subtitle: "Special FinShare Campaign",
@@ -1368,24 +1394,23 @@
             const safeUrl = escapeAttr(item.logoUrl);
             const safeCode = escapeAttr(item.code || (item.title ? item.title.slice(0, 2).toUpperCase() : "FS"));
             const safeTitle = escapeAttr(item.title);
-            const accent = escapeAttr(item.accentColor || "#2563eb");
 
             if (safeUrl) {
                 return `
-                    <div class="offer-logo-box" style="color:${accent};">
+                    <div class="offer-logo-box">
                         <img
                             src="${safeUrl}"
                             alt="${safeTitle}"
                             class="offer-logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         />
-                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:800;color:${accent};">${safeCode}</span>
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:800;color:#1d4ed8;">${safeCode}</span>
                     </div>
                 `;
             }
 
             return `
-                <div class="offer-logo-box" style="color:${accent};">
+                <div class="offer-logo-box">
                     <span>${safeCode}</span>
                 </div>
             `;
@@ -1432,12 +1457,11 @@
             }
 
             container.innerHTML = filtered.map((item) => {
-                const accent = escapeAttr(item.accentColor || "#2563eb");
                 const payout = escapeAttr(item.profitText || item.payoutText || "Earn Profit");
                 const catLabel = escapeAttr(item.category || "Offer");
 
                 return `
-                    <article class="finshare-offer-card" style="border-top-color:${accent};">
+                    <article class="finshare-offer-card">
                         <div>
                             <div class="offer-top-row">
                                 ${renderOfferLogo(item)}
@@ -1451,7 +1475,7 @@
                         </div>
 
                         <div class="offer-actions-row">
-                            <button class="btn-offer-share" style="background:${accent};" onclick="shareOfferProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            <button class="btn-offer-share" onclick="shareOfferProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
                                 Share
                             </button>
                             <button class="btn-offer-copy" title="Copy Link" onclick="copyOfferLink('${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
@@ -1632,7 +1656,6 @@
                                 id: d.id,
                                 code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
                                 logoUrl: (data.logoUrl || data.logo || "").trim(),
-                                accentColor: data.accentColor || data.cardBg || data.bg || "#2563eb",
                                 category: data.category || "More",
                                 title: data.title || "Offer",
                                 subtitle: data.subtitle || "",
