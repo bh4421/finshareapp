@@ -123,7 +123,7 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
         }
 
-        /* Slide-Over Menu Drawer (menu.html integration) */
+        /* Slide-Over Menu Drawer */
         .drawer-backdrop {
             position: fixed;
             inset: 0;
@@ -229,22 +229,6 @@
         .drawer-link-btn:hover {
             background: #eff6ff;
             color: #1d4ed8;
-        }
-        .drawer-footer-box {
-            padding: 12px 16px;
-            border-top: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-        .btn-open-menu-file {
-            width: 100%;
-            background: #eff6ff;
-            color: #1d4ed8;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 9px 12px;
-            font-size: 12.5px;
-            font-weight: 700;
-            cursor: pointer;
         }
 
         /* Stats Row */
@@ -908,7 +892,7 @@
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
-                    <button class="icon-btn" title="Open Menu" onclick="openMenuDrawer()">
+                    <button class="icon-btn" id="homeMenuBtn" title="Open Menu" onclick="openMenuDrawer()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -947,7 +931,7 @@
             </div>
         </header>
 
-        <!-- Menu Drawer (menu.html links & actions) -->
+        <!-- Slide-Over Menu Drawer -->
         <div class="drawer-backdrop" id="menuDrawerBackdrop" onclick="closeMenuDrawer()">
             <aside class="drawer-panel" onclick="event.stopPropagation()">
                 <div class="drawer-header">
@@ -1002,10 +986,6 @@
                         <span>›</span>
                     </button>
                 </nav>
-
-                <div class="drawer-footer-box">
-                    <button class="btn-open-menu-file" onclick="window.location.href='menu.html'">Open menu.html Page</button>
-                </div>
             </aside>
         </div>
 
@@ -1249,7 +1229,7 @@
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
                         </div>
-                        <span class="menu-item-label">Full Menu (menu.html)</span>
+                        <span class="menu-item-label">Menu</span>
                     </div>
                     <span class="menu-chevron">›</span>
                 </button>
@@ -1348,7 +1328,7 @@
             </div>
         </section>
 
-        <!-- Info Modal for Menu Links (About Us / Contact Us / DMCA / Disclaimer / Privacy / Terms) -->
+        <!-- Info Modal for Menu Links -->
         <div class="modal-backdrop" id="infoModal" onclick="closeModalById(event, 'infoModal')">
             <div class="modal-card" onclick="event.stopPropagation()">
                 <div class="modal-head">
@@ -1389,7 +1369,7 @@
             </div>
         </div>
 
-        <!-- English Delete Account Modal (30-Day Grace Period) -->
+        <!-- Delete Account Modal (30-Day Grace Period) -->
         <div class="modal-backdrop" id="deleteAccountModal" onclick="closeModalById(event, 'deleteAccountModal')">
             <div class="modal-card" onclick="event.stopPropagation()">
                 <div class="modal-head">
@@ -1474,7 +1454,6 @@
     </div>
 
     <script>
-        // Only products with showOnHome: true appear on Home page
         window.FINSHARE_PRODUCTS = [
             {
                 id: "angel-one-demat",
@@ -1752,23 +1731,26 @@
                 account: "accountView"
             };
 
+            const activeKey = viewIds[tabName] ? tabName : "home";
+
             tabs.forEach((t) => {
                 const navEl = document.getElementById(navIds[t]);
                 const viewEl = document.getElementById(viewIds[t]);
-                if (navEl) navEl.classList.remove("active");
-                if (viewEl) viewEl.classList.remove("active");
+                const isTarget = t === activeKey;
+                if (navEl) navEl.classList.toggle("active", isTarget);
+                if (viewEl) viewEl.classList.toggle("active", isTarget);
             });
 
-            const activeKey = viewIds[tabName] ? tabName : "home";
-            const activeNav = document.getElementById(navIds[activeKey]);
-            const activeView = document.getElementById(viewIds[activeKey]);
-            if (activeNav) activeNav.classList.add("active");
-            if (activeView) activeView.classList.add("active");
+            // Show hamburger menu button only on Home tab
+            const menuBtn = document.getElementById("homeMenuBtn");
+            if (menuBtn) {
+                menuBtn.style.display = activeKey === "home" ? "flex" : "none";
+            }
 
             if (activeKey === "home") {
                 renderHomeProducts();
             }
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.scrollTo(0, 0);
         }
 
         function openBankModal() {
