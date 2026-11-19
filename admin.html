@@ -6,24 +6,152 @@
     <title>FinShare - Private Admin Dashboard</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 15px; }
-        .container { max-width: 800px; margin: auto; }
-        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        body { background: #f0f2f5; margin: 0; padding: 15px; color: #0f172a; }
+        .container { max-width: 820px; margin: auto; }
+        .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
         h2, h3 { color: #1a73e8; margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        .field { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        .check-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 14px; font-size: 13px; font-weight: 600; }
+        .check-row input { width: auto; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn-primary { background: #1a73e8; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-primary:hover { background: #1558b0; }
+        .btn-secondary { background: #e2e8f0; color: #0f172a; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .msg { margin-top: 10px; font-size: 13px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #1a73e8; color: white; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11.5px; font-weight: bold; color: white; display: inline-block; }
         .pending { background-color: #ff9800; }
         .completed { background-color: #4caf50; }
-        .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; }
         .btn-approve:hover { background: #45a049; }
+        .btn-edit-mini { background: #eff6ff; color: #1a73e8; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>FinShare Admin Dashboard</h2>
+
+    <!-- SECTION 0: Add / Update Product & Offer -->
+    <div class="card">
+        <h3>0. Add / Update Product & Offer</h3>
+
+        <div class="field">
+            <label>Select Existing Offer to Update (Optional)</label>
+            <select id="existingProductSelect">
+                <option value="">-- Create New Product --</option>
+            </select>
+        </div>
+
+        <form id="productForm">
+            <div class="grid-2">
+                <div class="field">
+                    <label>Product Title *</label>
+                    <input type="text" id="prodTitle" placeholder="e.g. Angel One Demat" required />
+                </div>
+                <div class="field">
+                    <label>Subtitle / Offer Line *</label>
+                    <input type="text" id="prodSubtitle" placeholder="e.g. Free Demat + 1st Trade" required />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Category *</label>
+                    <select id="prodCategory">
+                        <option value="Demat">Demat</option>
+                        <option value="Banking">Banking</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Loans">Loans</option>
+                        <option value="Investment">Investment</option>
+                        <option value="More">More</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Profit / Payout Text *</label>
+                    <input type="text" id="prodProfitText" placeholder="e.g. Earn ₹750" required />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Share URL *</label>
+                    <input type="url" id="prodShareUrl" placeholder="https://finshareapp.in/offer/..." required />
+                </div>
+                <div class="field">
+                    <label>Logo URL (Image Link)</label>
+                    <input type="text" id="prodLogoUrl" placeholder="./logos/angel-one.png" />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Short Code</label>
+                    <input type="text" id="prodCode" maxlength="3" placeholder="AO" />
+                </div>
+                <div class="field">
+                    <label>Order Number</label>
+                    <input type="number" id="prodOrder" value="1" />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Lead Tracking Time</label>
+                    <input type="text" id="prodTrackingTime" value="24 - 72 Hours" />
+                </div>
+                <div class="field">
+                    <label>Confirmation Time</label>
+                    <input type="text" id="prodConfirmTime" value="7 - 15 Working Days" />
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Product Details</label>
+                <input type="text" id="prodDetails" placeholder="Offer overview for detail page" />
+            </div>
+
+            <div class="field">
+                <label>Terms & Conditions (Har point nayi line mein likhein)</label>
+                <textarea id="prodTerms" rows="3" placeholder="Step 1...&#10;Step 2..."></textarea>
+            </div>
+
+            <label class="check-row">
+                <input type="checkbox" id="prodShowOnHome" checked />
+                <span>Show on Home Page (Top Earning Products)</span>
+            </label>
+
+            <div class="btn-row">
+                <button type="submit" class="btn-primary" id="saveProdBtn">Save Product</button>
+                <button type="button" class="btn-secondary" id="clearProdBtn">Clear Form</button>
+            </div>
+            <div class="msg" id="prodMsg"></div>
+        </form>
+
+        <div style="overflow-x:auto; margin-top:16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Payout</th>
+                        <th>Home</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody id="productsAdminTable">
+                    <tr><td colspan="6">Products load ho rahe hain...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- SECTION 1: Registered Users & Payment Details -->
     <div class="card">
@@ -35,7 +163,7 @@
                         <th>User Name</th>
                         <th>Mobile/Email</th>
                         <th>Bank Account</th>
-                        <th>UPI ID</th>
+                        <th>Wallet</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
@@ -47,19 +175,20 @@
 
     <!-- SECTION 2: Referral & Product Fulfillment Tracking -->
     <div class="card">
-        <h3>2. Product Task Fulfillment (Referrals)</h3>
+        <h3>2. Product Task Fulfillment (Leads)</h3>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
                     <tr>
-                        <th>User Name</th>
+                        <th>User / Ref ID</th>
                         <th>Product</th>
+                        <th>Amount</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="referralsTable">
-                    <tr><td colspan="4">Tasks load ho rahe hain...</td></tr>
+                    <tr><td colspan="5">Tasks load ho rahe hain...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -69,24 +198,172 @@
 <!-- Firebase SDKs -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        addDoc,
+        setDoc,
+        updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // --- APNA FIREBASE CONFIG HERE ---
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+        authDomain: "finshareapp-3421a.firebaseapp.com",
+        projectId: "finshareapp-3421a",
+        storageBucket: "finshareapp-3421a.firebasestorage.app",
+        messagingSenderId: "805920794704",
+        appId: "1:805920794704:web:d92873a30707568abf8955",
+        measurementId: "G-WKKVMKPCK6"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const selectEl = document.getElementById("existingProductSelect");
+    const prodForm = document.getElementById("productForm");
+    const prodMsg = document.getElementById("prodMsg");
+    const saveProdBtn = document.getElementById("saveProdBtn");
+    const clearProdBtn = document.getElementById("clearProdBtn");
+    let productsCache = {};
+
+    function fillFormForProduct(p) {
+        if (!p) {
+            selectEl.value = "";
+            prodForm.reset();
+            document.getElementById("prodShowOnHome").checked = true;
+            saveProdBtn.innerText = "Save Product";
+            prodMsg.innerText = "";
+            return;
+        }
+        selectEl.value = p.id;
+        document.getElementById("prodTitle").value = p.title || "";
+        document.getElementById("prodSubtitle").value = p.subtitle || "";
+        document.getElementById("prodCategory").value = p.category || "Demat";
+        document.getElementById("prodProfitText").value = p.profitText || "";
+        document.getElementById("prodShareUrl").value = p.shareUrl || "";
+        document.getElementById("prodLogoUrl").value = p.logoUrl || "";
+        document.getElementById("prodCode").value = p.code || "";
+        document.getElementById("prodOrder").value = typeof p.order === "number" ? p.order : 1;
+        document.getElementById("prodTrackingTime").value = p.trackingTime || "24 - 72 Hours";
+        document.getElementById("prodConfirmTime").value = p.confirmationTime || "7 - 15 Working Days";
+        document.getElementById("prodDetails").value = p.details || "";
+        document.getElementById("prodTerms").value = Array.isArray(p.terms) ? p.terms.join("\n") : (p.terms || "");
+        document.getElementById("prodShowOnHome").checked = p.showOnHome === true;
+        saveProdBtn.innerText = "Update Product";
+        prodMsg.innerText = "";
+    }
+
+    window.editProductById = function(id) {
+        if (productsCache[id]) {
+            fillFormForProduct(productsCache[id]);
+            prodForm.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+
+    selectEl.addEventListener("change", () => {
+        const id = selectEl.value;
+        fillFormForProduct(id ? productsCache[id] : null);
+    });
+
+    clearProdBtn.addEventListener("click", () => fillFormForProduct(null));
+
+    async function loadProductsAdmin() {
+        const tbody = document.getElementById("productsAdminTable");
+        try {
+            const snap = await getDocs(collection(db, "products"));
+            productsCache = {};
+            selectEl.innerHTML = `<option value="">-- Create New Product --</option>`;
+            const list = [];
+
+            snap.forEach((d) => {
+                const item = { id: d.id, ...d.data() };
+                productsCache[d.id] = item;
+                list.push(item);
+
+                const opt = document.createElement("option");
+                opt.value = d.id;
+                opt.innerText = `${item.title || d.id} (${item.profitText || ""})`;
+                selectEl.appendChild(opt);
+            });
+
+            list.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+
+            if (!list.length) {
+                tbody.innerHTML = "<tr><td colspan='6'>Abhi koi product nahi hai.</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = list.map((p) => `
+                <tr>
+                    <td>${p.order ?? "-"}</td>
+                    <td>${p.title || "N/A"}</td>
+                    <td>${p.category || "-"}</td>
+                    <td>${p.profitText || "-"}</td>
+                    <td>${p.showOnHome ? "Yes" : "No"}</td>
+                    <td><button class="btn-edit-mini" onclick="editProductById('${p.id}')">Edit</button></td>
+                </tr>
+            `).join("");
+        } catch (err) {
+            tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Products load karne mein error!</td></tr>";
+        }
+    }
+
+    prodForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        saveProdBtn.disabled = true;
+        prodMsg.innerText = "";
+
+        const titleVal = document.getElementById("prodTitle").value.trim();
+        const codeVal = (document.getElementById("prodCode").value.trim() || titleVal.slice(0, 2)).toUpperCase();
+        const termsRaw = document.getElementById("prodTerms").value.trim();
+        const termsArr = termsRaw ? termsRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
+
+        const payload = {
+            title: titleVal,
+            subtitle: document.getElementById("prodSubtitle").value.trim(),
+            category: document.getElementById("prodCategory").value,
+            profitText: document.getElementById("prodProfitText").value.trim(),
+            shareUrl: document.getElementById("prodShareUrl").value.trim(),
+            logoUrl: document.getElementById("prodLogoUrl").value.trim(),
+            code: codeVal,
+            order: Number(document.getElementById("prodOrder").value || 1),
+            trackingTime: document.getElementById("prodTrackingTime").value.trim() || "24 - 72 Hours",
+            confirmationTime: document.getElementById("prodConfirmTime").value.trim() || "7 - 15 Working Days",
+            details: document.getElementById("prodDetails").value.trim(),
+            terms: termsArr,
+            showOnHome: document.getElementById("prodShowOnHome").checked,
+            updatedAt: new Date().toISOString()
+        };
+
+        try {
+            const editId = selectEl.value;
+            if (editId) {
+                await setDoc(doc(db, "products", editId), payload, { merge: true });
+                prodMsg.style.color = "#16a34a";
+                prodMsg.innerText = "Offer successfully update ho gaya!";
+            } else {
+                payload.createdAt = new Date().toISOString();
+                await addDoc(collection(db, "products"), payload);
+                prodMsg.style.color = "#16a34a";
+                prodMsg.innerText = "Naya product successfully add ho gaya!";
+                fillFormForProduct(null);
+            }
+            await loadProductsAdmin();
+        } catch (err) {
+            prodMsg.style.color = "#dc2626";
+            prodMsg.innerText = "Error: " + err.message;
+        } finally {
+            saveProdBtn.disabled = false;
+            saveProdBtn.innerText = selectEl.value ? "Update Product" : "Save Product";
+        }
+    });
+
     // 1. Fetch Users & Bank Details
     async function loadUsers() {
-        const tbody = document.getElementById('usersTable');
+        const tbody = document.getElementById("usersTable");
         tbody.innerHTML = "";
         try {
             const querySnapshot = await getDocs(collection(db, "users"));
@@ -94,14 +371,18 @@
                 tbody.innerHTML = "<tr><td colspan='4'>Koi user nahi mila.</td></tr>";
                 return;
             }
-            querySnapshot.forEach((doc) => {
-                const u = doc.data();
+            querySnapshot.forEach((docSnap) => {
+                const u = docSnap.data();
+                const bankStr = u.bankDetails
+                    ? `${u.bankDetails.bankName || ""} - ${u.bankDetails.accountNumber || ""}`
+                    : (u.bankAccount || "N/A");
+                const bal = Number(u.balance || 0).toFixed(2);
                 tbody.innerHTML += `
                     <tr>
-                        <td>${u.name || 'N/A'}</td>
-                        <td>${u.phone || u.email || 'N/A'}</td>
-                        <td>${u.bankAccount || 'N/A'}</td>
-                        <td>${u.upiId || 'N/A'}</td>
+                        <td>${u.name || "N/A"}</td>
+                        <td>${u.phone || u.email || "N/A"}</td>
+                        <td>${bankStr}</td>
+                        <td>₹${bal}</td>
                     </tr>
                 `;
             });
@@ -110,54 +391,62 @@
         }
     }
 
-    // 2. Fetch Tasks & Fulfillment Status
+    // 2. Fetch Leads & Fulfillment Status
     async function loadReferrals() {
-        const tbody = document.getElementById('referralsTable');
+        const tbody = document.getElementById("referralsTable");
         tbody.innerHTML = "";
         try {
-            const querySnapshot = await getDocs(collection(db, "conversions"));
+            const querySnapshot = await getDocs(collection(db, "leads"));
             if (querySnapshot.empty) {
-                tbody.innerHTML = "<tr><td colspan='4'>Koi task tracking data nahi hai.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5'>Koi lead tracking data nahi hai.</td></tr>";
                 return;
             }
-            querySnapshot.forEach((document) => {
-                const ref = document.data();
-                const isPending = ref.status === 'Pending';
-                const statusBadge = isPending 
-                    ? `<span class="badge pending">Pending</span>` 
+            querySnapshot.forEach((documentSnap) => {
+                const ref = documentSnap.data();
+                const isPending = String(ref.status || "Pending").toLowerCase() === "pending";
+                const amt = Number(ref.amount || 0);
+                const statusBadge = isPending
+                    ? `<span class="badge pending">Pending</span>`
                     : `<span class="badge completed">Completed</span>`;
-                
-                const actionBtn = isPending 
-                    ? `<button class="btn-approve" onclick="approveTask('${document.id}')">Approve</button>` 
+
+                const actionBtn = isPending
+                    ? `<button class="btn-approve" onclick="approveTask('${documentSnap.id}', '${ref.userId || ""}', ${amt})">Approve</button>`
                     : `Done`;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${ref.userName || 'N/A'}</td>
-                        <td>${ref.productTitle || 'N/A'}</td>
+                        <td>${ref.userName || ref.userId || "N/A"}</td>
+                        <td>${ref.productTitle || "N/A"}</td>
+                        <td>₹${amt}</td>
                         <td>${statusBadge}</td>
                         <td>${actionBtn}</td>
                     </tr>
                 `;
             });
         } catch (e) {
-            tbody.innerHTML = "<tr><td colspan='4' style='color:red;'>Error loading tasks!</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='5' style='color:red;'>Error loading leads!</td></tr>";
         }
     }
 
-    // 3. Approve Task Functionality
-    window.approveTask = async function(docId) {
+    // 3. Approve Lead & Credit User Wallet
+    window.approveTask = async function(docId, userId, amount) {
         try {
-            const taskRef = doc(db, "conversions", docId);
-            await updateDoc(taskRef, { status: "Completed" });
-            alert("Task Approve ho gaya hai!");
-            loadReferrals(); // Refresh list
+            await updateDoc(doc(db, "leads", docId), { status: "Completed" });
+            if (userId && Number(amount) > 0) {
+                const userRef = doc(db, "users", userId);
+                const uSnap = await getDoc(userRef);
+                const currentBal = uSnap.exists() ? Number(uSnap.data().balance || 0) : 0;
+                await setDoc(userRef, { balance: currentBal + Number(amount) }, { merge: true });
+            }
+            alert("Lead Approve ho gaya hai aur wallet balance update ho gaya!");
+            loadReferrals();
+            loadUsers();
         } catch (e) {
             alert("Approve karne me error aayi: " + e.message);
         }
     };
 
-    // Load Data on Startup
+    loadProductsAdmin();
     loadUsers();
     loadReferrals();
 </script>
