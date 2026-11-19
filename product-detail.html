@@ -1,1 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Details - FinShare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding-bottom: 96px;
+        }
+        .app-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+        }
+
+        /* Top Bar */
+        .top-header {
+            background: linear-gradient(160deg, #1d4ed8 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .content-wrap {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Hero Product Card */
+        .detail-hero-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .hero-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .offer-logo-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: #eff6ff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .product-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+            background: #ffffff;
+            display: block;
+        }
+        .cat-pill {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-bottom: 4px;
+        }
+        .hero-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.25;
+        }
+        .hero-sub {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 10px;
+            line-height: 1.45;
+        }
+        .payout-box {
+            margin-top: 12px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .time-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 11px 12px;
+        }
+        .time-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .time-val {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1d4ed8;
+            margin-top: 4px;
+        }
+        .body-copy {
+            font-size: 13.5px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .terms-list {
+            padding-left: 18px;
+            font-size: 13.5px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .terms-list li {
+            margin-bottom: 7px;
+        }
+        .terms-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Fixed Bottom Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.06);
+        }
+        .btn-share {
+            flex: 1;
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: background-color 0.15s ease;
+        }
+        .btn-share:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-copy {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .toast-bar {
+            position: fixed;
+            bottom: 76px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 200;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="top-header">
+            <button class="back-btn" onclick="goBackSmart()" title="Back">←</button>
+            <h1 class="header-title" id="headerProductName">Offer Details</h1>
+        </header>
+
+        <main class="content-wrap">
+            <section class="detail-hero-card">
+                <div class="hero-top">
+                    <div id="detailLogoSlot"></div>
+                    <div>
+                        <span class="cat-pill" id="detailCategory">Demat</span>
+                        <h2 class="hero-title" id="detailTitle">Loading...</h2>
+                    </div>
+                </div>
+                <p class="hero-sub" id="detailSubtitle"></p>
+                <div class="payout-box">
+                    <span>Partner Earning</span>
+                    <span id="detailPayout"></span>
+                </div>
+            </section>
+
+            <section class="section-card">
+                <h3 class="section-title">Tracking & Payout Time</h3>
+                <div class="time-grid">
+                    <div class="time-box">
+                        <div class="time-label">Lead Tracking Time</div>
+                        <div class="time-val" id="detailTrackingTime">24 - 72 Hours</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-label">Confirmation Time</div>
+                        <div class="time-val" id="detailConfirmTime">7 - 21 Working Days</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" id="detailOverviewCard">
+                <h3 class="section-title">Product Details</h3>
+                <p class="body-copy" id="detailDescription"></p>
+            </section>
+
+            <section class="section-card">
+                <h3 class="section-title">Terms & Conditions</h3>
+                <ul class="terms-list" id="detailTermsList"></ul>
+            </section>
+        </main>
+
+        <div class="action-bar">
+            <button class="btn-share" id="shareOfferBtn">Share Offer</button>
+            <button class="btn-copy" id="copyLinkBtn" title="Copy Link">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Link</span>
+            </button>
+        </div>
+
+        <div class="toast-bar" id="toastBar"></div>
+    </div>
+
+    <script>
+        const FALLBACK_PRODUCTS = {
+            "angel-one-demat": {
+                id: "angel-one-demat",
+                code: "AO",
+                category: "Demat",
+                title: "Angel One Demat",
+                subtitle: "Free Demat + 1st Trade",
+                profitText: "Earn ₹750",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Referred user ko aapke link se Angel One Demat account open karke first trade complete karna hoga.",
+                terms: [
+                    "Referred user ko link se sign up karke first trade complete karna hoga.",
+                    "Application naye user ke mobile number aur PAN ke saath complete honi chahiye.",
+                    "Verification ke baad payout wallet mein add hoga."
+                ],
+                shareUrl: "https://finshareapp.in/offer/angel-one"
+            },
+            "kotak-811-bank": {
+                id: "kotak-811-bank",
+                code: "K8",
+                category: "Banking",
+                title: "Kotak 811 Savings",
+                subtitle: "Zero Balance Account",
+                profitText: "Earn upto ₹450",
+                trackingTime: "24 - 48 Hours",
+                confirmationTime: "7 - 14 Working Days",
+                details: "Naye user ka Kotak 811 zero balance savings account full KYC ke saath open hona zaroori hai.",
+                terms: [
+                    "Full KYC ke saath account opening zaroori hai.",
+                    "Existing Kotak customers is offer ke liye eligible nahi hain.",
+                    "Approval ke baad earning confirm hogi."
+                ],
+                shareUrl: "https://finshareapp.in/offer/kotak-811"
+            },
+            "smallcase": {
+                id: "smallcase",
+                code: "SC",
+                bg: "#eff6ff",
+                color: "#2563eb",
+                category: "Demat",
+                title: "Smallcase",
+                subtitle: "Earn Rs 300 on first investment",
+                profitText: "Earn ₹300",
+                trackingTime: "24 - 48 Hours",
+                confirmationTime: "7 - 14 Working Days",
+                details: "Referred user ko aapke share link se sign up karke apni pehli investment complete karni hogi.",
+                terms: [
+                    "Referred user ko link se sign up karke first investment complete karna hoga.",
+                    "Application naye user ke mobile number aur PAN ke saath complete honi chahiye.",
+                    "Lead track aur verify hone ke baad earning aapke wallet mein update hogi."
+                ],
+                shareUrl: "https://finshareapp.in/offer/smallcase"
+            },
+            "jainam": {
+                id: "jainam",
+                code: "JN",
+                bg: "#fef2f2",
+                color: "#dc2626",
+                category: "Demat",
+                title: "Jainam",
+                subtitle: "Earn Rs 300 on A/C open + Activation",
+                profitText: "Earn ₹300",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Demat account opening aur activation complete hone par payout track hoga.",
+                terms: [
+                    "Account opening aur activation complete hone par payout track hoga.",
+                    "Same session mein bina browser switch kiye application poori karein.",
+                    "Payout verification ke baad confirmed balance mein jurega."
+                ],
+                shareUrl: "https://finshareapp.in/offer/jainam"
+            },
+            "upstox": {
+                id: "upstox",
+                code: "UP",
+                bg: "#f3e8ff",
+                color: "#7e22ce",
+                category: "Demat",
+                title: "Upstox",
+                subtitle: "Earn Rs 200 on A/C open + Activation",
+                profitText: "Earn ₹200",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Naye user ka Upstox Demat account open aur activate hona zaroori hai.",
+                terms: [
+                    "Complete KYC aur account activation zaroori hai.",
+                    "Existing Upstox users is offer ke liye eligible nahi honge.",
+                    "Tracking status approve hone par earning credit hogi."
+                ],
+                shareUrl: "https://finshareapp.in/offer/upstox"
+            },
+            "angel-one": {
+                id: "angel-one",
+                code: "AO",
+                bg: "#fff7ed",
+                color: "#ea580c",
+                category: "Demat",
+                title: "Angel One",
+                subtitle: "Earn Rs 150 on A/C open + Activation",
+                profitText: "Earn ₹150",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Angel One Demat account open aur activation poora hone par reward milega.",
+                terms: [
+                    "Account open aur activation ke baad earning confirm hogi.",
+                    "User ko direct tracked link se apply karna hoga.",
+                    "Terms & conditions campaign rules ke mutabik lagu hongi."
+                ],
+                shareUrl: "https://finshareapp.in/offer/angel-one"
+            }
+        };
+
+        window.CURRENT_USER_ID = null;
+        window.CURRENT_PRODUCT = null;
+
+        function goBackSmart() {
+            if (window.history.length > 1 && document.referrer && document.referrer.includes("index.html")) {
+                window.history.back();
+            } else if (window.history.length > 1 && document.referrer && document.referrer.includes("products.html")) {
+                window.history.back();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastBar");
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.style.display = "block";
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.style.display = "none";
+            }, 2600);
+        }
+
+        function escapeAttr(val) {
+            return String(val || "")
+                .replace(/&/g, "&amp;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function renderLogo(item) {
+            const safeUrl = escapeAttr(item.logoUrl);
+            const safeCode = escapeAttr(item.code || (item.title ? item.title.slice(0, 2).toUpperCase() : "FS"));
+            const safeTitle = escapeAttr(item.title);
+            const bg = escapeAttr(item.bg || "#eff6ff");
+            const color = escapeAttr(item.color || "#2563eb");
+
+            if (safeUrl) {
+                return `
+                    <div class="offer-logo-box" style="color:${color};">
+                        <img
+                            src="${safeUrl}"
+                            alt="${safeTitle}"
+                            class="product-logo-img"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:${bg};color:${color};font-weight:800;">${safeCode}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="offer-logo-box" style="background:${bg};color:${color};font-weight:800;">
+                    ${safeCode}
+                </div>
+            `;
+        }
+
+        function normalizeTermsList(terms) {
+            if (Array.isArray(terms) && terms.length) {
+                return terms.map((t) => String(t).trim()).filter(Boolean);
+            }
+            if (typeof terms === "string" && terms.trim()) {
+                return terms
+                    .split(/\n|•|\|/)
+                    .map((t) => t.trim())
+                    .filter(Boolean);
+            }
+            return [
+                "Referred user ko link se sign up karke offer steps complete karne honge.",
+                "Tracking verify hone ke baad earning aapke wallet mein update hogi."
+            ];
+        }
+
+        function buildTrackedShareUrl(item) {
+            const baseUrl = item.shareUrl || "https://finshareapp.in";
+            const uid = window.CURRENT_USER_ID || "";
+            if (!uid) return baseUrl;
+
+            try {
+                const goUrl = new URL("go.html", window.location.origin + window.location.pathname.replace(/[^/]*$/, ""));
+                goUrl.searchParams.set("ref", uid);
+                if (item.id) goUrl.searchParams.set("pid", item.id);
+                if (item.title) goUrl.searchParams.set("title", item.title);
+                goUrl.searchParams.set("url", baseUrl);
+                return goUrl.toString();
+            } catch (e) {
+                const sep = baseUrl.includes("?") ? "&" : "?";
+                return `${baseUrl}${sep}ref=${encodeURIComponent(uid)}`;
+            }
+        }
+
+        function renderProductDetail(item) {
+            if (!item) return;
+            window.CURRENT_PRODUCT = item;
+
+            document.title = `${item.title || "Offer"} - FinShare`;
+            document.getElementById("headerProductName").innerText = item.title || "Offer Details";
+            document.getElementById("detailLogoSlot").innerHTML = renderLogo(item);
+            document.getElementById("detailCategory").innerText = item.category || "Offer";
+            document.getElementById("detailTitle").innerText = item.title || "Offer";
+            document.getElementById("detailSubtitle").innerText = item.subtitle || "";
+            document.getElementById("detailPayout").innerText = item.profitText || "Earn Profit";
+            document.getElementById("detailTrackingTime").innerText = item.trackingTime || item.time || "24 - 72 Hours";
+            document.getElementById("detailConfirmTime").innerText = item.confirmationTime || "7 - 21 Working Days";
+
+            const descCard = document.getElementById("detailOverviewCard");
+            const descText = document.getElementById("detailDescription");
+            const fullDesc = item.details || item.subtitle || "";
+            if (fullDesc.trim()) {
+                descText.innerText = fullDesc;
+                descCard.style.display = "block";
+            } else {
+                descCard.style.display = "none";
+            }
+
+            const listEl = document.getElementById("detailTermsList");
+            const termsArr = normalizeTermsList(item.terms);
+            listEl.innerHTML = termsArr.map((t) => `<li>${escapeAttr(t)}</li>`).join("");
+
+            const trackedUrl = buildTrackedShareUrl(item);
+            const shareText = `${item.title} - ${item.profitText}\nJoin here: ${trackedUrl}`;
+
+            document.getElementById("shareOfferBtn").onclick = () => {
+                if (navigator.share) {
+                    navigator.share({ title: item.title, text: shareText, url: trackedUrl }).catch(() => {});
+                } else {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+                }
+            };
+
+            document.getElementById("copyLinkBtn").onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(trackedUrl);
+                    showToast("Offer link copied!");
+                } catch (e) {
+                    showToast(trackedUrl);
+                }
+            };
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramId = urlParams.get("id") || "";
+        let initialProduct = FALLBACK_PRODUCTS[paramId] || null;
+
+        try {
+            const cached = JSON.parse(sessionStorage.getItem("SELECTED_FINSHARE_PRODUCT") || "null");
+            if (cached && (!paramId || cached.id === paramId)) {
+                initialProduct = { ...(initialProduct || {}), ...cached };
+            }
+        } catch (e) {}
+
+        if (!initialProduct) {
+            initialProduct = {
+                id: paramId || "offer",
+                code: "FS",
+                category: "Offer",
+                title: "Offer Details",
+                subtitle: "Verified FinShare Partner Offer",
+                profitText: "Earn Profit",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 21 Working Days",
+                details: "Share this offer link with your network and track leads in My Leads.",
+                terms: [
+                    "Referred user ko link se sign up karke offer steps complete karne honge.",
+                    "Tracking verify hone ke baad earning aapke wallet mein update hogi."
+                ],
+                shareUrl: "https://finshareapp.in"
+            };
+        }
+
+        renderProductDetail(initialProduct);
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            window.CURRENT_USER_ID = user.uid;
+            if (window.CURRENT_PRODUCT) {
+                renderProductDetail(window.CURRENT_PRODUCT);
+            }
+        });
+
+        async function fetchProductFromFirestore() {
+            if (!productId) return;
+            try {
+                const snap = await getDoc(doc(db, "products", productId));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const merged = {
+                        ...(window.CURRENT_PRODUCT || {}),
+                        id: snap.id,
+                        code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
+                        logoUrl: (data.logoUrl || data.logo || "").trim(),
+                        bg: data.bg || "#eff6ff",
+                        color: data.color || "#2563eb",
+                        category: data.category || "More",
+                        title: data.title || "Offer",
+                        subtitle: data.subtitle || "",
+                        profitText: data.profitText || "Earn Profit",
+                        trackingTime: data.trackingTime || data.time || "24 - 72 Hours",
+                        confirmationTime: data.confirmationTime || "7 - 21 Working Days",
+                        details: data.details || data.description || "",
+                        terms: data.terms || "",
+                        shareUrl: data.shareUrl || "https://finshareapp.in"
+                    };
+                    renderProductDetail(merged);
+                }
+            } catch (err) {
+                console.error("Detail fetch error:", err);
+            }
+        }
+
+        fetchProductFromFirestore();
+    </script>
+</body>
+</html>
 
