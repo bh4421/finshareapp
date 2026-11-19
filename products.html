@@ -1,1 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - FinShare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding-bottom: 84px;
+        }
+        .app-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+        }
+
+        /* Top Bar */
+        .top-header {
+            background: linear-gradient(160deg, #1d4ed8 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Categories Filter Card */
+        .filter-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            margin: 14px 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+        .filter-heading {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .filter-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .pill-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .pill-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+
+        /* Products List */
+        .products-list {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .offer-row-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .offer-row-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .offer-logo-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .product-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+            background: #ffffff;
+            display: block;
+        }
+        .offer-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .offer-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.25;
+        }
+        .offer-desc {
+            font-size: 12.5px;
+            color: #475569;
+            margin-top: 3px;
+            line-height: 1.35;
+        }
+        .offer-payout {
+            font-size: 14px;
+            font-weight: 800;
+            color: #16a34a;
+            margin-top: 6px;
+        }
+        .btn-view-detail {
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.22);
+        }
+
+        /* Detail Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 1000;
+        }
+        .modal-backdrop.open {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .modal-close {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+        }
+        .btn-share {
+            flex: 1;
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-copy {
+            width: 44px;
+            height: 42px;
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-bar {
+            position: fixed;
+            bottom: 78px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1100;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 0 10px;
+            z-index: 100;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='index.html'" title="Back">←</button>
+                <h1 class="header-title">Products</h1>
+            </div>
+        </header>
+
+        <div class="filter-card">
+            <div class="filter-heading" id="productsPageHeading">All Products</div>
+            <div class="filter-pills" id="categoryFilterPills">
+                <button class="pill-btn active" data-pill="ALL" onclick="selectCategory('ALL')">All</button>
+                <button class="pill-btn" data-pill="Demat" onclick="selectCategory('Demat')">Demat</button>
+                <button class="pill-btn" data-pill="Banking" onclick="selectCategory('Banking')">Banking</button>
+                <button class="pill-btn" data-pill="Credit Card" onclick="selectCategory('Credit Card')">Credit Card</button>
+                <button class="pill-btn" data-pill="Loans" onclick="selectCategory('Loans')">Loans</button>
+                <button class="pill-btn" data-pill="More" onclick="selectCategory('More')">More</button>
+            </div>
+        </div>
+
+        <div class="products-list" id="productsListContainer"></div>
+
+        <!-- Detail Modal -->
+        <div class="modal-backdrop" id="detailModal" onclick="closeDetailModal(event)">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 id="modalTitle" style="font-size:17px;font-weight:700;color:#0f172a;">Offer Details</h3>
+                    <button class="modal-close" onclick="hideDetailModal()">✕</button>
+                </div>
+                <p id="modalSubtitle" style="font-size:13px;color:#475569;margin-bottom:8px;"></p>
+                <div id="modalPayout" style="font-size:15px;font-weight:800;color:#16a34a;margin-bottom:12px;"></div>
+                <p id="modalTerms" style="font-size:12.5px;color:#64748b;line-height:1.5;margin-bottom:16px;"></p>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn-share" id="modalShareBtn">Share Offer</button>
+                    <button class="btn-copy" id="modalCopyBtn" title="Copy Link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-bar" id="toastBar"></div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="window.location.href='index.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-item active" onclick="window.location.href='products.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <span>Products</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='index.html#earnings'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span>Earnings</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='index.html#account'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Account</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans"];
+        window.PAGE_PRODUCTS = [
+            {
+                id: "smallcase",
+                code: "SC",
+                logoUrl: "",
+                bg: "#eff6ff",
+                color: "#2563eb",
+                category: "Demat",
+                title: "Smallcase",
+                subtitle: "Earn Rs 300 on first investment",
+                profitText: "Earn ₹300",
+                terms: "Referred user ko link se sign up karke first investment complete karna hoga.",
+                shareUrl: "https://finshareapp.in/offer/smallcase",
+                order: 1
+            },
+            {
+                id: "jainam",
+                code: "JN",
+                logoUrl: "",
+                bg: "#fef2f2",
+                color: "#dc2626",
+                category: "Demat",
+                title: "Jainam",
+                subtitle: "Earn Rs 300 on A/C open + Activation",
+                profitText: "Earn ₹300",
+                terms: "Account opening aur activation complete hone par payout track hoga.",
+                shareUrl: "https://finshareapp.in/offer/jainam",
+                order: 2
+            },
+            {
+                id: "upstox",
+                code: "UP",
+                logoUrl: "",
+                bg: "#f3e8ff",
+                color: "#7e22ce",
+                category: "Demat",
+                title: "Upstox",
+                subtitle: "Earn Rs 200 on A/C open + Activation",
+                profitText: "Earn ₹200",
+                terms: "Complete KYC aur account activation zaroori hai.",
+                shareUrl: "https://finshareapp.in/offer/upstox",
+                order: 3
+            },
+            {
+                id: "angel-one",
+                code: "AO",
+                logoUrl: "",
+                bg: "#fff7ed",
+                color: "#ea580c",
+                category: "Demat",
+                title: "Angel One",
+                subtitle: "Earn Rs 150 on A/C open + Activation",
+                profitText: "Earn ₹150",
+                terms: "Account open aur activation ke baad earning confirm hogi.",
+                shareUrl: "https://finshareapp.in/offer/angel-one",
+                order: 4
+            }
+        ];
+        window.ACTIVE_CAT = "ALL";
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastBar");
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.style.display = "block";
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.style.display = "none";
+            }, 2600);
+        }
+
+        function escapeAttr(val) {
+            return String(val || "")
+                .replace(/&/g, "&amp;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function renderLogo(item) {
+            const safeUrl = escapeAttr(item.logoUrl);
+            const safeCode = escapeAttr(item.code);
+            const safeTitle = escapeAttr(item.title);
+            const bg = escapeAttr(item.bg || "#eff6ff");
+            const color = escapeAttr(item.color || "#2563eb");
+
+            if (safeUrl) {
+                return `
+                    <div class="offer-logo-box" style="color:${color};">
+                        <img
+                            src="${safeUrl}"
+                            alt="${safeTitle}"
+                            class="product-logo-img"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:${bg};color:${color};font-weight:800;">${safeCode}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="offer-logo-box" style="background:${bg};color:${color};font-weight:800;">
+                    ${safeCode}
+                </div>
+            `;
+        }
+
+        function matchesCategory(itemCat, selectedCat) {
+            if (selectedCat === "ALL") return true;
+            if (selectedCat === "More") return !MAIN_CATS.includes(itemCat);
+            return itemCat === selectedCat;
+        }
+
+        function renderProducts() {
+            const container = document.getElementById("productsListContainer");
+            const heading = document.getElementById("productsPageHeading");
+            if (!container) return;
+
+            document.querySelectorAll("#categoryFilterPills .pill-btn").forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.pill === window.ACTIVE_CAT);
+            });
+
+            if (heading) {
+                heading.innerText = window.ACTIVE_CAT === "ALL"
+                    ? "All Products"
+                    : `${window.ACTIVE_CAT} Products`;
+            }
+
+            const filtered = window.PAGE_PRODUCTS.filter((item) =>
+                matchesCategory(item.category, window.ACTIVE_CAT)
+            );
+
+            if (!filtered.length) {
+                container.innerHTML = `<div class="offer-row-card"><p class="offer-desc">Is category mein abhi koi product available nahi hai.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item) => `
+                <article class="offer-row-card">
+                    <div class="offer-row-left">
+                        ${renderLogo(item)}
+                        <div class="offer-info">
+                            <div class="offer-title">${escapeAttr(item.title)}</div>
+                            <div class="offer-desc">${escapeAttr(item.subtitle)}</div>
+                            <div class="offer-payout">${escapeAttr(item.profitText)}</div>
+                        </div>
+                    </div>
+                    <button class="btn-view-detail" onclick="openDetail('${escapeAttr(item.id)}')">View Detail</button>
+                </article>
+            `).join("");
+        }
+
+        function selectCategory(cat) {
+            window.ACTIVE_CAT = cat;
+            renderProducts();
+        }
+
+        function openDetail(id) {
+            const item = window.PAGE_PRODUCTS.find((p) => p.id === id);
+            if (!item) return;
+
+            document.getElementById("modalTitle").innerText = item.title || "Offer Details";
+            document.getElementById("modalSubtitle").innerText = item.subtitle || "";
+            document.getElementById("modalPayout").innerText = item.profitText || "";
+            document.getElementById("modalTerms").innerText = item.terms || "Offer link share karein aur referred user ki terms complete hone par earning track karein.";
+
+            const shareText = `${item.title} - ${item.profitText}`;
+            const shareUrl = item.shareUrl || "https://finshareapp.in";
+
+            document.getElementById("modalShareBtn").onclick = () => shareProduct(item.title, shareText, shareUrl);
+            document.getElementById("modalCopyBtn").onclick = () => copyOfferLink(shareUrl);
+
+            document.getElementById("detailModal").classList.add("open");
+        }
+
+        function hideDetailModal() {
+            document.getElementById("detailModal").classList.remove("open");
+        }
+
+        function closeDetailModal(e) {
+            if (e.target && e.target.id === "detailModal") {
+                hideDetailModal();
+            }
+        }
+
+        function shareProduct(title, profitText, url) {
+            const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
+            if (navigator.share) {
+                navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
+            } else {
+                const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(waUrl, "_blank");
+            }
+        }
+
+        async function copyOfferLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast("Offer link copied!");
+            } catch (e) {
+                showToast(url);
+            }
+        }
+
+        renderProducts();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadProducts() {
+            try {
+                const snap = await getDocs(collection(db, "products"));
+                if (!snap.empty) {
+                    const loaded = snap.docs.map((d, idx) => {
+                        const data = d.data();
+                        return {
+                            id: d.id,
+                            code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
+                            logoUrl: (data.logoUrl || data.logo || "").trim(),
+                            bg: data.bg || "#eff6ff",
+                            color: data.color || "#2563eb",
+                            category: data.category || "More",
+                            title: data.title || "Offer",
+                            subtitle: data.subtitle || "",
+                            profitText: data.profitText || "Earn Profit",
+                            terms: data.terms || "",
+                            shareUrl: data.shareUrl || "https://finshareapp.in",
+                            order: typeof data.order === "number" ? data.order : idx + 1
+                        };
+                    });
+                    loaded.sort((a, b) => a.order - b.order);
+                    window.PAGE_PRODUCTS = loaded;
+                }
+            } catch (err) {
+                console.error("Products fetch error:", err);
+            }
+            renderProducts();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
 
