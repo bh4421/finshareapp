@@ -17,9 +17,11 @@
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
         .check-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 14px; font-size: 13px; font-weight: 600; }
         .check-row input { width: auto; }
-        .btn-row { display: flex; gap: 10px; }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
         .btn-primary { background: #1a73e8; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .btn-primary:hover { background: #1558b0; }
+        .btn-seed { background: #0f766e; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-seed:hover { background: #115e59; }
         .btn-secondary { background: #e2e8f0; color: #0f172a; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .msg { margin-top: 10px; font-size: 13px; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
@@ -129,6 +131,7 @@
 
             <div class="btn-row">
                 <button type="submit" class="btn-primary" id="saveProdBtn">Save Product</button>
+                <button type="button" class="btn-seed" id="seedDefaultBtn">Seed Default Offers</button>
                 <button type="button" class="btn-secondary" id="clearProdBtn">Clear Form</button>
             </div>
             <div class="msg" id="prodMsg"></div>
@@ -222,10 +225,134 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const DEFAULT_OFFERS = [
+        {
+            id: "angel-one-demat",
+            title: "Angel One Demat",
+            subtitle: "Free Demat + 1st Trade",
+            category: "Demat",
+            profitText: "Earn ₹750",
+            shareUrl: "https://finshareapp.in/offer/angel-one",
+            logoUrl: "",
+            code: "AO",
+            order: 1,
+            trackingTime: "24 - 72 Hours",
+            confirmationTime: "7 - 15 Working Days",
+            details: "Referred user ko aapke link se Angel One Demat account open karke first trade complete karna hoga.",
+            terms: [
+                "Referred user ko link se sign up karke first trade complete karna hoga.",
+                "Application naye user ke mobile number aur PAN ke saath complete honi chahiye.",
+                "Verification ke baad payout wallet mein add hoga."
+            ],
+            showOnHome: true
+        },
+        {
+            id: "kotak-811-bank",
+            title: "Kotak 811 Savings",
+            subtitle: "Zero Balance Account",
+            category: "Banking",
+            profitText: "Earn upto ₹450",
+            shareUrl: "https://finshareapp.in/offer/kotak-811",
+            logoUrl: "",
+            code: "K8",
+            order: 2,
+            trackingTime: "24 - 48 Hours",
+            confirmationTime: "7 - 14 Working Days",
+            details: "Naye user ka Kotak 811 zero balance savings account full KYC ke saath open hona zaroori hai.",
+            terms: [
+                "Full KYC ke saath account opening zaroori hai.",
+                "Existing Kotak customers is offer ke liye eligible nahi hain.",
+                "Approval ke baad earning confirm hogi."
+            ],
+            showOnHome: true
+        },
+        {
+            id: "smallcase",
+            title: "Smallcase",
+            subtitle: "Earn Rs 300 on first investment",
+            category: "Demat",
+            profitText: "Earn ₹300",
+            shareUrl: "https://finshareapp.in/offer/smallcase",
+            logoUrl: "",
+            code: "SC",
+            order: 3,
+            trackingTime: "24 - 48 Hours",
+            confirmationTime: "7 - 14 Working Days",
+            details: "Referred user ko aapke share link se sign up karke apni pehli investment complete karni hogi.",
+            terms: [
+                "Referred user ko link se sign up karke first investment complete karna hoga.",
+                "Application naye user ke mobile number aur PAN ke saath complete honi chahiye.",
+                "Lead track aur verify hone ke baad earning aapke wallet mein update hogi."
+            ],
+            showOnHome: false
+        },
+        {
+            id: "jainam",
+            title: "Jainam",
+            subtitle: "Earn Rs 300 on A/C open + Activation",
+            category: "Demat",
+            profitText: "Earn ₹300",
+            shareUrl: "https://finshareapp.in/offer/jainam",
+            logoUrl: "",
+            code: "JN",
+            order: 4,
+            trackingTime: "24 - 72 Hours",
+            confirmationTime: "7 - 15 Working Days",
+            details: "Demat account opening aur activation complete hone par payout track hoga.",
+            terms: [
+                "Account opening aur activation complete hone par payout track hoga.",
+                "Same session mein bina browser switch kiye application poori karein.",
+                "Payout verification ke baad confirmed balance mein jurega."
+            ],
+            showOnHome: false
+        },
+        {
+            id: "upstox",
+            title: "Upstox",
+            subtitle: "Earn Rs 200 on A/C open + Activation",
+            category: "Demat",
+            profitText: "Earn ₹200",
+            shareUrl: "https://finshareapp.in/offer/upstox",
+            logoUrl: "",
+            code: "UP",
+            order: 5,
+            trackingTime: "24 - 72 Hours",
+            confirmationTime: "7 - 15 Working Days",
+            details: "Naye user ka Upstox Demat account open aur activate hona zaroori hai.",
+            terms: [
+                "Complete KYC aur account activation zaroori hai.",
+                "Existing Upstox users is offer ke liye eligible nahi honge.",
+                "Tracking status approve hone par earning credit hogi."
+            ],
+            showOnHome: false
+        },
+        {
+            id: "axis-cc",
+            title: "Axis Rewards Card",
+            subtitle: "Lifetime Free / Cashback",
+            category: "Credit Card",
+            profitText: "Earn ₹900",
+            shareUrl: "https://finshareapp.in/offer/axis-card",
+            logoUrl: "",
+            code: "AX",
+            order: 6,
+            trackingTime: "24 - 72 Hours",
+            confirmationTime: "15 - 30 Working Days",
+            details: "Credit card application approved aur card dispatch/activate hone par payout count hoga.",
+            terms: [
+                "Card application bank dwara approve hona zaroori hai.",
+                "Naye eligible applicants hi count honge.",
+                "Bank verification ke baad commission update hoga."
+            ],
+            showOnHome: true
+        }
+    ];
+
     const selectEl = document.getElementById("existingProductSelect");
     const prodForm = document.getElementById("productForm");
     const prodMsg = document.getElementById("prodMsg");
     const saveProdBtn = document.getElementById("saveProdBtn");
+    const seedDefaultBtn = document.getElementById("seedDefaultBtn");
     const clearProdBtn = document.getElementById("clearProdBtn");
     let productsCache = {};
 
@@ -269,6 +396,31 @@
     });
 
     clearProdBtn.addEventListener("click", () => fillFormForProduct(null));
+
+    seedDefaultBtn.addEventListener("click", async () => {
+        seedDefaultBtn.disabled = true;
+        seedDefaultBtn.innerText = "Seeding...";
+        prodMsg.innerText = "";
+
+        try {
+            for (const item of DEFAULT_OFFERS) {
+                const { id, ...dataFields } = item;
+                await setDoc(doc(db, "products", id), {
+                    ...dataFields,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            }
+            prodMsg.style.color = "#16a34a";
+            prodMsg.innerText = "Default offers database mein save ho gaye! Ab kisi bhi offer ke aage Edit dabayein.";
+            await loadProductsAdmin();
+        } catch (err) {
+            prodMsg.style.color = "#dc2626";
+            prodMsg.innerText = "Seed error: " + err.message;
+        } finally {
+            seedDefaultBtn.disabled = false;
+            seedDefaultBtn.innerText = "Seed Default Offers";
+        }
+    });
 
     async function loadProductsAdmin() {
         const tbody = document.getElementById("productsAdminTable");
@@ -361,7 +513,6 @@
         }
     });
 
-    // 1. Fetch Users & Bank Details
     async function loadUsers() {
         const tbody = document.getElementById("usersTable");
         tbody.innerHTML = "";
@@ -391,7 +542,6 @@
         }
     }
 
-    // 2. Fetch Leads & Fulfillment Status
     async function loadReferrals() {
         const tbody = document.getElementById("referralsTable");
         tbody.innerHTML = "";
@@ -428,7 +578,6 @@
         }
     }
 
-    // 3. Approve Lead & Credit User Wallet
     window.approveTask = async function(docId, userId, amount) {
         try {
             await updateDoc(doc(db, "leads", docId), { status: "Completed" });
