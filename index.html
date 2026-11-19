@@ -170,7 +170,7 @@
             margin-bottom: 12px;
         }
         .section-title {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             color: #0f172a;
             letter-spacing: -0.2px;
@@ -178,27 +178,29 @@
         .clear-filter {
             font-size: 12px;
             color: #2563eb;
-            font-weight: 600;
-            background: none;
-            border: none;
+            font-weight: 700;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 4px 10px;
             cursor: pointer;
         }
 
-        /* Home Categories */
+        /* 6 Categories Grid (Demat, Banking, Credit Card, Loans, Investment, More) */
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
         .category-card {
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
             border-radius: 16px;
-            padding: 14px 6px;
+            padding: 13px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             cursor: pointer;
             transition: all 0.2s;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
@@ -206,76 +208,140 @@
         .category-card.active {
             border-color: #2563eb;
             background: #eff6ff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
         }
         .category-icon {
             color: #2563eb;
             display: flex;
             align-items: center;
             justify-content: center;
+            height: 24px;
+        }
+        .rupee-symbol-icon {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1;
+            color: #2563eb;
         }
         .category-name {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 12.5px;
+            font-weight: 700;
             color: #1e293b;
             text-align: center;
         }
 
-        /* Top Earning Products Pills & Colored Tiles */
-        .top-earning-pills {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            margin-bottom: 14px;
-            scrollbar-width: none;
+        /* Original FinShare Top Earning Products Cards */
+        .finshare-products-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
-        .top-earning-pills::-webkit-scrollbar {
-            display: none;
-        }
-        .top-pill-btn {
-            background: transparent;
-            color: #475569;
-            border: none;
-            border-radius: 999px;
-            padding: 9px 16px;
-            font-size: 14px;
-            font-weight: 700;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .top-pill-btn.active {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-
-        .top-earning-carousel {
-            display: flex;
-            gap: 14px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-        .top-earning-carousel::-webkit-scrollbar {
-            display: none;
-        }
-        .earning-tile-card {
-            min-width: 196px;
-            max-width: 196px;
-            border-radius: 20px;
-            padding: 18px 16px 16px;
-            color: #ffffff;
+        .finshare-offer-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid #2563eb;
+            border-radius: 18px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            scroll-snap-align: start;
-            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+        .offer-top-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .offer-logo-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+        .offer-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+            background: #ffffff;
+            display: block;
+        }
+        .offer-cat-tag {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #2563eb;
+            background: #eff6ff;
+            padding: 2px 7px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .offer-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.25;
+        }
+        .offer-sub {
+            font-size: 11.5px;
+            color: #64748b;
+            margin-top: 4px;
+            line-height: 1.35;
+        }
+        .offer-payout-chip {
+            margin-top: 10px;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            border-radius: 10px;
+            padding: 6px 9px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            width: fit-content;
+        }
+        .offer-actions-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 12px;
+        }
+        .btn-offer-share {
+            flex: 1;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 10px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-offer-copy {
+            width: 36px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             flex-shrink: 0;
         }
         .empty-home-products {
-            width: 100%;
+            grid-column: 1 / -1;
             background: #ffffff;
             border: 1px dashed #cbd5e1;
             border-radius: 16px;
@@ -283,84 +349,6 @@
             font-size: 13px;
             color: #64748b;
             text-align: center;
-        }
-        .tile-logo-circle {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            color: #0f172a;
-            font-weight: 800;
-            font-size: 15px;
-        }
-        .tile-logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 6px;
-            display: block;
-        }
-        .tile-title {
-            font-size: 16px;
-            font-weight: 800;
-            line-height: 1.25;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tile-sub {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.88);
-            margin-top: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tile-payout-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 14px;
-            margin-bottom: 16px;
-            font-size: 15px;
-            font-weight: 800;
-            color: #ffffff;
-            flex-wrap: wrap;
-        }
-        .coin-badge {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #fbbf24;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5);
-        }
-        .tile-cta-btn {
-            width: 100%;
-            background: #ffffff;
-            color: #0f172a;
-            border: none;
-            border-radius: 12px;
-            padding: 11px 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-        }
-        .tile-cta-btn:active {
-            transform: scale(0.98);
         }
 
         /* Most Trusted Brand Section */
@@ -827,15 +815,16 @@
                 </div>
             </div>
 
+            <!-- Categories Section (6 Categories + Rupee Symbol on Loans) -->
             <section class="section" id="categoriesSection">
                 <div class="section-header">
                     <h2 class="section-title">Categories</h2>
-                    <button class="clear-filter" id="clearCategoryBtn" style="display: none;" onclick="selectHomeCategory('ALL')">Show All</button>
+                    <button class="clear-filter" id="clearCategoryBtn" style="display: none;" onclick="selectHomeCategory('ALL')">All Products</button>
                 </div>
                 <div class="categories-grid">
                     <div class="category-card" data-cat="Demat" onclick="selectHomeCategory('Demat')">
                         <div class="category-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                                 <polyline points="16 7 22 7 22 13"></polyline>
                             </svg>
@@ -845,7 +834,7 @@
 
                     <div class="category-card" data-cat="Banking" onclick="selectHomeCategory('Banking')">
                         <div class="category-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <line x1="3" y1="22" x2="21" y2="22"></line>
                                 <line x1="6" y1="18" x2="6" y2="11"></line>
                                 <line x1="10" y1="18" x2="10" y2="11"></line>
@@ -859,7 +848,7 @@
 
                     <div class="category-card" data-cat="Credit Card" onclick="selectHomeCategory('Credit Card')">
                         <div class="category-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                                 <line x1="1" y1="10" x2="23" y2="10"></line>
                             </svg>
@@ -869,31 +858,43 @@
 
                     <div class="category-card" data-cat="Loans" onclick="selectHomeCategory('Loans')">
                         <div class="category-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 1v22"></path>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
+                            <span class="rupee-symbol-icon">₹</span>
                         </div>
                         <span class="category-name">Loans</span>
+                    </div>
+
+                    <div class="category-card" data-cat="Investment" onclick="selectHomeCategory('Investment')">
+                        <div class="category-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <path d="M12 20V10"></path>
+                                <path d="M18 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                        </div>
+                        <span class="category-name">Investment</span>
+                    </div>
+
+                    <div class="category-card" data-cat="More" onclick="selectHomeCategory('More')">
+                        <div class="category-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </div>
+                        <span class="category-name">More</span>
                     </div>
                 </div>
             </section>
 
-            <!-- Top Earning Products Section (Only shows products where showOnHome === true) -->
+            <!-- Top Earning Products Section (Original FinShare Design + Database showOnHome: true) -->
             <section class="section" id="homeProductsSection">
                 <div class="section-header">
                     <h2 class="section-title" id="homeProductsHeading">Top Earning Products</h2>
                 </div>
 
-                <div class="top-earning-pills" id="topEarningPills">
-                    <button class="top-pill-btn active" data-pill="Saving Account" onclick="selectTopEarningPill('Saving Account')">Saving Account</button>
-                    <button class="top-pill-btn" data-pill="Credit Card" onclick="selectTopEarningPill('Credit Card')">Credit Card</button>
-                    <button class="top-pill-btn" data-pill="Demat Account" onclick="selectTopEarningPill('Demat Account')">Demat Account</button>
-                    <button class="top-pill-btn" data-pill="Personal Loan" onclick="selectTopEarningPill('Personal Loan')">Personal Loan</button>
-                    <button class="top-pill-btn" data-pill="Investment" onclick="selectTopEarningPill('Investment')">Investment</button>
-                </div>
-
-                <div class="top-earning-carousel" id="homeProductsContainer"></div>
+                <div class="finshare-products-list" id="homeProductsContainer"></div>
             </section>
 
             <!-- Most Trusted Brand Banner + Social Media Icons -->
@@ -1223,36 +1224,85 @@
         // Only products with showOnHome: true appear on Home page
         window.FINSHARE_PRODUCTS = [
             {
-                id: "kotak-811-classic",
-                code: "K8",
+                id: "angel-one-demat",
+                code: "AO",
                 logoUrl: "",
-                cardBg: "#121647",
-                category: "Saving Account",
-                title: "Kotak 811 Classic Ac..",
-                subtitle: "Saving Account",
-                payoutText: "450",
-                bonusText: "upto",
-                shareUrl: "https://finshareapp.in/offer/kotak-811",
+                accentColor: "#2563eb",
+                category: "Demat",
+                title: "Angel One Demat",
+                subtitle: "Free Demat + 1st Trade",
+                profitText: "Earn ₹750",
+                shareUrl: "https://finshareapp.in/offer/angel-one",
                 showOnHome: true,
                 order: 1
             },
             {
-                id: "airtel-payments-bank",
-                code: "AB",
+                id: "kotak-811-bank",
+                code: "K8",
                 logoUrl: "",
-                cardBg: "#a61614",
-                category: "Saving Account",
-                title: "Airtel Payments Bank",
-                subtitle: "Saving Account",
-                payoutText: "190",
-                bonusText: "upto",
-                shareUrl: "https://finshareapp.in/offer/airtel-bank",
+                accentColor: "#0ea5e9",
+                category: "Banking",
+                title: "Kotak 811 Savings",
+                subtitle: "Zero Balance Account",
+                profitText: "Earn upto ₹450",
+                shareUrl: "https://finshareapp.in/offer/kotak-811",
                 showOnHome: true,
                 order: 2
+            },
+            {
+                id: "axis-cc",
+                code: "AX",
+                logoUrl: "",
+                accentColor: "#9333ea",
+                category: "Credit Card",
+                title: "Axis Rewards Card",
+                subtitle: "Lifetime Free / Cashback",
+                profitText: "Earn ₹900",
+                shareUrl: "https://finshareapp.in/offer/axis-card",
+                showOnHome: true,
+                order: 3
+            },
+            {
+                id: "instant-loan",
+                code: "LN",
+                logoUrl: "",
+                accentColor: "#16a34a",
+                category: "Loans",
+                title: "Quick Personal Loan",
+                subtitle: "Instant Paperless Approval",
+                profitText: "Earn upto 2.5%",
+                shareUrl: "https://finshareapp.in/offer/personal-loan",
+                showOnHome: true,
+                order: 4
+            },
+            {
+                id: "bond-invest",
+                code: "IV",
+                logoUrl: "",
+                accentColor: "#d97706",
+                category: "Investment",
+                title: "Fixed Income Bonds",
+                subtitle: "High Yield Regulated Bonds",
+                profitText: "Earn ₹1,200",
+                shareUrl: "https://finshareapp.in/offer/bonds",
+                showOnHome: true,
+                order: 5
+            },
+            {
+                id: "more-offer",
+                code: "FS",
+                logoUrl: "",
+                accentColor: "#4f46e5",
+                category: "More",
+                title: "Partner Referral Bonus",
+                subtitle: "Special FinShare Campaign",
+                profitText: "Earn ₹300",
+                shareUrl: "https://finshareapp.in/offer/more",
+                showOnHome: true,
+                order: 6
             }
         ];
         window.FINSHARE_HOME_CAT = "ALL";
-        window.FINSHARE_TOP_PILL = "Saving Account";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
 
@@ -1314,123 +1364,110 @@
             `;
         }
 
-        function renderTileLogo(item) {
+        function renderOfferLogo(item) {
             const safeUrl = escapeAttr(item.logoUrl);
             const safeCode = escapeAttr(item.code || (item.title ? item.title.slice(0, 2).toUpperCase() : "FS"));
             const safeTitle = escapeAttr(item.title);
+            const accent = escapeAttr(item.accentColor || "#2563eb");
 
             if (safeUrl) {
                 return `
-                    <div class="tile-logo-circle">
+                    <div class="offer-logo-box" style="color:${accent};">
                         <img
                             src="${safeUrl}"
                             alt="${safeTitle}"
-                            class="tile-logo-img"
+                            class="offer-logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         />
-                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:800;color:#0f172a;">${safeCode}</span>
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:800;color:${accent};">${safeCode}</span>
                     </div>
                 `;
             }
 
             return `
-                <div class="tile-logo-circle">
+                <div class="offer-logo-box" style="color:${accent};">
                     <span>${safeCode}</span>
                 </div>
             `;
         }
 
-        function mapCategoryToPill(cat) {
-            const c = String(cat || "").toLowerCase();
-            if (c.includes("saving") || c.includes("bank")) return "Saving Account";
-            if (c.includes("credit")) return "Credit Card";
-            if (c.includes("demat")) return "Demat Account";
-            if (c.includes("loan")) return "Personal Loan";
-            if (c.includes("invest") || c.includes("bond")) return "Investment";
-            return cat || "Saving Account";
+        function matchesCategory(itemCat, selectedCat) {
+            const a = String(itemCat || "").toLowerCase().trim();
+            const b = String(selectedCat || "").toLowerCase().trim();
+            if (b === "all") return true;
+            if (b === "banking") return a.includes("bank") || a.includes("saving");
+            if (b === "demat") return a.includes("demat");
+            if (b === "credit card") return a.includes("credit");
+            if (b === "loans") return a.includes("loan");
+            if (b === "investment") return a.includes("invest") || a.includes("bond");
+            if (b === "more") return a === "more" || (!a.includes("bank") && !a.includes("saving") && !a.includes("demat") && !a.includes("credit") && !a.includes("loan") && !a.includes("invest") && !a.includes("bond"));
+            return a.includes(b);
         }
 
         function renderHomeProducts() {
             const container = document.getElementById("homeProductsContainer");
             const clearBtn = document.getElementById("clearCategoryBtn");
+            const heading = document.getElementById("homeProductsHeading");
             if (!container) return;
 
-            document.querySelectorAll("#topEarningPills .top-pill-btn").forEach((btn) => {
-                btn.classList.toggle("active", btn.dataset.pill === window.FINSHARE_TOP_PILL);
+            document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
+                card.classList.toggle("active", card.dataset.cat === window.FINSHARE_HOME_CAT);
             });
 
             if (clearBtn) {
                 clearBtn.style.display = window.FINSHARE_HOME_CAT === "ALL" ? "none" : "inline-block";
             }
+            if (heading) {
+                heading.innerText = window.FINSHARE_HOME_CAT === "ALL"
+                    ? "Top Earning Products"
+                    : `${window.FINSHARE_HOME_CAT} Products`;
+            }
 
             const homeAllowed = window.FINSHARE_PRODUCTS.filter((item) => item.showOnHome === true);
-
-            const filtered = homeAllowed.filter((item) => {
-                if (window.FINSHARE_HOME_CAT !== "ALL") {
-                    const homeCat = window.FINSHARE_HOME_CAT.toLowerCase();
-                    const itemCat = String(item.category || "").toLowerCase();
-                    if (homeCat === "banking") {
-                        return itemCat.includes("bank") || itemCat.includes("saving");
-                    }
-                    if (homeCat === "loans") {
-                        return itemCat.includes("loan");
-                    }
-                    return itemCat.includes(homeCat);
-                }
-
-                const pillNorm = mapCategoryToPill(item.category);
-                return pillNorm === window.FINSHARE_TOP_PILL;
-            });
+            const filtered = homeAllowed.filter((item) => matchesCategory(item.category, window.FINSHARE_HOME_CAT));
 
             if (!filtered.length) {
-                container.innerHTML = `<div class="empty-home-products">Selected category ke liye koi home product enabled nahi hai. Database mein <strong>showOnHome: true</strong> set karein.</div>`;
+                container.innerHTML = `<div class="empty-home-products">Is category ke liye koi product enable nahi hai. Database mein <strong>showOnHome: true</strong> set karein.</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map((item) => {
-                const bg = escapeAttr(item.cardBg || "#121647");
-                const payout = escapeAttr(item.payoutText || item.profitText || "₹250");
-                const bonus = escapeAttr(item.bonusText || "");
+                const accent = escapeAttr(item.accentColor || "#2563eb");
+                const payout = escapeAttr(item.profitText || item.payoutText || "Earn Profit");
+                const catLabel = escapeAttr(item.category || "Offer");
 
                 return `
-                    <article class="earning-tile-card" style="background:${bg};">
+                    <article class="finshare-offer-card" style="border-top-color:${accent};">
                         <div>
-                            ${renderTileLogo(item)}
-                            <div class="tile-title">${escapeAttr(item.title)}</div>
-                            <div class="tile-sub">${escapeAttr(item.subtitle || item.category || "")}</div>
-                            <div class="tile-payout-row">
-                                <span>${payout}</span>
-                                <span class="coin-badge">g</span>
-                                ${bonus ? `<span>${bonus}</span>` : ""}
+                            <div class="offer-top-row">
+                                ${renderOfferLogo(item)}
+                                <div>
+                                    <span class="offer-cat-tag">${catLabel}</span>
+                                    <div class="offer-title">${escapeAttr(item.title)}</div>
+                                </div>
                             </div>
+                            <div class="offer-sub">${escapeAttr(item.subtitle || "")}</div>
+                            <div class="offer-payout-chip">${payout}</div>
                         </div>
-                        <button class="tile-cta-btn" onclick="sellOrShareProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
-                            Sell now
-                        </button>
+
+                        <div class="offer-actions-row">
+                            <button class="btn-offer-share" style="background:${accent};" onclick="shareOfferProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                                Share
+                            </button>
+                            <button class="btn-offer-copy" title="Copy Link" onclick="copyOfferLink('${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </article>
                 `;
             }).join("");
         }
 
-        function selectTopEarningPill(pillName) {
-            window.FINSHARE_HOME_CAT = "ALL";
-            window.FINSHARE_TOP_PILL = pillName;
-            document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
-                card.classList.remove("active");
-            });
-            renderHomeProducts();
-        }
-
         function selectHomeCategory(category) {
             window.FINSHARE_HOME_CAT = category;
-            if (category === "Banking") window.FINSHARE_TOP_PILL = "Saving Account";
-            else if (category === "Credit Card") window.FINSHARE_TOP_PILL = "Credit Card";
-            else if (category === "Demat") window.FINSHARE_TOP_PILL = "Demat Account";
-            else if (category === "Loans") window.FINSHARE_TOP_PILL = "Personal Loan";
-
-            document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
-                card.classList.toggle("active", card.dataset.cat === category);
-            });
             renderHomeProducts();
             const sec = document.getElementById("homeProductsSection");
             if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1496,13 +1533,22 @@
             }
         }
 
-        function sellOrShareProduct(title, payoutText, url) {
-            const shareText = `${title} (${payoutText})\nApply / Share: ${url}`;
+        function shareOfferProduct(title, payoutText, url) {
+            const shareText = `${title} - ${payoutText}\nJoin here: ${url}`;
             if (navigator.share) {
                 navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
             } else {
                 const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
                 window.open(waUrl, "_blank");
+            }
+        }
+
+        async function copyOfferLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast("Offer link copied!");
+            } catch (e) {
+                showToast(url);
             }
         }
 
@@ -1586,12 +1632,11 @@
                                 id: d.id,
                                 code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
                                 logoUrl: (data.logoUrl || data.logo || "").trim(),
-                                cardBg: data.cardBg || data.bg || "#121647",
-                                category: data.category || "Saving Account",
+                                accentColor: data.accentColor || data.cardBg || data.bg || "#2563eb",
+                                category: data.category || "More",
                                 title: data.title || "Offer",
-                                subtitle: data.subtitle || data.category || "",
-                                payoutText: data.payoutText || data.profitText || "₹250",
-                                bonusText: data.bonusText || "",
+                                subtitle: data.subtitle || "",
+                                profitText: data.profitText || data.payoutText || "Earn Profit",
                                 shareUrl: data.shareUrl || "https://finshareapp.in",
                                 showOnHome: true,
                                 order: typeof data.order === "number" ? data.order : 999
@@ -1717,4 +1762,69 @@
             let userEmail = user.email || "-";
             let userPhone = localStorage.getItem("userPhone") || "-";
             let balance = 0;
-            let pending = 
+            let pending = 0;
+
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    const data = snap.data();
+
+                    if (data.deletionScheduled) {
+                        const deadlineTime = data.deletionDeadline ? new Date(data.deletionDeadline).getTime() : 0;
+                        if (!deadlineTime || Date.now() <= deadlineTime) {
+                            await setDoc(doc(db, "users", user.uid), {
+                                deletionScheduled: false,
+                                deletionDeadline: null,
+                                restoredAt: new Date().toISOString()
+                            }, { merge: true });
+                            showToast("Welcome back! Your account deletion has been cancelled.");
+                        }
+                    }
+
+                    if (data.name) userName = data.name;
+                    if (data.email) userEmail = data.email;
+                    if (data.phone) userPhone = data.phone;
+                    if (typeof data.balance === "number") balance = data.balance;
+                    if (typeof data.pending === "number") pending = data.pending;
+
+                    if (data.bankDetails) {
+                        document.getElementById("bankHolderName").value = data.bankDetails.holderName || "";
+                        document.getElementById("bankAccountNumber").value = data.bankDetails.accountNumber || "";
+                        document.getElementById("bankIfsc").value = data.bankDetails.ifsc || "";
+                        document.getElementById("bankNameInput").value = data.bankDetails.bankName || "";
+                        renderBankCardUI(data.bankDetails);
+                    }
+                }
+            } catch (err) {
+                console.error("Firestore read error:", err);
+            }
+
+            window.FINSHARE_BALANCE = balance;
+
+            const initials = userName
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => part[0].toUpperCase())
+                .join("") || "FS";
+
+            document.getElementById("avatarInitials").innerText = initials;
+            document.getElementById("displayUserName").innerText = userName;
+            document.getElementById("displayUserId").innerText = `ID: ${shortId}`;
+            document.getElementById("totalEarningsText").innerText = formatRupees(balance);
+            document.getElementById("earningConfirmedVal").innerText = formatRupees(balance);
+            document.getElementById("accWalletBalance").innerText = formatRupees(balance);
+
+            document.getElementById("accName").innerText = userName;
+            document.getElementById("accId").innerText = shortId;
+            document.getElementById("accEmail").innerText = userEmail;
+            document.getElementById("accPhone").innerText = userPhone;
+
+            await loadUserLeadsSummary(user.uid, balance, pending);
+        });
+
+        loadProductsFromFirestore();
+        loadSiteConfigFromFirestore();
+    </script>
+</body>
+</html>
