@@ -514,7 +514,7 @@
             cursor: pointer;
         }
 
-        /* Professional Delete Account Modal */
+        /* English Delete Account Modal */
         .danger-banner {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -526,18 +526,29 @@
             font-size: 13.5px;
             font-weight: 700;
             color: #b91c1c;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
         .danger-banner-text {
-            font-size: 12.5px;
+            font-size: 13px;
             color: #7f1d1d;
+            line-height: 1.55;
+        }
+        .grace-note-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #1e40af;
             line-height: 1.5;
+            margin-bottom: 14px;
         }
         .modal-btn-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .btn-cancel-modal {
             background: #f1f5f9;
@@ -787,14 +798,14 @@
                 </div>
             </div>
 
-            <!-- Saved Bank Details Card (Shows Bank Data Clearly) -->
+            <!-- Saved Bank Details Card -->
             <div class="info-card" id="bankDetailsCard">
                 <div class="info-card-header">
                     <h3>Bank Account Details</h3>
                     <button class="link-edit-btn" onclick="openBankModal()">Edit</button>
                 </div>
                 <div id="bankDetailsDisplay">
-                    <p class="activity-text">Abhi bank account add nahi hua hai. Payout ke liye <strong>Add Bank</strong> par click karein.</p>
+                    <p class="activity-text">No bank account added yet. Click <strong>Add Bank</strong> to save your payout bank details.</p>
                 </div>
             </div>
 
@@ -924,7 +935,7 @@
             </div>
         </div>
 
-        <!-- Professional Delete Account Modal -->
+        <!-- Professional English Delete Account Modal (30-Day Grace Period) -->
         <div class="modal-backdrop" id="deleteAccountModal" onclick="closeModalById(event, 'deleteAccountModal')">
             <div class="modal-card" onclick="event.stopPropagation()">
                 <div class="modal-head">
@@ -933,15 +944,19 @@
                 </div>
 
                 <div class="danger-banner">
-                    <div class="danger-banner-title">Permanent Action Warning</div>
+                    <div class="danger-banner-title">Account Deletion Notice</div>
                     <div class="danger-banner-text">
-                        Account delete karne par aapka FinShare partner profile, saved bank details aur active session hataya ja sakta hai. Yeh action undo nahi hoga.
+                        Your account is scheduled for permanent deletion after 30 days.
                     </div>
+                </div>
+
+                <div class="grace-note-box">
+                    If you log in within 30 days, your account will not be deleted and will remain active.
                 </div>
 
                 <div class="modal-btn-row">
                     <button type="button" class="btn-cancel-modal" onclick="closeModal('deleteAccountModal')">Cancel</button>
-                    <button type="button" class="btn-danger-modal" id="confirmDeleteBtn" onclick="handleDeleteAccount()">Delete Account</button>
+                    <button type="button" class="btn-danger-modal" id="confirmDeleteBtn" onclick="handleDeleteAccount()">Confirm Delete</button>
                 </div>
             </div>
         </div>
@@ -954,7 +969,7 @@
                     <button class="modal-close" onclick="closeModal('supportModal')">✕</button>
                 </div>
                 <p style="font-size:13.5px;color:#475569;line-height:1.55;margin-bottom:14px;">
-                    Lead status, payout ya account se judi kisi bhi sahayata ke liye FinShare support se sampark karein.
+                    For help with leads, payouts, or your partner account, contact FinShare support.
                 </p>
                 <div class="detail-row">
                     <span class="detail-label">Support Email</span>
@@ -1045,7 +1060,7 @@
             clearTimeout(window.toastTimer);
             window.toastTimer = setTimeout(() => {
                 toast.style.display = "none";
-            }, 2600);
+            }, 3000);
         }
 
         function escapeAttr(val) {
@@ -1064,7 +1079,7 @@
 
             if (!bankData || !bankData.accountNumber) {
                 if (badge) badge.innerText = "";
-                box.innerHTML = `<p class="activity-text">Abhi bank account add nahi hua hai. Payout ke liye <strong>Add Bank</strong> par click karein.</p>`;
+                box.innerHTML = `<p class="activity-text">No bank account added yet. Click <strong>Add Bank</strong> to save your payout bank details.</p>`;
                 return;
             }
 
@@ -1275,8 +1290,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -1390,29 +1405,40 @@
             document.getElementById("accWalletBalance").innerText = formatRupees(fallbackBalance);
         }
 
+        // Schedules deletion after 30 days; logging in within 30 days cancels deletion automatically
         window.handleDeleteAccount = async function() {
             const user = auth.currentUser;
             if (!user) return;
 
             const btn = document.getElementById("confirmDeleteBtn");
             btn.disabled = true;
-            btn.innerText = "Deleting...";
+            btn.innerText = "Scheduling...";
+
+            const now = new Date();
+            const deadline = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
             try {
+                await setDoc(doc(db, "users", user.uid), {
+                    deletionScheduled: true,
+                    deletionRequestedAt: now.toISOString(),
+                    deletionDeadline: deadline.toISOString()
+                }, { merge: true });
+
                 try {
-                    await deleteDoc(doc(db, "users", user.uid));
+                    await signOut(auth);
                 } catch (e) {}
 
-                await deleteUser(user);
-                localStorage.clear();
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userName");
+                localStorage.removeItem("userPhone");
                 window.location.href = "login.html";
             } catch (err) {
-                console.error("Delete account error:", err);
+                console.error("Delete schedule error:", err);
                 closeModal("deleteAccountModal");
-                showToast("Security ke liye dobara login karke account delete karein.");
+                showToast("Could not schedule account deletion. Please try again.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Delete Account";
+                btn.innerText = "Confirm Delete";
             }
         };
 
@@ -1444,6 +1470,20 @@
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
                     const data = snap.data();
+
+                    // If user logs in within 30 days, cancel scheduled deletion automatically
+                    if (data.deletionScheduled) {
+                        const deadlineTime = data.deletionDeadline ? new Date(data.deletionDeadline).getTime() : 0;
+                        if (!deadlineTime || Date.now() <= deadlineTime) {
+                            await setDoc(doc(db, "users", user.uid), {
+                                deletionScheduled: false,
+                                deletionDeadline: null,
+                                restoredAt: new Date().toISOString()
+                            }, { merge: true });
+                            showToast("Welcome back! Your account deletion has been cancelled.");
+                        }
+                    }
+
                     if (data.name) userName = data.name;
                     if (data.email) userEmail = data.email;
                     if (data.phone) userPhone = data.phone;
