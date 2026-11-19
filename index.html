@@ -20,7 +20,7 @@
             max-width: 480px;
             margin: 0 auto;
             min-height: 100vh;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
         }
 
         /* Top Blue Header & Balance Card */
@@ -161,7 +161,7 @@
 
         /* Sections */
         .section {
-            padding: 16px 16px 0;
+            padding: 18px 16px 0;
         }
         .section-header {
             display: flex;
@@ -170,9 +170,10 @@
             margin-bottom: 12px;
         }
         .section-title {
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             color: #0f172a;
+            letter-spacing: -0.2px;
         }
         .clear-filter {
             font-size: 12px;
@@ -219,94 +220,230 @@
             text-align: center;
         }
 
-        /* Product Cards */
-        .products-list {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .product-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            padding: 16px;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-        }
-        .product-top {
+        /* Top Earning Products Pills & Colored Tiles */
+        .top-earning-pills {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 14px;
+            scrollbar-width: none;
         }
-        .product-badge {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+        .top-earning-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .top-pill-btn {
+            background: transparent;
+            color: #475569;
+            border: none;
+            border-radius: 999px;
+            padding: 9px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .top-pill-btn.active {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .top-earning-carousel {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+        .top-earning-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        .earning-tile-card {
+            min-width: 196px;
+            max-width: 196px;
+            border-radius: 20px;
+            padding: 18px 16px 16px;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            scroll-snap-align: start;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+            flex-shrink: 0;
+        }
+        .empty-home-products {
+            width: 100%;
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+        .tile-logo-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 16px;
-            flex-shrink: 0;
             overflow: hidden;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 15px;
         }
-        .product-logo-img {
+        .tile-logo-img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             padding: 6px;
-            background: #ffffff;
             display: block;
         }
-        .product-title {
+        .tile-title {
             font-size: 16px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-        .product-sub {
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        .profit-pill {
-            display: inline-block;
-            margin-top: 12px;
-            background: #dcfce7;
-            color: #15803d;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 5px 10px;
-            border-radius: 8px;
-        }
-        .product-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 14px;
-        }
-        .btn-share {
-            flex: 1;
-            background-color: #16a34a;
+            font-weight: 800;
+            line-height: 1.25;
             color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tile-sub {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.88);
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tile-payout-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            flex-wrap: wrap;
+        }
+        .coin-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fbbf24;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5);
+        }
+        .tile-cta-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #0f172a;
             border: none;
             border-radius: 12px;
-            padding: 11px 14px;
+            padding: 11px 12px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
         }
-        .btn-copy {
-            width: 44px;
-            height: 42px;
-            background-color: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            cursor: pointer;
+        .tile-cta-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Most Trusted Brand Section */
+        .trusted-section {
+            padding: 28px 16px 12px;
+        }
+        .trusted-heading {
+            font-size: 32px;
+            font-weight: 800;
+            color: #64748b;
+            line-height: 1.12;
+            letter-spacing: -0.6px;
+        }
+        .made-in-india {
+            margin-top: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #64748b;
             display: flex;
             align-items: center;
+            gap: 6px;
+        }
+        .heart-icon {
+            color: #f43f5e;
+            font-size: 18px;
+        }
+        .trust-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .metric-num {
+            font-size: 19px;
+            font-weight: 800;
+            color: #64748b;
+        }
+        .metric-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        /* Social Media Row */
+        .social-footer-box {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .social-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .social-icons-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .social-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .social-icon-btn:hover {
+            transform: translateY(-2px);
+            border-color: #2563eb;
         }
 
         /* Views */
@@ -742,11 +879,77 @@
                 </div>
             </section>
 
+            <!-- Top Earning Products Section (Only shows products where showOnHome === true) -->
             <section class="section" id="homeProductsSection">
                 <div class="section-header">
                     <h2 class="section-title" id="homeProductsHeading">Top Earning Products</h2>
                 </div>
-                <div class="products-list" id="homeProductsContainer"></div>
+
+                <div class="top-earning-pills" id="topEarningPills">
+                    <button class="top-pill-btn active" data-pill="Saving Account" onclick="selectTopEarningPill('Saving Account')">Saving Account</button>
+                    <button class="top-pill-btn" data-pill="Credit Card" onclick="selectTopEarningPill('Credit Card')">Credit Card</button>
+                    <button class="top-pill-btn" data-pill="Demat Account" onclick="selectTopEarningPill('Demat Account')">Demat Account</button>
+                    <button class="top-pill-btn" data-pill="Personal Loan" onclick="selectTopEarningPill('Personal Loan')">Personal Loan</button>
+                    <button class="top-pill-btn" data-pill="Investment" onclick="selectTopEarningPill('Investment')">Investment</button>
+                </div>
+
+                <div class="top-earning-carousel" id="homeProductsContainer"></div>
+            </section>
+
+            <!-- Most Trusted Brand Banner + Social Media Icons -->
+            <section class="trusted-section" id="trustedBrandSection">
+                <h2 class="trusted-heading" id="trustedTitle">Most Trusted<br>Brand!</h2>
+                <div class="made-in-india">
+                    <span>Made with</span>
+                    <span class="heart-icon">♥</span>
+                    <span>in India</span>
+                </div>
+
+                <div class="trust-metrics-grid">
+                    <div>
+                        <div class="metric-num" id="metricPartnersNum">50 Lakh</div>
+                        <div class="metric-label" id="metricPartnersLbl">Happy Partners</div>
+                    </div>
+                    <div>
+                        <div class="metric-num" id="metricPayoutNum">₹100 Cr.+</div>
+                        <div class="metric-label" id="metricPayoutLbl">Payout Given</div>
+                    </div>
+                    <div>
+                        <div class="metric-num" id="metricBrandsNum">100+</div>
+                        <div class="metric-label" id="metricBrandsLbl">Popular Brands</div>
+                    </div>
+                </div>
+
+                <div class="social-footer-box">
+                    <span class="social-label">Follow Us</span>
+                    <div class="social-icons-row">
+                        <a class="social-icon-btn" id="linkInstagram" href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+
+                        <a class="social-icon-btn" id="linkFacebook" href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877f2">
+                                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
+                            </svg>
+                        </a>
+
+                        <a class="social-icon-btn" id="linkYoutube" href="https://youtube.com" target="_blank" rel="noopener noreferrer" title="YouTube">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#dc2626">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path>
+                            </svg>
+                        </a>
+
+                        <a class="social-icon-btn" id="linkTwitter" href="https://x.com" target="_blank" rel="noopener noreferrer" title="X / Twitter">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0f172a">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </section>
         </main>
 
@@ -798,7 +1001,6 @@
                 </div>
             </div>
 
-            <!-- Saved Bank Details Card -->
             <div class="info-card" id="bankDetailsCard">
                 <div class="info-card-header">
                     <h3>Bank Account Details</h3>
@@ -809,7 +1011,6 @@
                 </div>
             </div>
 
-            <!-- Main Account Options Card -->
             <div class="menu-group-card">
                 <button class="account-menu-item" onclick="switchTab('earnings')">
                     <div class="menu-item-left">
@@ -860,7 +1061,6 @@
                 </button>
             </div>
 
-            <!-- OTHER LINKS Card -->
             <div class="other-links-title">OTHER LINKS</div>
             <div class="menu-group-card">
                 <button class="account-menu-item" onclick="openSupportModal()">
@@ -935,7 +1135,7 @@
             </div>
         </div>
 
-        <!-- Professional English Delete Account Modal (30-Day Grace Period) -->
+        <!-- English Delete Account Modal (30-Day Grace Period) -->
         <div class="modal-backdrop" id="deleteAccountModal" onclick="closeModalById(event, 'deleteAccountModal')">
             <div class="modal-card" onclick="event.stopPropagation()">
                 <div class="modal-head">
@@ -1020,35 +1220,39 @@
     </div>
 
     <script>
+        // Only products with showOnHome: true appear on Home page
         window.FINSHARE_PRODUCTS = [
             {
-                id: "angel-one",
-                code: "AO",
+                id: "kotak-811-classic",
+                code: "K8",
                 logoUrl: "",
-                bg: "#eff6ff",
-                color: "#2563eb",
-                category: "Demat",
-                title: "Angel One Demat",
-                subtitle: "Free Account Opening + 1st Trade",
-                profitText: "Earn ₹750",
-                shareUrl: "https://finshareapp.in/offer/angel-one",
+                cardBg: "#121647",
+                category: "Saving Account",
+                title: "Kotak 811 Classic Ac..",
+                subtitle: "Saving Account",
+                payoutText: "450",
+                bonusText: "upto",
+                shareUrl: "https://finshareapp.in/offer/kotak-811",
+                showOnHome: true,
                 order: 1
             },
             {
-                id: "kotak-811",
-                code: "KM",
+                id: "airtel-payments-bank",
+                code: "AB",
                 logoUrl: "",
-                bg: "#fef2f2",
-                color: "#dc2626",
-                category: "Banking",
-                title: "Kotak 811 Savings",
-                subtitle: "Zero Balance Account Opening",
-                profitText: "Earn ₹350",
-                shareUrl: "https://finshareapp.in/offer/kotak-811",
+                cardBg: "#a61614",
+                category: "Saving Account",
+                title: "Airtel Payments Bank",
+                subtitle: "Saving Account",
+                payoutText: "190",
+                bonusText: "upto",
+                shareUrl: "https://finshareapp.in/offer/airtel-bank",
+                showOnHome: true,
                 order: 2
             }
         ];
         window.FINSHARE_HOME_CAT = "ALL";
+        window.FINSHARE_TOP_PILL = "Saving Account";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
 
@@ -1110,86 +1314,120 @@
             `;
         }
 
-        function renderSquareLogo(item) {
+        function renderTileLogo(item) {
             const safeUrl = escapeAttr(item.logoUrl);
-            const safeCode = escapeAttr(item.code);
+            const safeCode = escapeAttr(item.code || (item.title ? item.title.slice(0, 2).toUpperCase() : "FS"));
             const safeTitle = escapeAttr(item.title);
-            const bg = escapeAttr(item.bg || "#eff6ff");
-            const color = escapeAttr(item.color || "#2563eb");
 
             if (safeUrl) {
                 return `
-                    <div class="product-badge" style="background:#ffffff;color:${color};">
+                    <div class="tile-logo-circle">
                         <img
                             src="${safeUrl}"
                             alt="${safeTitle}"
-                            class="product-logo-img"
+                            class="tile-logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         />
-                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:${bg};color:${color};font-weight:800;">${safeCode}</span>
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:800;color:#0f172a;">${safeCode}</span>
                     </div>
                 `;
             }
 
             return `
-                <div class="product-badge" style="background:${bg};color:${color};font-weight:800;">
-                    ${safeCode}
+                <div class="tile-logo-circle">
+                    <span>${safeCode}</span>
                 </div>
             `;
+        }
+
+        function mapCategoryToPill(cat) {
+            const c = String(cat || "").toLowerCase();
+            if (c.includes("saving") || c.includes("bank")) return "Saving Account";
+            if (c.includes("credit")) return "Credit Card";
+            if (c.includes("demat")) return "Demat Account";
+            if (c.includes("loan")) return "Personal Loan";
+            if (c.includes("invest") || c.includes("bond")) return "Investment";
+            return cat || "Saving Account";
         }
 
         function renderHomeProducts() {
             const container = document.getElementById("homeProductsContainer");
             const clearBtn = document.getElementById("clearCategoryBtn");
-            const heading = document.getElementById("homeProductsHeading");
             if (!container) return;
 
-            const filtered = window.FINSHARE_PRODUCTS.filter((item) => {
-                if (window.FINSHARE_HOME_CAT === "ALL") return true;
-                return item.category === window.FINSHARE_HOME_CAT;
+            document.querySelectorAll("#topEarningPills .top-pill-btn").forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.pill === window.FINSHARE_TOP_PILL);
             });
 
             if (clearBtn) {
                 clearBtn.style.display = window.FINSHARE_HOME_CAT === "ALL" ? "none" : "inline-block";
             }
-            if (heading) {
-                heading.innerText = window.FINSHARE_HOME_CAT === "ALL"
-                    ? "Top Earning Products"
-                    : `${window.FINSHARE_HOME_CAT} Products`;
-            }
+
+            const homeAllowed = window.FINSHARE_PRODUCTS.filter((item) => item.showOnHome === true);
+
+            const filtered = homeAllowed.filter((item) => {
+                if (window.FINSHARE_HOME_CAT !== "ALL") {
+                    const homeCat = window.FINSHARE_HOME_CAT.toLowerCase();
+                    const itemCat = String(item.category || "").toLowerCase();
+                    if (homeCat === "banking") {
+                        return itemCat.includes("bank") || itemCat.includes("saving");
+                    }
+                    if (homeCat === "loans") {
+                        return itemCat.includes("loan");
+                    }
+                    return itemCat.includes(homeCat);
+                }
+
+                const pillNorm = mapCategoryToPill(item.category);
+                return pillNorm === window.FINSHARE_TOP_PILL;
+            });
 
             if (!filtered.length) {
-                container.innerHTML = `<div class="product-card"><p class="product-sub">Is category mein abhi koi product available nahi hai.</p></div>`;
+                container.innerHTML = `<div class="empty-home-products">Selected category ke liye koi home product enabled nahi hai. Database mein <strong>showOnHome: true</strong> set karein.</div>`;
                 return;
             }
 
-            container.innerHTML = filtered.map((item) => `
-                <article class="product-card">
-                    <div class="product-top">
-                        ${renderSquareLogo(item)}
+            container.innerHTML = filtered.map((item) => {
+                const bg = escapeAttr(item.cardBg || "#121647");
+                const payout = escapeAttr(item.payoutText || item.profitText || "₹250");
+                const bonus = escapeAttr(item.bonusText || "");
+
+                return `
+                    <article class="earning-tile-card" style="background:${bg};">
                         <div>
-                            <div class="product-title">${escapeAttr(item.title)}</div>
-                            <div class="product-sub">${escapeAttr(item.subtitle)}</div>
+                            ${renderTileLogo(item)}
+                            <div class="tile-title">${escapeAttr(item.title)}</div>
+                            <div class="tile-sub">${escapeAttr(item.subtitle || item.category || "")}</div>
+                            <div class="tile-payout-row">
+                                <span>${payout}</span>
+                                <span class="coin-badge">g</span>
+                                ${bonus ? `<span>${bonus}</span>` : ""}
+                            </div>
                         </div>
-                    </div>
-                    <div class="profit-pill">${escapeAttr(item.profitText)}</div>
-                    <div class="product-actions">
-                        <button class="btn-share" onclick="shareProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(item.profitText || "").replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
-                            <span>Share Offer</span>
+                        <button class="tile-cta-btn" onclick="sellOrShareProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            Sell now
                         </button>
-                        <button class="btn-copy" title="Copy Link" onclick="copyOfferLink('${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
-            `).join("");
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function selectTopEarningPill(pillName) {
+            window.FINSHARE_HOME_CAT = "ALL";
+            window.FINSHARE_TOP_PILL = pillName;
+            document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
+                card.classList.remove("active");
+            });
+            renderHomeProducts();
         }
 
         function selectHomeCategory(category) {
             window.FINSHARE_HOME_CAT = category;
+            if (category === "Banking") window.FINSHARE_TOP_PILL = "Saving Account";
+            else if (category === "Credit Card") window.FINSHARE_TOP_PILL = "Credit Card";
+            else if (category === "Demat") window.FINSHARE_TOP_PILL = "Demat Account";
+            else if (category === "Loans") window.FINSHARE_TOP_PILL = "Personal Loan";
+
             document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
                 card.classList.toggle("active", card.dataset.cat === category);
             });
@@ -1258,22 +1496,13 @@
             }
         }
 
-        function shareProduct(title, profitText, url) {
-            const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
+        function sellOrShareProduct(title, payoutText, url) {
+            const shareText = `${title} (${payoutText})\nApply / Share: ${url}`;
             if (navigator.share) {
                 navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
             } else {
                 const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
                 window.open(waUrl, "_blank");
-            }
-        }
-
-        async function copyOfferLink(url) {
-            try {
-                await navigator.clipboard.writeText(url);
-                showToast("Offer link copied!");
-            } catch (e) {
-                showToast(url);
             }
         }
 
@@ -1344,33 +1573,58 @@
             }
         };
 
+        // Strictly loads only products explicitly flagged with showOnHome === true
         async function loadProductsFromFirestore() {
             try {
                 const snap = await getDocs(collection(db, "products"));
                 if (!snap.empty) {
-                    const loaded = snap.docs.map((d, idx) => {
+                    const selectedHomeProducts = [];
+                    snap.forEach((d) => {
                         const data = d.data();
-                        return {
-                            id: d.id,
-                            code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
-                            logoUrl: (data.logoUrl || data.logo || "").trim(),
-                            bg: data.bg || "#eff6ff",
-                            color: data.color || "#2563eb",
-                            category: data.category || "More",
-                            title: data.title || "Offer",
-                            subtitle: data.subtitle || "",
-                            profitText: data.profitText || "Earn Profit",
-                            shareUrl: data.shareUrl || "https://finshareapp.in",
-                            order: typeof data.order === "number" ? data.order : idx + 1
-                        };
+                        if (data.showOnHome === true) {
+                            selectedHomeProducts.push({
+                                id: d.id,
+                                code: data.code || (data.title ? data.title.slice(0, 2).toUpperCase() : "FS"),
+                                logoUrl: (data.logoUrl || data.logo || "").trim(),
+                                cardBg: data.cardBg || data.bg || "#121647",
+                                category: data.category || "Saving Account",
+                                title: data.title || "Offer",
+                                subtitle: data.subtitle || data.category || "",
+                                payoutText: data.payoutText || data.profitText || "₹250",
+                                bonusText: data.bonusText || "",
+                                shareUrl: data.shareUrl || "https://finshareapp.in",
+                                showOnHome: true,
+                                order: typeof data.order === "number" ? data.order : 999
+                            });
+                        }
                     });
-                    loaded.sort((a, b) => a.order - b.order);
-                    window.FINSHARE_PRODUCTS = loaded;
+                    selectedHomeProducts.sort((a, b) => a.order - b.order);
+                    window.FINSHARE_PRODUCTS = selectedHomeProducts;
                 }
             } catch (err) {
                 console.error("Products load error:", err);
             }
             renderHomeProducts();
+        }
+
+        async function loadSiteConfigFromFirestore() {
+            try {
+                const snap = await getDoc(doc(db, "siteConfig", "home"));
+                if (snap.exists()) {
+                    const cfg = snap.data();
+                    if (cfg.partnersCount) document.getElementById("metricPartnersNum").innerText = cfg.partnersCount;
+                    if (cfg.payoutGiven) document.getElementById("metricPayoutNum").innerText = cfg.payoutGiven;
+                    if (cfg.popularBrands) document.getElementById("metricBrandsNum").innerText = cfg.popularBrands;
+                    if (cfg.social) {
+                        if (cfg.social.instagram) document.getElementById("linkInstagram").href = cfg.social.instagram;
+                        if (cfg.social.facebook) document.getElementById("linkFacebook").href = cfg.social.facebook;
+                        if (cfg.social.youtube) document.getElementById("linkYoutube").href = cfg.social.youtube;
+                        if (cfg.social.twitter) document.getElementById("linkTwitter").href = cfg.social.twitter;
+                    }
+                }
+            } catch (err) {
+                console.error("Site config error:", err);
+            }
         }
 
         async function loadUserLeadsSummary(userId, fallbackBalance, fallbackPending) {
@@ -1405,7 +1659,6 @@
             document.getElementById("accWalletBalance").innerText = formatRupees(fallbackBalance);
         }
 
-        // Schedules deletion after 30 days; logging in within 30 days cancels deletion automatically
         window.handleDeleteAccount = async function() {
             const user = auth.currentUser;
             if (!user) return;
@@ -1464,69 +1717,4 @@
             let userEmail = user.email || "-";
             let userPhone = localStorage.getItem("userPhone") || "-";
             let balance = 0;
-            let pending = 0;
-
-            try {
-                const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) {
-                    const data = snap.data();
-
-                    // If user logs in within 30 days, cancel scheduled deletion automatically
-                    if (data.deletionScheduled) {
-                        const deadlineTime = data.deletionDeadline ? new Date(data.deletionDeadline).getTime() : 0;
-                        if (!deadlineTime || Date.now() <= deadlineTime) {
-                            await setDoc(doc(db, "users", user.uid), {
-                                deletionScheduled: false,
-                                deletionDeadline: null,
-                                restoredAt: new Date().toISOString()
-                            }, { merge: true });
-                            showToast("Welcome back! Your account deletion has been cancelled.");
-                        }
-                    }
-
-                    if (data.name) userName = data.name;
-                    if (data.email) userEmail = data.email;
-                    if (data.phone) userPhone = data.phone;
-                    if (typeof data.balance === "number") balance = data.balance;
-                    if (typeof data.pending === "number") pending = data.pending;
-
-                    if (data.bankDetails) {
-                        document.getElementById("bankHolderName").value = data.bankDetails.holderName || "";
-                        document.getElementById("bankAccountNumber").value = data.bankDetails.accountNumber || "";
-                        document.getElementById("bankIfsc").value = data.bankDetails.ifsc || "";
-                        document.getElementById("bankNameInput").value = data.bankDetails.bankName || "";
-                        renderBankCardUI(data.bankDetails);
-                    }
-                }
-            } catch (err) {
-                console.error("Firestore read error:", err);
-            }
-
-            window.FINSHARE_BALANCE = balance;
-
-            const initials = userName
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((part) => part[0].toUpperCase())
-                .join("") || "FS";
-
-            document.getElementById("avatarInitials").innerText = initials;
-            document.getElementById("displayUserName").innerText = userName;
-            document.getElementById("displayUserId").innerText = `ID: ${shortId}`;
-            document.getElementById("totalEarningsText").innerText = formatRupees(balance);
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(balance);
-            document.getElementById("accWalletBalance").innerText = formatRupees(balance);
-
-            document.getElementById("accName").innerText = userName;
-            document.getElementById("accId").innerText = shortId;
-            document.getElementById("accEmail").innerText = userEmail;
-            document.getElementById("accPhone").innerText = userPhone;
-
-            await loadUserLeadsSummary(user.uid, balance, pending);
-        });
-
-        loadProductsFromFirestore();
-    </script>
-</body>
-</html>
+            let pending = 
