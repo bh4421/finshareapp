@@ -72,16 +72,19 @@
         .top-actions {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
         }
         .icon-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
             color: #ffffff;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 34px;
+            height: 34px;
             padding: 4px;
         }
 
@@ -118,6 +121,130 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Slide-Over Menu Drawer (menu.html integration) */
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            justify-content: flex-start;
+            z-index: 1400;
+        }
+        .drawer-backdrop.open {
+            display: flex;
+        }
+        .drawer-panel {
+            width: 82%;
+            max-width: 320px;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 8px 0 30px rgba(15, 23, 42, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .drawer-header {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .drawer-brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .drawer-logo-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .drawer-title {
+            font-size: 15.5px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .drawer-sub {
+            font-size: 11.5px;
+            color: #64748b;
+        }
+        .drawer-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-drawer-logout {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-drawer-close {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .drawer-nav {
+            padding: 6px 0;
+            flex: 1;
+        }
+        .drawer-link-btn {
+            width: 100%;
+            background: #ffffff;
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+        }
+        .drawer-link-btn:hover {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        .drawer-footer-box {
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .btn-open-menu-file {
+            width: 100%;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
         }
 
         /* Stats Row */
@@ -186,7 +313,7 @@
             cursor: pointer;
         }
 
-        /* 6 Categories Grid (Demat, Banking, Credit Card, Loans, Investment, More) */
+        /* 6 Categories Grid */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -230,7 +357,7 @@
             text-align: center;
         }
 
-        /* Original FinShare Top Earning Products Cards */
+        /* FinShare Top Earning Products Cards */
         .finshare-products-list {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -317,7 +444,6 @@
             gap: 7px;
             margin-top: 12px;
         }
-        /* Single uniform blue Share button across all cards */
         .btn-offer-share {
             flex: 1;
             background: #2563eb;
@@ -356,7 +482,7 @@
             text-align: center;
         }
 
-        /* Original FinShare Partner Highlights Section (Distinct from external templates) */
+        /* FinShare Partner Highlights Section */
         .trusted-section {
             padding: 24px 16px 12px;
         }
@@ -609,7 +735,7 @@
             align-items: center;
             justify-content: center;
             padding: 18px;
-            z-index: 1200;
+            z-index: 1500;
         }
         .modal-backdrop.open {
             display: flex;
@@ -738,7 +864,7 @@
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            z-index: 1300;
+            z-index: 1600;
             display: none;
             max-width: 90%;
             text-align: center;
@@ -782,6 +908,13 @@
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
+                    <button class="icon-btn" title="Open Menu" onclick="openMenuDrawer()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
                     <div class="avatar-circle" id="avatarInitials">FS</div>
                     <div>
                         <div class="user-name" id="displayUserName">FinShare Partner</div>
@@ -790,13 +923,13 @@
                 </div>
                 <div class="top-actions">
                     <button class="icon-btn" title="Notifications" onclick="showToast('No new notifications right now.')">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                     </button>
                     <button class="icon-btn" title="Logout" onclick="handleLogout()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <polyline points="16 17 21 12 16 7"></polyline>
                             <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -813,6 +946,68 @@
                 <button class="btn-withdraw" onclick="handleWithdraw()">Withdraw</button>
             </div>
         </header>
+
+        <!-- Menu Drawer (menu.html links & actions) -->
+        <div class="drawer-backdrop" id="menuDrawerBackdrop" onclick="closeMenuDrawer()">
+            <aside class="drawer-panel" onclick="event.stopPropagation()">
+                <div class="drawer-header">
+                    <div class="drawer-brand-left">
+                        <div class="drawer-logo-box">FS</div>
+                        <div>
+                            <div class="drawer-title">FinShare</div>
+                            <div class="drawer-sub">Earn by offers</div>
+                        </div>
+                    </div>
+                    <div class="drawer-header-actions">
+                        <button class="btn-drawer-logout" onclick="handleLogout()">Logout</button>
+                        <button class="btn-drawer-close" onclick="closeMenuDrawer()">✕</button>
+                    </div>
+                </div>
+
+                <nav class="drawer-nav">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); switchTab('home');">
+                        <span>Dashboard</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="window.location.href='leads.html'">
+                        <span>My Leads</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); switchTab('earnings');">
+                        <span>Earnings</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('About Us', 'FinShare (finshareapp.in) helps partner users share verified financial and referral offers and track their leads and payouts in one place.')">
+                        <span>About Us</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Contact Us', 'Need assistance with your account, leads, or payouts? Reach out to FinShare Support at support@finshareapp.in.')">
+                        <span>Contact Us</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('DMCA', 'FinShare respects intellectual property rights. If you believe any listing or promotional material on FinShare infringes your copyright, please notify support@finshareapp.in with details.')">
+                        <span>DMCA</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Disclaimer', 'Offer terms, eligibility, approval timelines, and payout amounts are subject to partner campaign rules and verification. Always review official offer details before sharing.')">
+                        <span>Disclaimer</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Privacy Policy', 'FinShare collects only essential account, lead tracking, and payout details needed to operate your partner profile securely and never sells personal data to unauthorized third parties.')">
+                        <span>Privacy Policy</span>
+                        <span>›</span>
+                    </button>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Terms & Conditions', 'By using FinShare, partners agree to share offers ethically without misleading claims or spam, and follow platform verification and payout rules.')">
+                        <span>Terms & Conditions</span>
+                        <span>›</span>
+                    </button>
+                </nav>
+
+                <div class="drawer-footer-box">
+                    <button class="btn-open-menu-file" onclick="window.location.href='menu.html'">Open menu.html Page</button>
+                </div>
+            </aside>
+        </div>
 
         <main id="homeView" class="view-panel active">
             <div class="stats-grid">
@@ -845,7 +1040,7 @@
                 </div>
             </div>
 
-            <!-- Categories Section (6 Categories + Rupee Symbol on Loans) -->
+            <!-- Categories Section -->
             <section class="section" id="categoriesSection">
                 <div class="section-header">
                     <h2 class="section-title">Categories</h2>
@@ -918,7 +1113,7 @@
                 </div>
             </section>
 
-            <!-- Top Earning Products Section (Uniform Blue Share Button + Database showOnHome: true) -->
+            <!-- Top Earning Products Section -->
             <section class="section" id="homeProductsSection">
                 <div class="section-header">
                     <h2 class="section-title" id="homeProductsHeading">Top Earning Products</h2>
@@ -927,7 +1122,7 @@
                 <div class="finshare-products-list" id="homeProductsContainer"></div>
             </section>
 
-            <!-- Original FinShare Partner Highlights + Social Media Icons -->
+            <!-- FinShare Partner Highlights + Social Media Icons -->
             <section class="trusted-section" id="trustedBrandSection">
                 <div class="finshare-trust-card">
                     <span class="finshare-trust-badge">FINSHARE PARTNER NETWORK</span>
@@ -1045,6 +1240,20 @@
             </div>
 
             <div class="menu-group-card">
+                <button class="account-menu-item" onclick="openMenuDrawer()">
+                    <div class="menu-item-left">
+                        <div class="menu-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </div>
+                        <span class="menu-item-label">Full Menu (menu.html)</span>
+                    </div>
+                    <span class="menu-chevron">›</span>
+                </button>
+
                 <button class="account-menu-item" onclick="switchTab('earnings')">
                     <div class="menu-item-left">
                         <div class="menu-icon-wrap">
@@ -1138,6 +1347,18 @@
                 </button>
             </div>
         </section>
+
+        <!-- Info Modal for Menu Links (About Us / Contact Us / DMCA / Disclaimer / Privacy / Terms) -->
+        <div class="modal-backdrop" id="infoModal" onclick="closeModalById(event, 'infoModal')">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 id="infoModalTitle" style="font-size:17px;font-weight:700;color:#0f172a;"></h3>
+                    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
+                </div>
+                <p id="infoModalBody" style="font-size:13.5px;line-height:1.6;color:#475569;margin-bottom:16px;"></p>
+                <button class="btn-primary-modal" onclick="closeModal('infoModal')">Close</button>
+            </div>
+        </div>
 
         <!-- Add Bank Modal -->
         <div class="modal-backdrop" id="bankModal" onclick="closeModalById(event, 'bankModal')">
@@ -1331,6 +1552,22 @@
         window.FINSHARE_HOME_CAT = "ALL";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
+
+        function openMenuDrawer() {
+            const backdrop = document.getElementById("menuDrawerBackdrop");
+            if (backdrop) backdrop.classList.add("open");
+        }
+
+        function closeMenuDrawer() {
+            const backdrop = document.getElementById("menuDrawerBackdrop");
+            if (backdrop) backdrop.classList.remove("open");
+        }
+
+        function openInfoModal(title, text) {
+            document.getElementById("infoModalTitle").innerText = title;
+            document.getElementById("infoModalBody").innerText = text;
+            document.getElementById("infoModal").classList.add("open");
+        }
 
         function showToast(msg) {
             const toast = document.getElementById("toastBar");
@@ -1643,7 +1880,6 @@
             }
         };
 
-        // Strictly loads only products explicitly flagged with showOnHome === true
         async function loadProductsFromFirestore() {
             try {
                 const snap = await getDocs(collection(db, "products"));
