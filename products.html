@@ -186,91 +186,6 @@
             background-color: #1d4ed8;
         }
 
-        /* Detail Modal */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            z-index: 1000;
-        }
-        .modal-backdrop.open {
-            display: flex;
-        }
-        .modal-card {
-            width: 100%;
-            max-width: 420px;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
-        }
-        .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .modal-close {
-            background: #f1f5f9;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #334155;
-            cursor: pointer;
-        }
-        .btn-share {
-            flex: 1;
-            background-color: #2563eb;
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            padding: 11px 14px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-        }
-        .btn-share:hover {
-            background-color: #1d4ed8;
-        }
-        .btn-copy {
-            width: 44px;
-            height: 42px;
-            background-color: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .toast-bar {
-            position: fixed;
-            bottom: 78px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0f172a;
-            color: #ffffff;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 1100;
-            display: none;
-            max-width: 90%;
-            text-align: center;
-        }
-
         /* Bottom Nav */
         .bottom-nav {
             position: fixed;
@@ -326,30 +241,6 @@
 
         <div class="products-list" id="productsListContainer"></div>
 
-        <!-- Detail Modal -->
-        <div class="modal-backdrop" id="detailModal" onclick="closeDetailModal(event)">
-            <div class="modal-card" onclick="event.stopPropagation()">
-                <div class="modal-head">
-                    <h3 id="modalTitle" style="font-size:17px;font-weight:700;color:#0f172a;">Offer Details</h3>
-                    <button class="modal-close" onclick="hideDetailModal()">✕</button>
-                </div>
-                <p id="modalSubtitle" style="font-size:13px;color:#475569;margin-bottom:8px;"></p>
-                <div id="modalPayout" style="font-size:15px;font-weight:800;color:#16a34a;margin-bottom:12px;"></div>
-                <p id="modalTerms" style="font-size:12.5px;color:#64748b;line-height:1.5;margin-bottom:16px;"></p>
-                <div style="display:flex;gap:10px;">
-                    <button class="btn-share" id="modalShareBtn">Share Offer</button>
-                    <button class="btn-copy" id="modalCopyBtn" title="Copy Link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="toast-bar" id="toastBar"></div>
-
         <nav class="bottom-nav">
             <button class="nav-item" onclick="window.location.href='index.html'">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -397,8 +288,6 @@
                 title: "Smallcase",
                 subtitle: "Earn Rs 300 on first investment",
                 profitText: "Earn ₹300",
-                terms: "Referred user ko link se sign up karke first investment complete karna hoga.",
-                shareUrl: "https://finshareapp.in/offer/smallcase",
                 order: 1
             },
             {
@@ -411,8 +300,6 @@
                 title: "Jainam",
                 subtitle: "Earn Rs 300 on A/C open + Activation",
                 profitText: "Earn ₹300",
-                terms: "Account opening aur activation complete hone par payout track hoga.",
-                shareUrl: "https://finshareapp.in/offer/jainam",
                 order: 2
             },
             {
@@ -425,8 +312,6 @@
                 title: "Upstox",
                 subtitle: "Earn Rs 200 on A/C open + Activation",
                 profitText: "Earn ₹200",
-                terms: "Complete KYC aur account activation zaroori hai.",
-                shareUrl: "https://finshareapp.in/offer/upstox",
                 order: 3
             },
             {
@@ -439,23 +324,10 @@
                 title: "Angel One",
                 subtitle: "Earn Rs 150 on A/C open + Activation",
                 profitText: "Earn ₹150",
-                terms: "Account open aur activation ke baad earning confirm hogi.",
-                shareUrl: "https://finshareapp.in/offer/angel-one",
                 order: 4
             }
         ];
         window.ACTIVE_CAT = "ALL";
-
-        function showToast(msg) {
-            const toast = document.getElementById("toastBar");
-            if (!toast) return;
-            toast.innerText = msg;
-            toast.style.display = "block";
-            clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => {
-                toast.style.display = "none";
-            }, 2600);
-        }
 
         function escapeAttr(val) {
             return String(val || "")
@@ -534,7 +406,7 @@
                             <div class="offer-payout">${escapeAttr(item.profitText)}</div>
                         </div>
                     </div>
-                    <button class="btn-view-detail" onclick="openDetail('${escapeAttr(item.id)}')">View Detail</button>
+                    <button class="btn-view-detail" onclick="openProductDetailPage('${escapeAttr(item.id)}')">View Detail</button>
                 </article>
             `).join("");
         }
@@ -544,51 +416,14 @@
             renderProducts();
         }
 
-        function openDetail(id) {
+        function openProductDetailPage(id) {
             const item = window.PAGE_PRODUCTS.find((p) => p.id === id);
-            if (!item) return;
-
-            document.getElementById("modalTitle").innerText = item.title || "Offer Details";
-            document.getElementById("modalSubtitle").innerText = item.subtitle || "";
-            document.getElementById("modalPayout").innerText = item.profitText || "";
-            document.getElementById("modalTerms").innerText = item.terms || "Offer link share karein aur referred user ki terms complete hone par earning track karein.";
-
-            const shareText = `${item.title} - ${item.profitText}`;
-            const shareUrl = item.shareUrl || "https://finshareapp.in";
-
-            document.getElementById("modalShareBtn").onclick = () => shareProduct(item.title, shareText, shareUrl);
-            document.getElementById("modalCopyBtn").onclick = () => copyOfferLink(shareUrl);
-
-            document.getElementById("detailModal").classList.add("open");
-        }
-
-        function hideDetailModal() {
-            document.getElementById("detailModal").classList.remove("open");
-        }
-
-        function closeDetailModal(e) {
-            if (e.target && e.target.id === "detailModal") {
-                hideDetailModal();
+            if (item) {
+                try {
+                    sessionStorage.setItem("SELECTED_FINSHARE_PRODUCT", JSON.stringify(item));
+                } catch (e) {}
             }
-        }
-
-        function shareProduct(title, profitText, url) {
-            const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
-            if (navigator.share) {
-                navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
-            } else {
-                const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                window.open(waUrl, "_blank");
-            }
-        }
-
-        async function copyOfferLink(url) {
-            try {
-                await navigator.clipboard.writeText(url);
-                showToast("Offer link copied!");
-            } catch (e) {
-                showToast(url);
-            }
+            window.location.href = `product-detail.html?id=${encodeURIComponent(id)}`;
         }
 
         renderProducts();
@@ -635,6 +470,7 @@
                             title: data.title || "Offer",
                             subtitle: data.subtitle || "",
                             profitText: data.profitText || "Earn Profit",
+                            details: data.details || data.description || "",
                             terms: data.terms || "",
                             shareUrl: data.shareUrl || "https://finshareapp.in",
                             order: typeof data.order === "number" ? data.order : idx + 1
