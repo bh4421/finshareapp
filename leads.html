@@ -1,1 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Leads - FinShare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding-bottom: 84px;
+        }
+        .app-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+        }
+
+        /* Top Blue Header */
+        .top-header {
+            background: linear-gradient(160deg, #1d4ed8 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .wallet-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Filter & Add Lead Card */
+        .filter-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            margin: 14px 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+        .filter-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .filter-sub {
+            font-size: 12.5px;
+            color: #64748b;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+        .status-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .status-pill {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .status-pill.active {
+            background: #16a34a;
+            color: #ffffff;
+            border-color: #16a34a;
+        }
+        .btn-add-lead {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-add-lead:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        /* Leads List */
+        .leads-list {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .lead-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .lead-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .lead-logo-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .product-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+            background: #ffffff;
+            display: block;
+        }
+        .lead-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .lead-meta {
+            font-size: 12.5px;
+            color: #475569;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+        .lead-bottom-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .badge-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        .badge-status.pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .badge-status.confirm {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .badge-status.rejected, .badge-status.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .lead-amount {
+            font-size: 13px;
+            font-weight: 800;
+            color: #16a34a;
+        }
+        .lead-date {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .btn-view-offer {
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 13px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Add Lead Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 1000;
+        }
+        .modal-backdrop.open {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .modal-close {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #0f172a;
+            background: #ffffff;
+        }
+        .btn-save-lead {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .toast-bar {
+            position: fixed;
+            bottom: 78px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1100;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 0 10px;
+            z-index: 100;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="top-header">
+            <div class="header-row">
+                <div class="header-left">
+                    <button class="back-btn" onclick="window.location.href='index.html'" title="Back">←</button>
+                    <h1 class="header-title">My Leads</h1>
+                </div>
+                <span class="wallet-chip" id="headerWalletText">Wallet: ₹0.00</span>
+            </div>
+        </header>
+
+        <div class="filter-card">
+            <div class="filter-heading">Your leads</div>
+            <div class="filter-sub">Filter by status. Confirm hone par payment user wallet mein add hoga.</div>
+
+            <div class="status-pills" id="statusPills">
+                <button class="status-pill active" data-status="ALL" onclick="setStatusFilter('ALL')">All: <span id="cntAll">0</span></button>
+                <button class="status-pill" data-status="Confirm" onclick="setStatusFilter('Confirm')">Confirm: <span id="cntConfirm">0</span></button>
+                <button class="status-pill" data-status="Pending" onclick="setStatusFilter('Pending')">Pending: <span id="cntPending">0</span></button>
+                <button class="status-pill" data-status="Rejected" onclick="setStatusFilter('Rejected')">Rejected: <span id="cntRejected">0</span></button>
+                <button class="status-pill" data-status="Expired" onclick="setStatusFilter('Expired')">Expired: <span id="cntExpired">0</span></button>
+            </div>
+
+            <button class="btn-add-lead" onclick="openAddLeadModal()">+ Add Lead</button>
+        </div>
+
+        <div class="leads-list" id="leadsContainer"></div>
+
+        <!-- Add Lead Modal -->
+        <div class="modal-backdrop" id="addLeadModal" onclick="closeAddLeadModal(event)">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 style="font-size:17px;font-weight:700;color:#0f172a;">Add Shared Lead</h3>
+                    <button class="modal-close" onclick="hideAddLeadModal()">✕</button>
+                </div>
+                <form id="addLeadForm" onsubmit="submitNewLead(event)">
+                    <div class="form-group">
+                        <label>Offer / Product Name</label>
+                        <input type="text" id="leadProductTitle" placeholder="e.g. Upstox / Angel One" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Lead / Customer Name</label>
+                        <input type="text" id="leadCustomerName" placeholder="e.g. Rahul Sharma" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Email / Contact</label>
+                        <input type="text" id="leadContact" placeholder="e.g. rahul@gmail.com" />
+                    </div>
+                    <div class="form-group">
+                        <label>Payout Amount (₹)</label>
+                        <input type="number" id="leadAmount" placeholder="e.g. 300" min="0" step="1" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Offer Link (Optional)</label>
+                        <input type="url" id="leadShareUrl" placeholder="https://finshareapp.in/offer/..." />
+                    </div>
+                    <button type="submit" class="btn-save-lead" id="saveLeadBtn">Save Lead</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="toast-bar" id="toastBar"></div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="window.location.href='index.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='products.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <span>Products</span>
+            </button>
+
+            <button class="nav-item active" onclick="window.location.href='leads.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                </svg>
+                <span>Leads</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='index.html#account'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Account</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        window.LEADS_DATA = [];
+        window.ACTIVE_LEAD_STATUS = "ALL";
+        window.CURRENT_USER_ID = null;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("status")) {
+            window.ACTIVE_LEAD_STATUS = urlParams.get("status");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastBar");
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.style.display = "block";
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.style.display = "none";
+            }, 2600);
+        }
+
+        function escapeAttr(val) {
+            return String(val || "")
+                .replace(/&/g, "&amp;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function normalizeStatus(raw) {
+            const s = String(raw || "Pending").trim().toLowerCase();
+            if (s === "confirm" || s === "confirmed" || s === "approved") return "Confirm";
+            if (s === "rejected" || s === "reject") return "Rejected";
+            if (s === "expired" || s === "expire") return "Expired";
+            return "Pending";
+        }
+
+        function renderLogo(item) {
+            const safeUrl = escapeAttr(item.logoUrl);
+            const safeTitle = escapeAttr(item.productTitle || item.title || "Offer");
+            const code = escapeAttr((safeTitle.slice(0, 2) || "FS").toUpperCase());
+
+            if (safeUrl) {
+                return `
+                    <div class="lead-logo-box">
+                        <img
+                            src="${safeUrl}"
+                            alt="${safeTitle}"
+                            class="product-logo-img"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#eff6ff;color:#2563eb;font-weight:800;">${code}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="lead-logo-box" style="background:#eff6ff;color:#2563eb;font-weight:800;">
+                    ${code}
+                </div>
+            `;
+        }
+
+        function updateCounts() {
+            const all = window.LEADS_DATA.length;
+            const confirmCnt = window.LEADS_DATA.filter((l) => l.status === "Confirm").length;
+            const pendingCnt = window.LEADS_DATA.filter((l) => l.status === "Pending").length;
+            const rejectedCnt = window.LEADS_DATA.filter((l) => l.status === "Rejected").length;
+            const expiredCnt = window.LEADS_DATA.filter((l) => l.status === "Expired").length;
+
+            document.getElementById("cntAll").innerText = all;
+            document.getElementById("cntConfirm").innerText = confirmCnt;
+            document.getElementById("cntPending").innerText = pendingCnt;
+            document.getElementById("cntRejected").innerText = rejectedCnt;
+            document.getElementById("cntExpired").innerText = expiredCnt;
+        }
+
+        function renderLeads() {
+            updateCounts();
+
+            document.querySelectorAll("#statusPills .status-pill").forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.status === window.ACTIVE_LEAD_STATUS);
+            });
+
+            const container = document.getElementById("leadsContainer");
+            const filtered = window.ACTIVE_LEAD_STATUS === "ALL"
+                ? window.LEADS_DATA
+                : window.LEADS_DATA.filter((l) => l.status === window.ACTIVE_LEAD_STATUS);
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="lead-card">
+                        <p class="lead-meta">Is status mein abhi koi lead nahi hai. "+ Add Lead" se lead jodd sakte hain ya offer share kar sakte hain.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item) => {
+                const stClass = item.status.toLowerCase();
+                const amtText = "₹" + Number(item.amount || 0).toFixed(2);
+                const offerHref = escapeAttr(item.shareUrl || "products.html");
+
+                return `
+                    <article class="lead-card">
+                        <div class="lead-left">
+                            ${renderLogo(item)}
+                            <div style="min-width:0;flex:1;">
+                                <div class="lead-title">${escapeAttr(item.productTitle)}</div>
+                                <div class="lead-meta">${escapeAttr(item.customerName || "")}</div>
+                                ${item.contact ? `<div class="lead-meta">${escapeAttr(item.contact)}</div>` : ""}
+                                <div class="lead-bottom-row">
+                                    <span class="badge-status ${stClass}">${escapeAttr(item.status)}</span>
+                                    <span class="lead-amount">${amtText}</span>
+                                    ${item.dateText ? `<span class="lead-date">${escapeAttr(item.dateText)}</span>` : ""}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-view-offer" onclick="openOfferLink('${offerHref}')">View Offer</button>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function setStatusFilter(status) {
+            window.ACTIVE_LEAD_STATUS = status;
+            renderLeads();
+        }
+
+        function openOfferLink(url) {
+            if (!url || url === "products.html") {
+                window.location.href = "products.html";
+                return;
+            }
+            window.open(url, "_blank");
+        }
+
+        function openAddLeadModal() {
+            document.getElementById("addLeadModal").classList.add("open");
+        }
+
+        function hideAddLeadModal() {
+            document.getElementById("addLeadModal").classList.remove("open");
+        }
+
+        function closeAddLeadModal(e) {
+            if (e.target && e.target.id === "addLeadModal") {
+                hideAddLeadModal();
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            addDoc,
+            doc,
+            getDoc,
+            runTransaction
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function formatRupees(n) {
+            return "₹" + Number(n || 0).toFixed(2);
+        }
+
+        async function refreshWalletHeader(userId) {
+            try {
+                const uSnap = await getDoc(doc(db, "users", userId));
+                if (uSnap.exists()) {
+                    const bal = Number(uSnap.data().balance || 0);
+                    document.getElementById("headerWalletText").innerText = `Wallet: ${formatRupees(bal)}`;
+                }
+            } catch (e) {
+                console.error("Wallet refresh error:", e);
+            }
+        }
+
+        // Jab database mein lead ka status `Confirm` hota hai, toh uska amount user wallet (`users/{uid}.balance` aur `walletInfo`) mein add hota hai
+        async function syncConfirmedLeadsToWallet(userId, docs) {
+            for (const d of docs) {
+                const data = d.data();
+                const statusNorm = normalizeStatus(data.status);
+                const amount = Number(data.amount || 0);
+                const alreadyCredited = Boolean(data.walletCredited);
+
+                if (statusNorm === "Confirm" && !alreadyCredited && amount > 0) {
+                    const leadRef = doc(db, "leads", d.id);
+                    const userRef = doc(db, "users", userId);
+
+                    try {
+                        await runTransaction(db, async (tx) => {
+                            const freshLead = await tx.get(leadRef);
+                            if (!freshLead.exists()) return;
+                            const freshLeadData = freshLead.data();
+                            if (freshLeadData.walletCredited) return;
+
+                            const freshUser = await tx.get(userRef);
+                            const currentBal = freshUser.exists() ? Number(freshUser.data().balance || 0) : 0;
+                            const currentPending = freshUser.exists() ? Number(freshUser.data().pending || 0) : 0;
+                            const newBal = currentBal + amount;
+                            const newPending = Math.max(0, currentPending - amount);
+
+                            tx.set(userRef, {
+                                balance: newBal,
+                                pending: newPending,
+                                "wallet-info": {
+                                    balance: newBal,
+                                    lastCreditedAmount: amount,
+                                    lastLeadId: d.id,
+                                    updatedAt: new Date().toISOString()
+                                }
+                            }, { merge: true });
+
+                            tx.update(leadRef, {
+                                walletCredited: true,
+                                creditedAt: new Date().toISOString()
+                            });
+                        });
+                    } catch (err) {
+                        console.error("Wallet credit transaction error:", err);
+                    }
+                }
+            }
+        }
+
+        async function loadLeads(userId) {
+            try {
+                const q = query(collection(db, "leads"), where("userId", "==", userId));
+                const snap = await getDocs(q);
+
+                await syncConfirmedLeadsToWallet(userId, snap.docs);
+                await refreshWalletHeader(userId);
+
+                const updatedSnap = await getDocs(q);
+                const list = updatedSnap.docs.map((d) => {
+                    const data = d.data();
+                    return {
+                        id: d.id,
+                        productTitle: data.productTitle || data.title || "Offer",
+                        customerName: data.customerName || data.leadName || "",
+                        contact: data.contact || data.email || "",
+                        amount: Number(data.amount || 0),
+                        status: normalizeStatus(data.status),
+                        logoUrl: (data.logoUrl || data.logo || "").trim(),
+                        shareUrl: data.shareUrl || "products.html",
+                        dateText: data.dateText || "",
+                        createdAt: data.createdAt || ""
+                    };
+                });
+
+                list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+                window.LEADS_DATA = list;
+            } catch (err) {
+                console.error("Leads load error:", err);
+            }
+            renderLeads();
+        }
+
+        window.submitNewLead = async function(e) {
+            e.preventDefault();
+            if (!window.CURRENT_USER_ID) {
+                showToast("Please login first.");
+                return;
+            }
+
+            const btn = document.getElementById("saveLeadBtn");
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            const productTitle = document.getElementById("leadProductTitle").value.trim();
+            const customerName = document.getElementById("leadCustomerName").value.trim();
+            const contact = document.getElementById("leadContact").value.trim();
+            const amount = Number(document.getElementById("leadAmount").value || 0);
+            const shareUrl = document.getElementById("leadShareUrl").value.trim() || "products.html";
+
+            const now = new Date();
+            const dateText = now.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+
+            try {
+                await addDoc(collection(db, "leads"), {
+                    userId: window.CURRENT_USER_ID,
+                    productTitle,
+                    customerName,
+                    contact,
+                    amount,
+                    status: "Pending",
+                    walletCredited: false,
+                    shareUrl,
+                    dateText,
+                    createdAt: now.toISOString()
+                });
+
+                document.getElementById("addLeadForm").reset();
+                hideAddLeadModal();
+                showToast("Lead added as Pending!");
+                await loadLeads(window.CURRENT_USER_ID);
+            } catch (err) {
+                console.error("Add lead error:", err);
+                showToast("Could not save lead. Check Firestore rules.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Save Lead";
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            window.CURRENT_USER_ID = user.uid;
+            await refreshWalletHeader(user.uid);
+            await loadLeads(user.uid);
+        });
+    </script>
+</body>
+</html>
 
