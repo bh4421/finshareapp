@@ -277,7 +277,8 @@
 
     <script>
         const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans"];
-        window.PAGE_PRODUCTS = [
+        const PRODUCTS_CACHE_KEY = "FINSHARE_PRODUCTS_CACHE_V1";
+        const FALLBACK_PRODUCTS = [
             {
                 id: "smallcase",
                 code: "SC",
@@ -327,6 +328,25 @@
                 order: 4
             }
         ];
+
+        function readCachedProducts() {
+            try {
+                const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedProducts(list) {
+            try {
+                sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(list));
+            } catch (e) {}
+        }
+
+        window.PAGE_PRODUCTS = readCachedProducts() || FALLBACK_PRODUCTS.slice();
         window.ACTIVE_CAT = "ALL";
 
         function escapeAttr(val) {
@@ -426,6 +446,17 @@
             window.location.href = `product-detail.html?id=${encodeURIComponent(id)}`;
         }
 
+        window.applyFirestoreProducts = function(loaded) {
+            if (!Array.isArray(loaded) || !loaded.length) return;
+            const prevSerialized = JSON.stringify(window.PAGE_PRODUCTS);
+            const nextSerialized = JSON.stringify(loaded);
+            window.PAGE_PRODUCTS = loaded;
+            writeCachedProducts(loaded);
+            if (prevSerialized !== nextSerialized) {
+                renderProducts();
+            }
+        };
+
         renderProducts();
     </script>
 
@@ -477,12 +508,11 @@
                         };
                     });
                     loaded.sort((a, b) => a.order - b.order);
-                    window.PAGE_PRODUCTS = loaded;
+                    window.applyFirestoreProducts(loaded);
                 }
             } catch (err) {
                 console.error("Products fetch error:", err);
             }
-            renderProducts();
         }
 
         loadProducts();
