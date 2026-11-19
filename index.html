@@ -357,6 +357,12 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .finshare-offer-card:hover {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
         }
         .offer-top-row {
             display: flex;
@@ -779,7 +785,7 @@
             cursor: pointer;
         }
 
-        /* English Delete Account Modal */
+        /* Delete Account Modal */
         .danger-banner {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -1463,6 +1469,14 @@
                 title: "Angel One Demat",
                 subtitle: "Free Demat + 1st Trade",
                 profitText: "Earn ₹750",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Referred user ko aapke link se Angel One Demat account open karke first trade complete karna hoga.",
+                terms: [
+                    "Referred user ko link se sign up karke first trade complete karna hoga.",
+                    "Application naye user ke mobile number aur PAN ke saath complete honi chahiye.",
+                    "Verification ke baad payout wallet mein add hoga."
+                ],
                 shareUrl: "https://finshareapp.in/offer/angel-one",
                 showOnHome: true,
                 order: 1
@@ -1475,6 +1489,14 @@
                 title: "Kotak 811 Savings",
                 subtitle: "Zero Balance Account",
                 profitText: "Earn upto ₹450",
+                trackingTime: "24 - 48 Hours",
+                confirmationTime: "7 - 14 Working Days",
+                details: "Naye user ka Kotak 811 zero balance savings account full KYC ke saath open hona zaroori hai.",
+                terms: [
+                    "Full KYC ke saath account opening zaroori hai.",
+                    "Existing Kotak customers is offer ke liye eligible nahi hain.",
+                    "Approval ke baad earning confirm hogi."
+                ],
                 shareUrl: "https://finshareapp.in/offer/kotak-811",
                 showOnHome: true,
                 order: 2
@@ -1487,6 +1509,14 @@
                 title: "Axis Rewards Card",
                 subtitle: "Lifetime Free / Cashback",
                 profitText: "Earn ₹900",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "15 - 30 Working Days",
+                details: "Credit card application approved aur card dispatch/activate hone par payout count hoga.",
+                terms: [
+                    "Card application bank dwara approve hona zaroori hai.",
+                    "Naye eligible applicants hi count honge.",
+                    "Bank verification ke baad commission update hoga."
+                ],
                 shareUrl: "https://finshareapp.in/offer/axis-card",
                 showOnHome: true,
                 order: 3
@@ -1499,6 +1529,14 @@
                 title: "Quick Personal Loan",
                 subtitle: "Instant Paperless Approval",
                 profitText: "Earn upto 2.5%",
+                trackingTime: "24 - 72 Hours",
+                confirmationTime: "7 - 21 Working Days",
+                details: "Loan application disburse hone par disbursed amount ke hisab se payout milega.",
+                terms: [
+                    "Loan amount disburse hone par hi payout calculate hoga.",
+                    "Eligibility aur credit score lender rules ke mutabik honge.",
+                    "Disbursal confirm hone ke baad earning juregi."
+                ],
                 shareUrl: "https://finshareapp.in/offer/personal-loan",
                 showOnHome: true,
                 order: 4
@@ -1511,6 +1549,14 @@
                 title: "Fixed Income Bonds",
                 subtitle: "High Yield Regulated Bonds",
                 profitText: "Earn ₹1,200",
+                trackingTime: "24 - 48 Hours",
+                confirmationTime: "7 - 15 Working Days",
+                details: "Referred user ko link se join karke bond investment complete karna hoga.",
+                terms: [
+                    "Minimum required investment complete karna zaroori hai.",
+                    "Investment cancel ya refund hone par payout valid nahi hoga.",
+                    "Confirmation ke baad wallet mein balance add hoga."
+                ],
                 shareUrl: "https://finshareapp.in/offer/bonds",
                 showOnHome: true,
                 order: 5
@@ -1523,6 +1569,14 @@
                 title: "Partner Referral Bonus",
                 subtitle: "Special FinShare Campaign",
                 profitText: "Earn ₹300",
+                trackingTime: "Instant - 48 Hours",
+                confirmationTime: "7 - 14 Working Days",
+                details: "Special FinShare partner campaign ke rules poore karne par bonus milega.",
+                terms: [
+                    "Campaign rules ke mutabik valid referral complete hona chahiye.",
+                    "Fake ya self-spam leads reject ki ja sakti hain.",
+                    "Approval ke baad payout credit hoga."
+                ],
                 shareUrl: "https://finshareapp.in/offer/more",
                 showOnHome: true,
                 order: 6
@@ -1645,6 +1699,34 @@
             return a.includes(b);
         }
 
+        function openHomeProductDetail(productId) {
+            const item = window.FINSHARE_PRODUCTS.find((p) => p.id === productId);
+            if (item) {
+                try {
+                    sessionStorage.setItem("SELECTED_FINSHARE_PRODUCT", JSON.stringify(item));
+                } catch (e) {}
+            }
+            window.location.href = `product-detail.html?id=${encodeURIComponent(productId)}`;
+        }
+
+        function buildHomeTrackedLink(item) {
+            const baseUrl = item.shareUrl || "https://finshareapp.in";
+            const uid = window.CURRENT_USER_ID || "";
+            if (!uid) return baseUrl;
+
+            try {
+                const goUrl = new URL("go.html", window.location.origin + window.location.pathname.replace(/[^/]*$/, ""));
+                goUrl.searchParams.set("ref", uid);
+                if (item.id) goUrl.searchParams.set("pid", item.id);
+                if (item.title) goUrl.searchParams.set("title", item.title);
+                goUrl.searchParams.set("url", baseUrl);
+                return goUrl.toString();
+            } catch (e) {
+                const sep = baseUrl.includes("?") ? "&" : "?";
+                return `${baseUrl}${sep}ref=${encodeURIComponent(uid)}`;
+            }
+        }
+
         function renderHomeProducts() {
             const container = document.getElementById("homeProductsContainer");
             const clearBtn = document.getElementById("clearCategoryBtn");
@@ -1675,9 +1757,11 @@
             container.innerHTML = filtered.map((item) => {
                 const payout = escapeAttr(item.profitText || item.payoutText || "Earn Profit");
                 const catLabel = escapeAttr(item.category || "Offer");
+                const safeId = escapeAttr(item.id);
+                const trackedUrl = buildHomeTrackedLink(item);
 
                 return `
-                    <article class="finshare-offer-card">
+                    <article class="finshare-offer-card" onclick="openHomeProductDetail('${safeId}')">
                         <div>
                             <div class="offer-top-row">
                                 ${renderOfferLogo(item)}
@@ -1691,10 +1775,10 @@
                         </div>
 
                         <div class="offer-actions-row">
-                            <button class="btn-offer-share" onclick="shareOfferProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(payout).replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            <button type="button" class="btn-offer-share" onclick="event.stopPropagation(); openHomeProductDetail('${safeId}')">
                                 Share
                             </button>
-                            <button class="btn-offer-copy" title="Copy Link" onclick="copyOfferLink('${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            <button type="button" class="btn-offer-copy" title="Copy Link" onclick="event.stopPropagation(); copyOfferLink('${String(trackedUrl).replace(/'/g, "\\'")}')">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -1741,7 +1825,6 @@
                 if (viewEl) viewEl.classList.toggle("active", isTarget);
             });
 
-            // Show hamburger menu button only on Home tab
             const menuBtn = document.getElementById("homeMenuBtn");
             if (menuBtn) {
                 menuBtn.style.display = activeKey === "home" ? "flex" : "none";
@@ -1773,16 +1856,6 @@
         function closeModalById(e, id) {
             if (e.target && e.target.id === id) {
                 closeModal(id);
-            }
-        }
-
-        function shareOfferProduct(title, payoutText, url) {
-            const shareText = `${title} - ${payoutText}\nJoin here: ${url}`;
-            if (navigator.share) {
-                navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
-            } else {
-                const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                window.open(waUrl, "_blank");
             }
         }
 
@@ -1878,6 +1951,10 @@
                                 title: data.title || "Offer",
                                 subtitle: data.subtitle || "",
                                 profitText: data.profitText || data.payoutText || "Earn Profit",
+                                trackingTime: data.trackingTime || data.time || "24 - 72 Hours",
+                                confirmationTime: data.confirmationTime || "7 - 21 Working Days",
+                                details: data.details || data.description || "",
+                                terms: data.terms || "",
                                 shareUrl: data.shareUrl || "https://finshareapp.in",
                                 showOnHome: true,
                                 order: typeof data.order === "number" ? data.order : 999
@@ -1998,6 +2075,8 @@
             }
 
             window.CURRENT_USER_ID = user.uid;
+            renderHomeProducts();
+
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
             let userName = user.displayName || localStorage.getItem("userName") || "FinShare Partner";
             let userEmail = user.email || "-";
