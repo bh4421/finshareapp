@@ -178,7 +178,7 @@
             cursor: pointer;
         }
 
-        /* Categories */
+        /* Categories on Home */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -212,6 +212,49 @@
             font-weight: 600;
             color: #1e293b;
             text-align: center;
+        }
+
+        /* Dedicated Products Page Category Pills */
+        .page-top-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+        .page-heading {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .filter-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .pill-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .pill-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
         }
 
         /* Product Cards */
@@ -307,10 +350,13 @@
             flex-shrink: 0;
         }
 
-        /* Secondary Views (Earnings & Account) */
+        /* Page Views */
         .view-panel {
             display: none;
             padding: 16px;
+        }
+        #homeView.view-panel {
+            padding: 0;
         }
         .view-panel.active {
             display: block;
@@ -449,8 +495,8 @@
             </div>
         </header>
 
-        <!-- HOME & PRODUCTS VIEW -->
-        <main id="homeProductsView" class="view-panel active">
+        <!-- 1. HOME PAGE VIEW -->
+        <main id="homeView" class="view-panel active">
             <!-- Stats Row -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -487,10 +533,10 @@
             <section class="section" id="categoriesSection">
                 <div class="section-header">
                     <h2 class="section-title">Categories</h2>
-                    <button class="clear-filter" id="clearCategoryBtn" style="display: none;" onclick="selectCategory('ALL')">Show All</button>
+                    <button class="clear-filter" id="clearCategoryBtn" style="display: none;" onclick="selectHomeCategory('ALL')">Show All</button>
                 </div>
                 <div class="categories-grid">
-                    <div class="category-card" data-cat="Demat" onclick="selectCategory('Demat')">
+                    <div class="category-card" data-cat="Demat" onclick="selectHomeCategory('Demat')">
                         <div class="category-icon">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
@@ -500,7 +546,7 @@
                         <span class="category-name">Demat</span>
                     </div>
 
-                    <div class="category-card" data-cat="Banking" onclick="selectCategory('Banking')">
+                    <div class="category-card" data-cat="Banking" onclick="selectHomeCategory('Banking')">
                         <div class="category-icon">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="3" y1="22" x2="21" y2="22"></line>
@@ -514,7 +560,7 @@
                         <span class="category-name">Banking</span>
                     </div>
 
-                    <div class="category-card" data-cat="Credit Card" onclick="selectCategory('Credit Card')">
+                    <div class="category-card" data-cat="Credit Card" onclick="selectHomeCategory('Credit Card')">
                         <div class="category-icon">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -524,7 +570,7 @@
                         <span class="category-name">Credit Card</span>
                     </div>
 
-                    <div class="category-card" data-cat="Loans" onclick="selectCategory('Loans')">
+                    <div class="category-card" data-cat="Loans" onclick="selectHomeCategory('Loans')">
                         <div class="category-icon">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1v22"></path>
@@ -537,15 +583,31 @@
             </section>
 
             <!-- Top Earning Products Section -->
-            <section class="section" id="productsSection">
+            <section class="section" id="homeProductsSection">
                 <div class="section-header">
-                    <h2 class="section-title" id="productsHeading">Top Earning Products</h2>
+                    <h2 class="section-title" id="homeProductsHeading">Top Earning Products</h2>
                 </div>
-                <div class="products-list" id="productsContainer"></div>
+                <div class="products-list" id="homeProductsContainer"></div>
             </section>
         </main>
 
-        <!-- EARNINGS TAB VIEW -->
+        <!-- 2. DEDICATED PRODUCTS PAGE VIEW -->
+        <section id="productsPageView" class="view-panel">
+            <div class="page-top-card">
+                <div class="page-heading" id="productsPageTitle">All Products</div>
+                <div class="filter-pills" id="categoryFilterPills">
+                    <button class="pill-btn active" data-pill="ALL" onclick="selectProductsPageCategory('ALL')">All</button>
+                    <button class="pill-btn" data-pill="Demat" onclick="selectProductsPageCategory('Demat')">Demat</button>
+                    <button class="pill-btn" data-pill="Banking" onclick="selectProductsPageCategory('Banking')">Banking</button>
+                    <button class="pill-btn" data-pill="Credit Card" onclick="selectProductsPageCategory('Credit Card')">Credit Card</button>
+                    <button class="pill-btn" data-pill="Loans" onclick="selectProductsPageCategory('Loans')">Loans</button>
+                    <button class="pill-btn" data-pill="More" onclick="selectProductsPageCategory('More')">More</button>
+                </div>
+            </div>
+            <div class="products-list" id="productsPageContainer"></div>
+        </section>
+
+        <!-- 3. EARNINGS TAB VIEW -->
         <section id="earningsView" class="view-panel">
             <div class="info-card">
                 <h3>Earnings Overview</h3>
@@ -565,11 +627,11 @@
 
             <div class="info-card">
                 <h3>Recent Activity</h3>
-                <p class="terms-box">Abhi tak koi confirmed payout record nahi hai. Top Earning Products share karke refer-and-earn shuru karein.</p>
+                <p class="terms-box">Abhi tak koi confirmed payout record nahi hai. Products share karke refer-and-earn shuru karein.</p>
             </div>
         </section>
 
-        <!-- ACCOUNT TAB VIEW -->
+        <!-- 4. ACCOUNT TAB VIEW -->
         <section id="accountView" class="view-panel">
             <div class="info-card">
                 <h3>Partner Account Details</h3>
@@ -641,26 +703,10 @@
         </nav>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
-          authDomain: "finshareapp-3421a.firebaseapp.com",
-          projectId: "finshareapp-3421a",
-          storageBucket: "finshareapp-3421a.firebasestorage.app",
-          messagingSenderId: "805920794704",
-          appId: "1:805920794704:web:d92873a30707568abf8955",
-          measurementId: "G-WKKVMKPCK6"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const FALLBACK_PRODUCTS = [
+    <!-- Instant UI Navigation & Helpers (Non-module so it works immediately) -->
+    <script>
+        const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans"];
+        window.FINSHARE_FALLBACK_PRODUCTS = [
             {
                 id: "angel-one",
                 code: "AO",
@@ -688,24 +734,20 @@
                 order: 2
             }
         ];
-
-        let productsList = [...FALLBACK_PRODUCTS];
-        let currentCategory = "ALL";
-        let currentBalance = 0;
+        window.FINSHARE_PRODUCTS = window.FINSHARE_FALLBACK_PRODUCTS.slice();
+        window.FINSHARE_HOME_CAT = "ALL";
+        window.FINSHARE_PROD_CAT = "ALL";
+        window.FINSHARE_BALANCE = 0;
 
         function showToast(msg) {
             const toast = document.getElementById("toastBar");
+            if (!toast) return;
             toast.innerText = msg;
             toast.style.display = "block";
             clearTimeout(window.toastTimer);
             window.toastTimer = setTimeout(() => {
                 toast.style.display = "none";
             }, 2600);
-        }
-
-        function formatRupees(amount) {
-            const num = Number(amount || 0);
-            return "₹" + num.toFixed(2);
         }
 
         function escapeAttr(val) {
@@ -743,6 +785,195 @@
             `;
         }
 
+        function matchesCategory(itemCat, selectedCat) {
+            if (selectedCat === "ALL") return true;
+            if (selectedCat === "More") {
+                return !MAIN_CATS.includes(itemCat);
+            }
+            return itemCat === selectedCat;
+        }
+
+        function buildCardsHtml(items) {
+            if (!items || items.length === 0) {
+                return `<div class="product-card"><p class="product-sub">Is category mein abhi koi product available nahi hai.</p></div>`;
+            }
+
+            return items.map((item) => `
+                <article class="product-card">
+                    <div class="product-top">
+                        ${renderBadge(item)}
+                        <div>
+                            <div class="product-title">${escapeAttr(item.title)}</div>
+                            <div class="product-sub">${escapeAttr(item.subtitle)}</div>
+                        </div>
+                    </div>
+                    <div class="profit-pill">${escapeAttr(item.profitText)}</div>
+                    <div class="product-actions">
+                        <button class="btn-share" onclick="shareProduct('${String(item.title || "").replace(/'/g, "\\'")}', '${String(item.profitText || "").replace(/'/g, "\\'")}', '${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            <span>Share Offer</span>
+                        </button>
+                        <button class="btn-copy" title="Copy Link" onclick="copyOfferLink('${String(item.shareUrl || "").replace(/'/g, "\\'")}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        function renderHomeProducts() {
+            const container = document.getElementById("homeProductsContainer");
+            const clearBtn = document.getElementById("clearCategoryBtn");
+            const heading = document.getElementById("homeProductsHeading");
+            if (!container) return;
+
+            const filtered = window.FINSHARE_PRODUCTS.filter((item) =>
+                matchesCategory(item.category, window.FINSHARE_HOME_CAT)
+            );
+
+            if (clearBtn) {
+                clearBtn.style.display = window.FINSHARE_HOME_CAT === "ALL" ? "none" : "inline-block";
+            }
+            if (heading) {
+                heading.innerText = window.FINSHARE_HOME_CAT === "ALL"
+                    ? "Top Earning Products"
+                    : `${window.FINSHARE_HOME_CAT} Products`;
+            }
+
+            container.innerHTML = buildCardsHtml(filtered);
+        }
+
+        function renderProductsPage() {
+            const container = document.getElementById("productsPageContainer");
+            const heading = document.getElementById("productsPageTitle");
+            if (!container) return;
+
+            document.querySelectorAll("#categoryFilterPills .pill-btn").forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.pill === window.FINSHARE_PROD_CAT);
+            });
+
+            if (heading) {
+                heading.innerText = window.FINSHARE_PROD_CAT === "ALL"
+                    ? "All Products"
+                    : `${window.FINSHARE_PROD_CAT} Products`;
+            }
+
+            const filtered = window.FINSHARE_PRODUCTS.filter((item) =>
+                matchesCategory(item.category, window.FINSHARE_PROD_CAT)
+            );
+            container.innerHTML = buildCardsHtml(filtered);
+        }
+
+        function selectHomeCategory(category) {
+            window.FINSHARE_HOME_CAT = category;
+            document.querySelectorAll("#categoriesSection .category-card").forEach((card) => {
+                card.classList.toggle("active", card.dataset.cat === category);
+            });
+            renderHomeProducts();
+            const sec = document.getElementById("homeProductsSection");
+            if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function selectProductsPageCategory(category) {
+            window.FINSHARE_PROD_CAT = category;
+            renderProductsPage();
+        }
+
+        function switchTab(tabName) {
+            const tabs = ["home", "products", "earnings", "account"];
+            const navIds = {
+                home: "navHome",
+                products: "navProducts",
+                earnings: "navEarnings",
+                account: "navAccount"
+            };
+            const viewIds = {
+                home: "homeView",
+                products: "productsPageView",
+                earnings: "earningsView",
+                account: "accountView"
+            };
+
+            tabs.forEach((t) => {
+                const navEl = document.getElementById(navIds[t]);
+                const viewEl = document.getElementById(viewIds[t]);
+                if (navEl) navEl.classList.remove("active");
+                if (viewEl) viewEl.classList.remove("active");
+            });
+
+            const activeKey = viewIds[tabName] ? tabName : "home";
+            const activeNav = document.getElementById(navIds[activeKey]);
+            const activeView = document.getElementById(viewIds[activeKey]);
+            if (activeNav) activeNav.classList.add("active");
+            if (activeView) activeView.classList.add("active");
+
+            if (activeKey === "home") {
+                renderHomeProducts();
+            } else if (activeKey === "products") {
+                renderProductsPage();
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function shareProduct(title, profitText, url) {
+            const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
+            if (navigator.share) {
+                navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
+            } else {
+                const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(waUrl, "_blank");
+            }
+        }
+
+        async function copyOfferLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast("Offer link copied!");
+            } catch (e) {
+                showToast(url);
+            }
+        }
+
+        function handleWithdraw() {
+            if (Number(window.FINSHARE_BALANCE || 0) < 100) {
+                showToast("Minimum ₹100.00 balance required for withdrawal.");
+                return;
+            }
+            showToast("Withdrawal request feature will be processed shortly.");
+        }
+
+        renderHomeProducts();
+        renderProductsPage();
+    </script>
+
+    <!-- Firebase Auth & Firestore Data Sync -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function formatRupees(amount) {
+            const num = Number(amount || 0);
+            return "₹" + num.toFixed(2);
+        }
+
         async function loadProductsFromFirestore() {
             try {
                 const snap = await getDocs(collection(db, "products"));
@@ -755,7 +986,7 @@
                             logoUrl: (data.logoUrl || data.logo || "").trim(),
                             bg: data.bg || "#eff6ff",
                             color: data.color || "#2563eb",
-                            category: data.category || "Demat",
+                            category: data.category || "More",
                             title: data.title || "Offer",
                             subtitle: data.subtitle || "",
                             profitText: data.profitText || "Earn Profit",
@@ -764,119 +995,14 @@
                         };
                     });
                     loaded.sort((a, b) => a.order - b.order);
-                    productsList = loaded;
+                    window.FINSHARE_PRODUCTS = loaded;
                 }
             } catch (err) {
                 console.error("Products load error:", err);
             }
-            renderProducts();
+            renderHomeProducts();
+            renderProductsPage();
         }
-
-        function renderProducts() {
-            const container = document.getElementById("productsContainer");
-            const clearBtn = document.getElementById("clearCategoryBtn");
-            const heading = document.getElementById("productsHeading");
-
-            const filtered = currentCategory === "ALL"
-                ? productsList
-                : productsList.filter((item) => item.category === currentCategory);
-
-            clearBtn.style.display = currentCategory === "ALL" ? "none" : "inline-block";
-            heading.innerText = currentCategory === "ALL"
-                ? "Top Earning Products"
-                : `${currentCategory} Products`;
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="product-card"><p class="product-sub">Is category mein abhi koi product available nahi hai.</p></div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map((item) => `
-                <article class="product-card">
-                    <div class="product-top">
-                        ${renderBadge(item)}
-                        <div>
-                            <div class="product-title">${escapeAttr(item.title)}</div>
-                            <div class="product-sub">${escapeAttr(item.subtitle)}</div>
-                        </div>
-                    </div>
-                    <div class="profit-pill">${escapeAttr(item.profitText)}</div>
-                    <div class="product-actions">
-                        <button class="btn-share" onclick="shareProduct('${item.title.replace(/'/g, "\\'")}', '${item.profitText.replace(/'/g, "\\'")}', '${item.shareUrl.replace(/'/g, "\\'")}')">
-                            <span>Share Offer</span>
-                        </button>
-                        <button class="btn-copy" title="Copy Link" onclick="copyOfferLink('${item.shareUrl.replace(/'/g, "\\'")}')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </article>
-            `).join("");
-        }
-
-        window.selectCategory = function(category) {
-            currentCategory = category;
-            document.querySelectorAll(".category-card").forEach((card) => {
-                card.classList.toggle("active", card.dataset.cat === category);
-            });
-            renderProducts();
-            document.getElementById("productsSection").scrollIntoView({ behavior: "smooth", block: "start" });
-        };
-
-        window.switchTab = function(tabName) {
-            document.querySelectorAll(".nav-item").forEach((btn) => btn.classList.remove("active"));
-            document.getElementById("homeProductsView").classList.remove("active");
-            document.getElementById("earningsView").classList.remove("active");
-            document.getElementById("accountView").classList.remove("active");
-
-            if (tabName === "home") {
-                document.getElementById("navHome").classList.add("active");
-                document.getElementById("homeProductsView").classList.add("active");
-                currentCategory = "ALL";
-                document.querySelectorAll(".category-card").forEach((c) => c.classList.remove("active"));
-                renderProducts();
-            } else if (tabName === "products") {
-                document.getElementById("navProducts").classList.add("active");
-                document.getElementById("homeProductsView").classList.add("active");
-                renderProducts();
-                document.getElementById("categoriesSection").scrollIntoView({ behavior: "smooth" });
-            } else if (tabName === "earnings") {
-                document.getElementById("navEarnings").classList.add("active");
-                document.getElementById("earningsView").classList.add("active");
-            } else if (tabName === "account") {
-                document.getElementById("navAccount").classList.add("active");
-                document.getElementById("accountView").classList.add("active");
-            }
-        };
-
-        window.shareProduct = function(title, profitText, url) {
-            const shareText = `${title} - ${profitText}\nJoin here: ${url}`;
-            if (navigator.share) {
-                navigator.share({ title: title, text: shareText, url: url }).catch(() => {});
-            } else {
-                const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-                window.open(waUrl, "_blank");
-            }
-        };
-
-        window.copyOfferLink = async function(url) {
-            try {
-                await navigator.clipboard.writeText(url);
-                showToast("Offer link copied!");
-            } catch (e) {
-                showToast(url);
-            }
-        };
-
-        window.handleWithdraw = function() {
-            if (currentBalance < 100) {
-                showToast("Minimum ₹100.00 balance required for withdrawal.");
-                return;
-            }
-            showToast("Withdrawal request feature will be processed shortly.");
-        };
 
         window.handleLogout = async function() {
             try {
@@ -907,7 +1033,7 @@
                     if (data.name) userName = data.name;
                     if (data.email) userEmail = data.email;
                     if (data.phone) userPhone = data.phone;
-                    if (typeof data.balance === "number") currentBalance = data.balance;
+                    if (typeof data.balance === "number") window.FINSHARE_BALANCE = data.balance;
                     if (typeof data.pending === "number") pending = data.pending;
                 }
             } catch (err) {
@@ -924,10 +1050,10 @@
             document.getElementById("avatarInitials").innerText = initials;
             document.getElementById("displayUserName").innerText = userName;
             document.getElementById("displayUserId").innerText = `ID: ${shortId}`;
-            document.getElementById("totalEarningsText").innerText = formatRupees(currentBalance);
+            document.getElementById("totalEarningsText").innerText = formatRupees(window.FINSHARE_BALANCE);
             document.getElementById("pendingEarningsText").innerText = formatRupees(pending);
 
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(currentBalance);
+            document.getElementById("earningConfirmedVal").innerText = formatRupees(window.FINSHARE_BALANCE);
             document.getElementById("earningPendingVal").innerText = formatRupees(pending);
 
             document.getElementById("accName").innerText = userName;
@@ -936,7 +1062,6 @@
             document.getElementById("accPhone").innerText = userPhone;
         });
 
-        renderProducts();
         loadProductsFromFirestore();
     </script>
 </body>
