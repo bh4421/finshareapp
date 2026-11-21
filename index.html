@@ -995,7 +995,7 @@
             </aside>
         </div>
 
-        <main id="homeView" class="view-panel active">
+        <main id="homeView" class="view-panel">
             <div class="stats-grid">
                 <div class="stat-card clickable" onclick="window.location.href='leads.html'" title="Open My Leads">
                     <div class="stat-icon blue">
@@ -1426,7 +1426,7 @@
         <div class="toast-bar" id="toastBar"></div>
 
         <nav class="bottom-nav">
-            <button class="nav-item active" id="navHome" onclick="switchTab('home')">
+            <button class="nav-item" id="navHome" onclick="switchTab('home')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
                 </svg>
@@ -1460,7 +1460,8 @@
     </div>
 
     <script>
-        window.FINSHARE_PRODUCTS = [
+        const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V1";
+        const DEFAULT_HOME_PRODUCTS = [
             {
                 id: "angel-one-demat",
                 code: "AO",
@@ -1582,9 +1583,36 @@
                 order: 6
             }
         ];
+
+        function readCachedHomeProducts() {
+            try {
+                const raw = sessionStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedHomeProducts(list) {
+            try {
+                sessionStorage.setItem(HOME_PRODUCTS_CACHE_KEY, JSON.stringify(list));
+            } catch (e) {}
+        }
+
+        window.FINSHARE_PRODUCTS = readCachedHomeProducts() || DEFAULT_HOME_PRODUCTS.slice();
         window.FINSHARE_HOME_CAT = "ALL";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
+
+        function getTabFromHash() {
+            const h = (window.location.hash || "").toLowerCase().replace(/^#/, "");
+            if (h === "earnings" || h === "account" || h === "home") {
+                return h;
+            }
+            return "home";
+        }
 
         function openMenuDrawer() {
             const backdrop = document.getElementById("menuDrawerBackdrop");
@@ -1790,6 +1818,19 @@
             }).join("");
         }
 
+        window.applyFirestoreHomeProducts = function(selectedHomeProducts) {
+            if (!Array.isArray(selectedHomeProducts)) return;
+            const prevSerialized = JSON.stringify(window.FINSHARE_PRODUCTS);
+            const nextSerialized = JSON.stringify(selectedHomeProducts);
+            window.FINSHARE_PRODUCTS = selectedHomeProducts;
+            if (selectedHomeProducts.length > 0) {
+                writeCachedHomeProducts(selectedHomeProducts);
+            }
+            if (prevSerialized !== nextSerialized) {
+                renderHomeProducts();
+            }
+        };
+
         function selectHomeCategory(category) {
             window.FINSHARE_HOME_CAT = category;
             renderHomeProducts();
@@ -1797,7 +1838,7 @@
             if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
         }
 
-        function switchTab(tabName) {
+        function switchTab(tabName, options = {}) {
             if (tabName === "products") {
                 window.location.href = "products.html";
                 return;
@@ -1824,6 +1865,17 @@
                 if (navEl) navEl.classList.toggle("active", isTarget);
                 if (viewEl) viewEl.classList.toggle("active", isTarget);
             });
+
+            if (options.updateHash) {
+                const targetHash = activeKey === "home" ? "" : `#${activeKey}`;
+                if (window.location.hash !== targetHash) {
+                    try {
+                        history.replaceState(null, "", targetHash || (window.location.pathname + window.location.search));
+                    } catch (e) {
+                        window.location.hash = targetHash;
+                    }
+                }
+            }
 
             const menuBtn = document.getElementById("homeMenuBtn");
             if (menuBtn) {
@@ -1876,6 +1928,16 @@
             showToast("Withdrawal request feature will be processed shortly.");
         }
 
+        window.addEventListener("DOMContentLoaded", () => {
+            switchTab(getTabFromHash(), { updateHash: false });
+            renderHomeProducts();
+        });
+
+        window.addEventListener("hashchange", () => {
+            switchTab(getTabFromHash(), { updateHash: false });
+        });
+
+        switchTab(getTabFromHash(), { updateHash: false });
         renderHomeProducts();
     </script>
 
@@ -1962,12 +2024,11 @@
                         }
                     });
                     selectedHomeProducts.sort((a, b) => a.order - b.order);
-                    window.FINSHARE_PRODUCTS = selectedHomeProducts;
+                    window.applyFirestoreHomeProducts(selectedHomeProducts);
                 }
             } catch (err) {
                 console.error("Products load error:", err);
             }
-            renderHomeProducts();
         }
 
         async function loadSiteConfigFromFirestore() {
