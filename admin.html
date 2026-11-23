@@ -433,6 +433,7 @@
     let productsCache = {};
     let productsByTitle = {};
     let allLeadsList = [];
+    let allWithdrawalsList = [];
 
     function fillFormForProduct(p) {
         if (!p) {
@@ -599,9 +600,7 @@
     };
 
     function getUserTotalEarning(uid, userData) {
-        const dbBal = Number(userData.balance || 0);
         let confirmedLeadsSum = 0;
-
         allLeadsList.forEach((lead) => {
             if (lead.userId === uid) {
                 const st = String(lead.status || "").trim().toLowerCase();
@@ -611,7 +610,18 @@
             }
         });
 
-        return Math.max(dbBal, confirmedLeadsSum);
+        let withdrawnSum = 0;
+        allWithdrawalsList.forEach((w) => {
+            if (w.userId === uid) {
+                const st = String(w.status || "Pending").trim().toLowerCase();
+                if (st === "pending" || st === "success" || st === "approved" || st === "completed" || st === "confirm" || st === "confirmed") {
+                    withdrawnSum += Number(w.amount || 0);
+                }
+            }
+        });
+
+        const dbBal = Number(userData.balance || 0);
+        return Math.max(confirmedLeadsSum, dbBal + withdrawnSum);
     }
 
     async function loadUsers() {
@@ -760,16 +770,16 @@
         tbody.innerHTML = "";
         try {
             const snap = await getDocs(collection(db, "withdrawals"));
+            allWithdrawalsList = [];
             if (snap.empty) {
                 tbody.innerHTML = "<tr><td colspan='5'>Abhi koi withdrawal request nahi hai.</td></tr>";
                 return;
             }
 
-            const rows = [];
-            snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
-            rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+            snap.forEach((d) => allWithdrawalsList.push({ id: d.id, ...d.data() }));
+            allWithdrawalsList.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
 
-            tbody.innerHTML = rows.map((w) => {
+            tbody.innerHTML = allWithdrawalsList.map((w) => {
                 const stLower = String(w.status || "Pending").trim().toLowerCase();
                 const isSuccess = stLower === "success" || stLower === "approved" || stLower === "completed";
                 const statusBadge = isSuccess
@@ -812,6 +822,7 @@
             });
             alert("Withdrawal Approve ho gaya aur status Success update ho gaya!");
             await loadWithdrawals();
+            await loadUsers();
         } catch (e) {
             alert("Withdrawal approve karne me error aayi: " + e.message);
         }
@@ -881,8 +892,8 @@
     (async function initAdmin() {
         await loadProductsAdmin();
         await loadReferrals();
-        await loadUsers();
         await loadWithdrawals();
+        await loadUsers();
     })();
 </script>
 
