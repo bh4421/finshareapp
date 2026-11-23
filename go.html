@@ -206,9 +206,9 @@
 
         const params = new URLSearchParams(window.location.search);
         const refUid = (params.get("ref") || "").trim();
-        const pid = (params.get("pid") || "").trim();
+        let pid = (params.get("pid") || "").trim();
         const title = (params.get("title") || "Offer").trim();
-        const rawUrl = (params.get("url") || "https://finshareapp.in").trim();
+        const rawUrl = (params.get("url") || "").trim();
 
         let partnerMeta = {
             userId: refUid,
@@ -218,19 +218,28 @@
             partnerEmail: (params.get("pemail") || "").trim()
         };
 
-        let safeTargetUrl = "https://finshareapp.in";
+        let safeTargetUrl = "";
         let resolvedTitle = title;
+        let resolvedAmount = 0;
+
+        function isDeadOfferPath(urlStr) {
+            return /^https?:\/\/(www\.)?finshareapp\.in\/offer(\/|$)/i.test(String(urlStr || "").trim());
+        }
 
         function setTargetUrl(raw) {
+            const clean = String(raw || "").trim();
+            if (!clean || isDeadOfferPath(clean)) return false;
             try {
-                const parsed = new URL(raw);
+                const parsed = new URL(clean);
                 if (parsed.protocol === "https:" || parsed.protocol === "http:") {
                     if (refUid && !parsed.searchParams.get("subid")) {
                         parsed.searchParams.set("subid", refUid);
                     }
                     safeTargetUrl = parsed.toString();
+                    return true;
                 }
             } catch (e) {}
+            return false;
         }
         setTargetUrl(rawUrl);
 
@@ -251,6 +260,32 @@
         }
         updatePartnerBox();
 
+        function applyProductData(pDocId, pData) {
+            if (!pData) return;
+            if (!pid && pDocId) pid = pDocId;
+            if (pData.title) {
+                resolvedTitle = pData.title;
+                document.title = `${resolvedTitle} - FinShare`;
+                document.getElementById("goOfferTitle").textContent = resolvedTitle;
+            }
+            const dbUrl = (pData.shareUrl || pData.partnerUrl || "").trim();
+            if (dbUrl) {
+                setTargetUrl(dbUrl);
+            }
+            if (pData.subtitle) {
+                document.getElementById("goOfferSubtitle").textContent = pData.subtitle;
+            }
+            if (pData.details || pData.description) {
+                document.getElementById("goOfferDesc").textContent = pData.details || pData.description;
+            }
+            if (typeof pData.amount === "number" && pData.amount > 0) {
+                resolvedAmount = pData.amount;
+            } else if (pData.profitText) {
+                const m = String(pData.profitText).replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+                if (m) resolvedAmount = Number(m[1]);
+            }
+        }
+
         async function hydrateMetaFromFirestore() {
             if (refUid && (!partnerMeta.partnerName || !partnerMeta.partnerMobile || !partnerMeta.partnerEmail)) {
                 try {
@@ -265,30 +300,33 @@
                 } catch (e) {}
             }
 
+            let foundProduct = false;
             if (pid) {
                 try {
                     const pSnap = await getDoc(doc(db, "products", pid));
                     if (pSnap.exists()) {
-                        const pData = pSnap.data();
-                        if (pData.title) {
-                            resolvedTitle = pData.title;
-                            document.title = `${resolvedTitle} - FinShare`;
-                            document.getElementById("goOfferTitle").textContent = resolvedTitle;
-                        }
-                        if (pData.shareUrl) {
-                            setTargetUrl(pData.shareUrl);
-                        }
-                        if (pData.subtitle) {
-                            document.getElementById("goOfferSubtitle").textContent = pData.subtitle;
-                        }
-                        if (pData.details || pData.description) {
-                            document.getElementById("goOfferDesc").textContent = pData.details || pData.description;
-                        }
+                        applyProductData(pSnap.id, pSnap.data());
+                        foundProduct = true;
                     }
                 } catch (e) {}
             }
+
+            if (!foundProduct && resolvedTitle && resolvedTitle !== "Offer") {
+                try {
+                    const allProductsSnap = await getDocs(collection(db, "products"));
+                    const targetTitleLower = resolvedTitle.toLowerCase();
+                    allProductsSnap.forEach((docSnap) => {
+                        const d = docSnap.data();
+                        if (!foundProduct && d.title && String(d.title).trim().toLowerCase() === targetTitleLower) {
+                            applyProductData(docSnap.id, d);
+                            foundProduct = true;
+                        }
+                    });
+                } catch (e) {}
+            }
         }
-        hydrateMetaFromFirestore();
+
+        const hydratePromise = hydrateMetaFromFirestore();
 
         const form = document.getElementById("customerLeadForm");
         const errEl = document.getElementById("leadFormError");
@@ -333,6 +371,14 @@
             submitBtn.disabled = true;
             submitBtn.textContent = "PROCESSING...";
 
+            await hydratePromise;
+
+            if (!safeTargetUrl) {
+                errEl.textContent = "Is offer ka partner link abhi admin panel mein update nahi hua hai.";
+                resetSubmitState();
+                return;
+            }
+
             try {
                 const mobileQuery = pid
                     ? query(collection(db, "leads"), where("productId", "==", pid), where("customerMobile", "==", mobile))
@@ -367,7 +413,7 @@
                 customerEmail: email,
                 customerMobile: mobile,
                 status: "Pending",
-                amount: 0,
+                amount: resolvedAmount || 0,
                 targetUrl: safeTargetUrl,
                 createdAt: new Date().toISOString(),
                 serverTime: serverTimestamp()
