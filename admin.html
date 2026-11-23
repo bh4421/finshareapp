@@ -95,7 +95,7 @@
             <div class="grid-2">
                 <div class="field">
                     <label>Share URL *</label>
-                    <input type="url" id="prodShareUrl" placeholder="https://finshareapp.in/offer/..." required />
+                    <input type="url" id="prodShareUrl" placeholder="https://sales.gromo.in/..." required />
                 </div>
                 <div class="field">
                     <label>Logo URL (Image Link)</label>
@@ -268,7 +268,7 @@
             subtitle: "Free Demat + 1st Trade",
             category: "Demat",
             profitText: "Earn ₹750",
-            shareUrl: "https://finshareapp.in/offer/angel-one",
+            shareUrl: "https://sales.gromo.in/b/ANGEL_ONE/",
             logoUrl: "./IMG-20260322-WA0013.jpg",
             code: "AO",
             order: 1,
@@ -288,7 +288,7 @@
             subtitle: "Zero Balance Account",
             category: "Banking",
             profitText: "Earn upto ₹450",
-            shareUrl: "https://finshareapp.in/offer/kotak-811",
+            shareUrl: "https://finshareapp.in/go.html",
             logoUrl: "",
             code: "K8",
             order: 2,
@@ -308,7 +308,7 @@
             subtitle: "Earn Rs 300 on first investment",
             category: "Demat",
             profitText: "Earn ₹300",
-            shareUrl: "https://finshareapp.in/offer/smallcase",
+            shareUrl: "https://finshareapp.in/go.html",
             logoUrl: "",
             code: "SC",
             order: 3,
@@ -328,7 +328,7 @@
             subtitle: "Earn Rs 300 on A/C open + Activation",
             category: "Demat",
             profitText: "Earn ₹300",
-            shareUrl: "https://finshareapp.in/offer/jainam",
+            shareUrl: "https://finshareapp.in/go.html",
             logoUrl: "",
             code: "JN",
             order: 4,
@@ -348,7 +348,7 @@
             subtitle: "Earn Rs 200 on A/C open + Activation",
             category: "Demat",
             profitText: "Earn ₹200",
-            shareUrl: "https://finshareapp.in/offer/upstox",
+            shareUrl: "https://finshareapp.in/go.html",
             logoUrl: "",
             code: "UP",
             order: 5,
@@ -368,7 +368,7 @@
             subtitle: "Lifetime Free / Cashback",
             category: "Credit Card",
             profitText: "Earn ₹900",
-            shareUrl: "https://finshareapp.in/offer/axis-card",
+            shareUrl: "https://finshareapp.in/go.html",
             logoUrl: "",
             code: "AX",
             order: 6,
@@ -390,6 +390,23 @@
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
+    }
+
+    function slugifyId(title) {
+        return String(title || "offer")
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "") || ("offer-" + Date.now());
+    }
+
+    function sanitizeOfferUrl(rawUrl) {
+        const clean = String(rawUrl || "").trim();
+        if (!clean) return "https://finshareapp.in/go.html";
+        if (/^https?:\/\/(www\.)?finshareapp\.in\/offer(\/|$)/i.test(clean)) {
+            return "https://finshareapp.in/go.html";
+        }
+        return clean;
     }
 
     function extractAmountNumber(profitText) {
@@ -449,7 +466,7 @@
         document.getElementById("prodSubtitle").value = p.subtitle || "";
         document.getElementById("prodCategory").value = p.category || "Demat";
         document.getElementById("prodProfitText").value = p.profitText || "";
-        document.getElementById("prodShareUrl").value = p.shareUrl || "";
+        document.getElementById("prodShareUrl").value = sanitizeOfferUrl(p.shareUrl || p.partnerUrl || "");
         document.getElementById("prodLogoUrl").value = p.logoUrl || "";
         document.getElementById("prodCode").value = p.code || "";
         document.getElementById("prodOrder").value = typeof p.order === "number" ? p.order : 1;
@@ -461,6 +478,72 @@
         saveProdBtn.innerText = "Update Product";
         prodMsg.innerText = "";
     }
+
+    prodForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        saveProdBtn.disabled = true;
+        const isUpdate = Boolean(selectEl.value);
+        saveProdBtn.innerText = isUpdate ? "Updating..." : "Saving...";
+        prodMsg.innerText = "";
+
+        const titleVal = document.getElementById("prodTitle").value.trim();
+        const subtitleVal = document.getElementById("prodSubtitle").value.trim();
+        const categoryVal = document.getElementById("prodCategory").value;
+        const profitTextVal = document.getElementById("prodProfitText").value.trim();
+        const shareUrlVal = sanitizeOfferUrl(document.getElementById("prodShareUrl").value.trim());
+        const logoUrlVal = document.getElementById("prodLogoUrl").value.trim();
+        const codeVal = document.getElementById("prodCode").value.trim().toUpperCase() || (titleVal.slice(0, 2).toUpperCase() || "FS");
+        const orderVal = Number(document.getElementById("prodOrder").value || 1);
+        const trackingTimeVal = document.getElementById("prodTrackingTime").value.trim() || "24 - 72 Hours";
+        const confirmTimeVal = document.getElementById("prodConfirmTime").value.trim() || "7 - 15 Working Days";
+        const detailsVal = document.getElementById("prodDetails").value.trim();
+        const termsLines = document.getElementById("prodTerms").value
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean);
+        const showOnHomeVal = document.getElementById("prodShowOnHome").checked;
+
+        const docId = selectEl.value || slugifyId(titleVal);
+
+        const payload = {
+            title: titleVal,
+            subtitle: subtitleVal,
+            category: categoryVal,
+            profitText: profitTextVal,
+            payoutText: profitTextVal,
+            amount: extractAmountNumber(profitTextVal),
+            shareUrl: shareUrlVal,
+            partnerUrl: shareUrlVal,
+            logoUrl: logoUrlVal,
+            code: codeVal,
+            order: Number.isFinite(orderVal) ? orderVal : 999,
+            trackingTime: trackingTimeVal,
+            confirmationTime: confirmTimeVal,
+            details: detailsVal,
+            terms: termsLines,
+            showOnHome: showOnHomeVal,
+            updatedAt: new Date().toISOString()
+        };
+
+        try {
+            await setDoc(doc(db, "products", docId), payload, { merge: true });
+            prodMsg.style.color = "#16a34a";
+            prodMsg.innerText = isUpdate
+                ? `Product "${titleVal}" aur partner link update ho gaya!`
+                : `Naya product "${titleVal}" aur partner link save ho gaya!`;
+            await loadProductsAdmin();
+            selectEl.value = docId;
+            if (productsCache[docId]) {
+                fillFormForProduct(productsCache[docId]);
+            }
+        } catch (err) {
+            prodMsg.style.color = "#dc2626";
+            prodMsg.innerText = "Save karne mein error: " + err.message;
+        } finally {
+            saveProdBtn.disabled = false;
+            saveProdBtn.innerText = selectEl.value ? "Update Product" : "Save Product";
+        }
+    });
 
     window.editProductById = function(id) {
         if (productsCache[id]) {
@@ -562,10 +645,15 @@
                     ? `<img src="${esc(p.logoUrl)}" alt="${esc(p.title || "")}" class="thumb-mini" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;font-weight:700;">${esc(p.code || "FS")}</span>`
                     : `<span style="font-weight:700;">${esc(p.code || "FS")}</span>`;
 
+                const linkPreview = p.shareUrl || p.partnerUrl || "";
+
                 return `
                     <tr>
                         <td>${logoHtml}</td>
-                        <td>${esc(p.title || "N/A")}</td>
+                        <td>
+                            <strong>${esc(p.title || "N/A")}</strong>
+                            ${linkPreview ? `<span class="sub-meta">${esc(linkPreview)}</span>` : ""}
+                        </td>
                         <td>${esc(p.category || "-")}</td>
                         <td>${esc(p.profitText || "-")}</td>
                         <td>${p.showOnHome ? "Yes" : "No"}</td>
