@@ -98,6 +98,20 @@
             text-align: right;
             word-break: break-word;
         }
+        .email-btn {
+            display: inline-block;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 11px;
+            padding: 11px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .email-btn:hover {
+            background: #1d4ed8;
+        }
         ul {
             padding-left: 20px;
             font-size: 14.5px;
@@ -106,52 +120,6 @@
         }
         li {
             margin-bottom: 7px;
-        }
-        .form-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 10px;
-        }
-        .field {
-            margin-bottom: 13px;
-        }
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 5px;
-        }
-        input, select, textarea {
-            width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 14px;
-            color: #0f172a;
-            background: #ffffff;
-        }
-        .btn-submit {
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            border-radius: 11px;
-            padding: 11px 18px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-submit:hover {
-            background: #1d4ed8;
-        }
-        .status-msg {
-            margin-top: 12px;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #15803d;
-            line-height: 1.5;
         }
         .footer-links {
             margin-top: 22px;
@@ -174,7 +142,7 @@
         <span class="badge">FINSHARE SUPPORT</span>
         <h1>Contact Us</h1>
         <p>
-            Have questions about your <strong>FinShare</strong> partner account, lead status, payout requests, campaign terms, or privacy/data deletion requests? Reach out to our support team using the contact details or inquiry form below.
+            Have questions about your <strong>FinShare</strong> partner account, lead status, payout requests, campaign terms, or privacy and data deletion requests? Reach out to our support team using the official contact details below.
         </p>
 
         <div class="info-card">
@@ -200,6 +168,8 @@
             </div>
         </div>
 
+        <a class="email-btn" href="mailto:support@finshareapp.in?subject=FinShare%20Support%20Query">Email Support</a>
+
         <h2>What You Can Contact Us For</h2>
         <ul>
             <li><strong>Account &amp; Login Assistance:</strong> Help with partner profile details, sign-in issues, or account status.</li>
@@ -209,45 +179,6 @@
             <li><strong>Copyright / Legal Notices:</strong> Intellectual property or policy concerns (you may also review our <a class="nav-link" href="dmca.html">DMCA</a> page).</li>
         </ul>
 
-        <h2>Send an Inquiry</h2>
-        <div class="form-card">
-            <form id="contactInquiryForm">
-                <div class="field">
-                    <label for="senderName">Full Name</label>
-                    <input type="text" id="senderName" required placeholder="Enter your full name" />
-                </div>
-
-                <div class="field">
-                    <label for="senderEmail">Email Address</label>
-                    <input type="email" id="senderEmail" required placeholder="Enter your email address" />
-                </div>
-
-                <div class="field">
-                    <label for="partnerIdInput">Partner ID / Registered Mobile (Optional)</label>
-                    <input type="text" id="partnerIdInput" placeholder="e.g. #FS8892 or mobile number" />
-                </div>
-
-                <div class="field">
-                    <label for="topicSelect">Topic</label>
-                    <select id="topicSelect">
-                        <option value="Account Support">Account Support</option>
-                        <option value="Lead & Offer Tracking">Lead &amp; Offer Tracking</option>
-                        <option value="Payout / Withdrawal">Payout / Withdrawal</option>
-                        <option value="Privacy / Data Deletion">Privacy / Data Deletion</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="field">
-                    <label for="messageBox">Message</label>
-                    <textarea id="messageBox" rows="4" required placeholder="Describe your question or request clearly..."></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">Submit Inquiry</button>
-                <div class="status-msg" id="inquiryStatus"></div>
-            </form>
-        </div>
-
         <div class="footer-links">
             <a class="nav-link" href="about.html">About Us</a>
             <a class="nav-link" href="privacy-policy.html">Privacy Policy</a>
@@ -256,16 +187,5 @@
             <a class="nav-link" href="dmca.html">DMCA</a>
         </div>
     </div>
-
-    <script>
-        document.getElementById("contactInquiryForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const topic = document.getElementById("topicSelect").value;
-            document.getElementById("inquiryStatus").textContent =
-                "Thank you. Your " + topic + " note has been recorded on this screen. For direct email follow-up, please also send your details to support@finshareapp.in.";
-            this.reset();
-        });
-    </script>
 </body>
 </html>
-
