@@ -178,10 +178,12 @@
                         <th>Mobile/Email</th>
                         <th>Bank Account</th>
                         <th>Wallet</th>
+                        <th>Account Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
-                    <tr><td colspan="4">Data load ho raha hai...</td></tr>
+                    <tr><td colspan="6">Data load ho raha hai...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -369,6 +371,12 @@
             .replace(/"/g, "&quot;");
     }
 
+    function extractAmountNumber(profitText) {
+        if (typeof profitText === "number" && Number.isFinite(profitText)) return profitText;
+        const match = String(profitText || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+        return match ? Number(match[1]) : 0;
+    }
+
     const selectEl = document.getElementById("existingProductSelect");
     const prodForm = document.getElementById("productForm");
     const prodMsg = document.getElementById("prodMsg");
@@ -376,6 +384,7 @@
     const seedDefaultBtn = document.getElementById("seedDefaultBtn");
     const clearProdBtn = document.getElementById("clearProdBtn");
     let productsCache = {};
+    let productsByTitle = {};
 
     function fillFormForProduct(p) {
         if (!p) {
@@ -422,6 +431,7 @@
             prodMsg.style.color = "#16a34a";
             prodMsg.innerText = "Product delete ho gaya!";
             await loadProductsAdmin();
+            await loadReferrals();
         } catch (err) {
             prodMsg.style.color = "#dc2626";
             prodMsg.innerText = "Delete error: " + err.message;
@@ -451,6 +461,7 @@
             prodMsg.style.color = "#16a34a";
             prodMsg.innerText = "Default offers database mein save ho gaye!";
             await loadProductsAdmin();
+            await loadReferrals();
         } catch (err) {
             prodMsg.style.color = "#dc2626";
             prodMsg.innerText = "Seed error: " + err.message;
@@ -465,18 +476,29 @@
         try {
             const snap = await getDocs(collection(db, "products"));
             productsCache = {};
+            productsByTitle = {};
             selectEl.innerHTML = `<option value="">-- Create New Product --</option>`;
             const list = [];
 
             snap.forEach((d) => {
                 const item = { id: d.id, ...d.data() };
                 productsCache[d.id] = item;
+                if (item.title) {
+                    productsByTitle[String(item.title).trim().toLowerCase()] = item;
+                }
                 list.push(item);
 
                 const opt = document.createElement("option");
                 opt.value = d.id;
                 opt.innerText = `${item.title || d.id} (${item.profitText || ""})`;
                 selectEl.appendChild(opt);
+            });
+
+            DEFAULT_OFFERS.forEach((def) => {
+                if (!productsCache[def.id]) productsCache[def.id] = def;
+                if (def.title && !productsByTitle[def.title.toLowerCase()]) {
+                    productsByTitle[def.title.toLowerCase()] = def;
+                }
             });
 
             list.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
@@ -553,6 +575,7 @@
                 fillFormForProduct(null);
             }
             await loadProductsAdmin();
+            await loadReferrals();
         } catch (err) {
             prodMsg.style.color = "#dc2626";
             prodMsg.innerText = "Error: " + err.message;
@@ -562,33 +585,83 @@
         }
     });
 
+    window.setUserAccountStatus = async function(uid, newStatus) {
+        if (!uid) return;
+        const isApproved = newStatus === "Approved";
+        try {
+            await setDoc(doc(db, "users", uid), {
+                accountStatus: isApproved ? "Approved" : "Pending",
+                accountApproved: isApproved,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+            alert(`User account status "${isApproved ? "Approved" : "Pending"}" update ho gaya!`);
+            await loadUsers();
+        } catch (e) {
+            alert("Account status update karne me error aayi: " + e.message);
+        }
+    };
+
     async function loadUsers() {
         const tbody = document.getElementById("usersTable");
         tbody.innerHTML = "";
         try {
             const querySnapshot = await getDocs(collection(db, "users"));
             if (querySnapshot.empty) {
-                tbody.innerHTML = "<tr><td colspan='4'>Koi user nahi mila.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='6'>Koi user nahi mila.</td></tr>";
                 return;
             }
             querySnapshot.forEach((docSnap) => {
                 const u = docSnap.data();
+                const uid = docSnap.id;
                 const bankStr = u.bankDetails
                     ? `${u.bankDetails.bankName || ""} - ${u.bankDetails.accountNumber || ""}`
                     : (u.bankAccount || "N/A");
                 const bal = Number(u.balance || 0).toFixed(2);
+                const statusVal = u.accountStatus || (u.accountApproved === true ? "Approved" : "Pending");
+                const isApproved = String(statusVal).toLowerCase() === "approved";
+
+                const statusBadge = isApproved
+                    ? `<span class="badge completed">Approved</span>`
+                    : `<span class="badge pending">Pending</span>`;
+
+                const actionButtons = `
+                    <div class="action-group">
+                        <button type="button" class="btn-approve" onclick="setUserAccountStatus('${esc(uid)}', 'Approved')">Approve</button>
+                        <button type="button" class="btn-expire" onclick="setUserAccountStatus('${esc(uid)}', 'Pending')">Pending</button>
+                    </div>
+                `;
+
                 tbody.innerHTML += `
                     <tr>
-                        <td>${esc(u.name || "N/A")}</td>
+                        <td>
+                            <strong>${esc(u.name || "N/A")}</strong>
+                            <span class="sub-meta">ID: #FS${esc(uid.slice(-4).toUpperCase())}</span>
+                        </td>
                         <td>${esc(u.phone || u.email || "N/A")}</td>
                         <td>${esc(bankStr)}</td>
                         <td>₹${esc(bal)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
                     </tr>
                 `;
             });
         } catch (e) {
-            tbody.innerHTML = "<tr><td colspan='4' style='color:red;'>Error loading users!</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Error loading users!</td></tr>";
         }
+    }
+
+    function getLeadOfferAmount(ref) {
+        const savedAmt = Number(ref.amount || 0);
+        if (savedAmt > 0) return savedAmt;
+
+        const prodById = ref.productId ? productsCache[ref.productId] : null;
+        const prodByTitle = ref.productTitle ? productsByTitle[String(ref.productTitle).trim().toLowerCase()] : null;
+        const matchedProd = prodById || prodByTitle;
+
+        if (matchedProd && matchedProd.profitText) {
+            return extractAmountNumber(matchedProd.profitText);
+        }
+        return 0;
     }
 
     async function loadReferrals() {
@@ -610,7 +683,7 @@
             rows.forEach((ref) => {
                 const statusLower = String(ref.status || "Pending").toLowerCase();
                 const isPending = statusLower === "pending";
-                const amt = Number(ref.amount || 0);
+                const amt = getLeadOfferAmount(ref);
 
                 let statusBadge = `<span class="badge pending">Pending</span>`;
                 if (statusLower === "completed" || statusLower === "confirm" || statusLower === "confirmed") {
@@ -696,8 +769,8 @@
             }
 
             alert("Lead Approve ho gaya hai aur wallet balance update ho gaya!");
-            loadReferrals();
-            loadUsers();
+            await loadReferrals();
+            await loadUsers();
         } catch (e) {
             alert("Approve karne me error aayi: " + e.message);
         }
@@ -711,7 +784,7 @@
                 rejectedAt: new Date().toISOString()
             });
             alert("Lead Rejected mark ho gayi hai.");
-            loadReferrals();
+            await loadReferrals();
         } catch (e) {
             alert("Reject karne me error aayi: " + e.message);
         }
@@ -725,15 +798,17 @@
                 expiredAt: new Date().toISOString()
             });
             alert("Lead Expired mark ho gayi hai.");
-            loadReferrals();
+            await loadReferrals();
         } catch (e) {
             alert("Expire karne me error aayi: " + e.message);
         }
     };
 
-    loadProductsAdmin();
-    loadUsers();
-    loadReferrals();
+    (async function initAdmin() {
+        await loadProductsAdmin();
+        await loadUsers();
+        await loadReferrals();
+    })();
 </script>
 
 </body>
