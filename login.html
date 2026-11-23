@@ -205,7 +205,9 @@
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword, 
             updateProfile,
-            sendPasswordResetEmail 
+            sendPasswordResetEmail,
+            deleteUser,
+            signOut
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -223,6 +225,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const DEVICE_LOCK_KEY = "FINSHARE_LOCKED_UID";
         let isSignup = false;
 
         function showMessage(msg, isError = true) {
@@ -234,6 +237,46 @@
 
         function hideMessage() {
             document.getElementById('statusBox').style.display = 'none';
+        }
+
+        function normalizePhone(rawPhone) {
+            return String(rawPhone || "").replace(/\D/g, "").trim();
+        }
+
+        function normalizeEmail(rawEmail) {
+            return String(rawEmail || "").trim().toLowerCase();
+        }
+
+        async function checkDuplicatePhoneOrEmail(phone, email, currentUid = "") {
+            if (phone) {
+                const qPhone = query(collection(db, "users"), where("phone", "==", phone));
+                const snapPhone = await getDocs(qPhone);
+                for (const d of snapPhone.docs) {
+                    if (!currentUid || d.id !== currentUid) {
+                        return "Yeh mobile number pehle se kisi aur account par registered hai. Multiple account allow nahi hai.";
+                    }
+                }
+            }
+
+            if (email) {
+                const qEmail = query(collection(db, "users"), where("email", "==", email));
+                const snapEmail = await getDocs(qEmail);
+                for (const d of snapEmail.docs) {
+                    if (!currentUid || d.id !== currentUid) {
+                        return "Yeh email pehle se kisi aur account par registered hai. Multiple account allow nahi hai.";
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        function checkDeviceLock(uid) {
+            const lockedUid = localStorage.getItem(DEVICE_LOCK_KEY);
+            if (lockedUid && uid && lockedUid !== uid) {
+                return "Is device/browser par pehle se ek account linked hai. Multiple account allow nahi hai.";
+            }
+            return "";
         }
 
         window.toggleMode = function() {
@@ -269,16 +312,51 @@
 
             if (isSignup) {
                 const fullName = document.getElementById('fullName').value.trim();
-                const phoneNumber = document.getElementById('phoneNumber').value.trim();
-                const email = inputVal;
+                const phoneNumber = normalizePhone(document.getElementById('phoneNumber').value);
+                const email = normalizeEmail(inputVal);
 
+                if (!fullName) {
+                    showMessage("Kripya apna Full Name bharein.", true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Register";
+                    return;
+                }
+
+                if (phoneNumber.length !== 10) {
+                    showMessage("Kripya sahi 10-digit Mobile Number bharein.", true);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Register";
+                    return;
+                }
+
+                let createdUser = null;
                 try {
+                    const existingLockedUid = localStorage.getItem(DEVICE_LOCK_KEY);
+                    if (existingLockedUid) {
+                        throw new Error("Is device/browser par pehle se ek account bana hua hai. Multiple account nahi bana sakte.");
+                    }
+
+                    const dupError = await checkDuplicatePhoneOrEmail(phoneNumber, email);
+                    if (dupError) {
+                        throw new Error(dupError);
+                    }
+
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const user = userCredential.user;
+                    createdUser = userCredential.user;
 
-                    await updateProfile(user, { displayName: fullName });
+                    const lockErr = checkDeviceLock(createdUser.uid);
+                    if (lockErr) {
+                        throw new Error(lockErr);
+                    }
 
-                    await setDoc(doc(db, "users", user.uid), {
+                    const dupAfterAuthErr = await checkDuplicatePhoneOrEmail(phoneNumber, email, createdUser.uid);
+                    if (dupAfterAuthErr) {
+                        throw new Error(dupAfterAuthErr);
+                    }
+
+                    await updateProfile(createdUser, { displayName: fullName });
+
+                    await setDoc(doc(db, "users", createdUser.uid), {
                         name: fullName,
                         email: email,
                         phone: phoneNumber,
@@ -286,13 +364,22 @@
                         createdAt: new Date().toISOString()
                     });
 
+                    localStorage.setItem(DEVICE_LOCK_KEY, createdUser.uid);
                     localStorage.setItem("isLoggedIn", "true");
                     localStorage.setItem("userName", fullName);
                     localStorage.setItem("userPhone", phoneNumber);
                     
                     window.location.href = "index.html";
                 } catch (error) {
-                    showMessage(error.message.replace("Firebase: ", ""), true);
+                    if (createdUser) {
+                        try {
+                            await deleteUser(createdUser);
+                        } catch (delErr) {
+                            try { await signOut(auth); } catch (sErr) {}
+                        }
+                    }
+                    const cleanMsg = (error.message || "").replace("Firebase: ", "");
+                    showMessage(cleanMsg || "Account create nahi ho saka.", true);
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Register";
                 }
@@ -300,31 +387,44 @@
                 try {
                     let emailToUse = inputVal;
 
-                    // Agar user ne email ki jagah mobile number dala hai (no '@' symbol)
                     if (!inputVal.includes('@')) {
-                        const q = query(collection(db, "users"), where("phone", "==", inputVal));
+                        const cleanLookupPhone = normalizePhone(inputVal);
+                        const q = query(collection(db, "users"), where("phone", "==", cleanLookupPhone));
                         const querySnapshot = await getDocs(q);
                         
                         if (querySnapshot.empty) {
                             throw new Error("No account found with this mobile number.");
                         }
                         
-                        // Us mobile number ki registered email nikal lo
                         querySnapshot.forEach((docSnap) => {
                             emailToUse = docSnap.data().email;
                         });
+                    } else {
+                        emailToUse = normalizeEmail(inputVal);
                     }
 
                     const userCredential = await signInWithEmailAndPassword(auth, emailToUse, password);
+                    const signedInUser = userCredential.user;
+
+                    const lockErr = checkDeviceLock(signedInUser.uid);
+                    if (lockErr) {
+                        await signOut(auth);
+                        localStorage.removeItem("isLoggedIn");
+                        throw new Error(lockErr);
+                    }
+
+                    localStorage.setItem(DEVICE_LOCK_KEY, signedInUser.uid);
                     localStorage.setItem("isLoggedIn", "true");
-                    if (userCredential.user.displayName) {
-                        localStorage.setItem("userName", userCredential.user.displayName);
+                    if (signedInUser.displayName) {
+                        localStorage.setItem("userName", signedInUser.displayName);
                     }
                     window.location.href = "index.html";
                 } catch (error) {
                     let errMessage = error.message;
                     if (errMessage.includes("No account found")) {
                         errMessage = "No account found with this mobile number.";
+                    } else if (errMessage.includes("Multiple account") || errMessage.includes("device/browser")) {
+                        errMessage = error.message;
                     } else {
                         errMessage = "Invalid credentials. Please check your email/mobile and password.";
                     }
@@ -345,7 +445,8 @@
             try {
                 let emailToReset = inputVal;
                 if (!inputVal.includes('@')) {
-                    const q = query(collection(db, "users"), where("phone", "==", inputVal));
+                    const cleanLookupPhone = normalizePhone(inputVal);
+                    const q = query(collection(db, "users"), where("phone", "==", cleanLookupPhone));
                     const querySnapshot = await getDocs(q);
                     if (querySnapshot.empty) {
                         throw new Error("No account found with this mobile number.");
@@ -353,6 +454,8 @@
                     querySnapshot.forEach((docSnap) => {
                         emailToReset = docSnap.data().email;
                     });
+                } else {
+                    emailToReset = normalizeEmail(inputVal);
                 }
 
                 await sendPasswordResetEmail(auth, emailToReset);
