@@ -623,9 +623,11 @@
         .detail-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 9px 0;
             border-bottom: 1px solid #f1f5f9;
             font-size: 13px;
+            gap: 10px;
         }
         .detail-row:last-child {
             border-bottom: none;
@@ -1184,6 +1186,13 @@
                 </div>
             </div>
 
+            <div class="info-card" id="withdrawalsHistoryCard">
+                <h3>Withdrawal Requests</h3>
+                <div id="withdrawalsHistoryBox">
+                    <p class="activity-text">Abhi koi withdrawal request nahi hai. ₹100.00 ya usse zyada balance par <strong>Withdraw</strong> click karein.</p>
+                </div>
+            </div>
+
             <div class="info-card">
                 <h3>Recent Activity</h3>
                 <p class="activity-text">Jab aapki koi lead database mein <strong>Confirm</strong> hoti hai, toh uska payout automatically aapke wallet mein add ho jata hai.</p>
@@ -1333,6 +1342,24 @@
                 </button>
             </div>
         </section>
+
+        <!-- Withdraw Modal -->
+        <div class="modal-backdrop" id="withdrawModal" onclick="closeModalById(event, 'withdrawModal')">
+            <div class="modal-card" onclick="event.stopPropagation()">
+                <div class="modal-head">
+                    <h3 style="font-size:17px;font-weight:700;color:#0f172a;">Request Withdrawal</h3>
+                    <button class="modal-close" onclick="closeModal('withdrawModal')">✕</button>
+                </div>
+                <form id="withdrawForm" onsubmit="submitWithdrawRequest(event)">
+                    <div class="form-group">
+                        <label>Withdraw Amount (₹)</label>
+                        <input type="number" id="withdrawAmountInput" min="100" step="0.01" required />
+                    </div>
+                    <p id="withdrawBankPreview" style="font-size:12px;color:#475569;margin-bottom:12px;"></p>
+                    <button type="submit" class="btn-primary-modal" id="submitWithdrawBtn">Submit Withdraw Request</button>
+                </form>
+            </div>
+        </div>
 
         <!-- Info Modal for Menu Links -->
         <div class="modal-backdrop" id="infoModal" onclick="closeModalById(event, 'infoModal')">
@@ -1630,6 +1657,8 @@
         window.FINSHARE_HOME_CAT = "ALL";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
+        window.CURRENT_USER_BANK = null;
+        window.FINSHARE_WITHDRAWALS = [];
 
         function extractRupeeNumber(val) {
             if (typeof val === "number" && Number.isFinite(val)) return val;
@@ -1714,6 +1743,7 @@
         }
 
         function renderBankCardUI(bankData) {
+            window.CURRENT_USER_BANK = bankData || null;
             const box = document.getElementById("bankDetailsDisplay");
             const badge = document.getElementById("bankStatusBadge");
             if (!box) return;
@@ -1750,6 +1780,34 @@
                 </div>
             `;
         }
+
+        window.renderWithdrawalsList = function() {
+            const box = document.getElementById("withdrawalsHistoryBox");
+            if (!box) return;
+            const list = window.FINSHARE_WITHDRAWALS || [];
+            if (!list.length) {
+                box.innerHTML = `<p class="activity-text">Abhi koi withdrawal request nahi hai. ₹100.00 ya usse zyada balance par <strong>Withdraw</strong> click karein.</p>`;
+                return;
+            }
+            box.innerHTML = list.map((w) => {
+                const st = String(w.status || "Pending");
+                const isSuccess = ["success", "approved", "confirm", "confirmed"].includes(st.trim().toLowerCase());
+                const badgeStyle = isSuccess
+                    ? "background:#dcfce7;color:#15803d;"
+                    : "background:#fef3c7;color:#b45309;";
+                const labelText = isSuccess ? "Success" : "Pending";
+                const amtText = "₹" + Number(w.amount || 0).toFixed(2);
+                return `
+                    <div class="detail-row">
+                        <div>
+                            <div style="font-weight:700;color:#0f172a;">${amtText}</div>
+                            <div style="font-size:11px;color:#64748b;">${escapeAttr(w.dateText || "")} • ${escapeAttr(w.bankSummary || "")}</div>
+                        </div>
+                        <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;${badgeStyle}">${labelText}</span>
+                    </div>
+                `;
+            }).join("");
+        };
 
         function renderOfferLogo(item) {
             const safeUrl = escapeAttr(item.logoUrl);
@@ -1989,16 +2047,30 @@
         }
 
         function handleWithdraw() {
-            if (Number(window.FINSHARE_BALANCE || 0) < 100) {
+            const bal = Number(window.FINSHARE_BALANCE || 0);
+            if (bal < 100) {
                 showToast("Minimum ₹100.00 balance required for withdrawal.");
                 return;
             }
-            showToast("Withdrawal request feature will be processed shortly.");
+            const amtInput = document.getElementById("withdrawAmountInput");
+            const preview = document.getElementById("withdrawBankPreview");
+            if (amtInput) {
+                amtInput.max = bal.toFixed(2);
+                amtInput.value = bal.toFixed(2);
+            }
+            if (preview) {
+                const bank = window.CURRENT_USER_BANK;
+                preview.innerText = bank && bank.accountNumber
+                    ? `Payout Bank: ${bank.bankName || "Bank"} (${bank.accountNumber}) • IFSC: ${bank.ifsc || "-"}`
+                    : "Tip: Account tab mein Add Bank se bank details save karein.";
+            }
+            document.getElementById("withdrawModal").classList.add("open");
         }
 
         window.addEventListener("DOMContentLoaded", () => {
             switchTab(getTabFromHash(), { updateHash: false });
             renderHomeProducts();
+            renderWithdrawalsList();
         });
 
         window.addEventListener("hashchange", () => {
@@ -2007,12 +2079,13 @@
 
         switchTab(getTabFromHash(), { updateHash: false });
         renderHomeProducts();
+        renderWithdrawalsList();
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -2074,6 +2147,69 @@
                 } catch (e) {
                     console.error("Balance sync error:", e);
                 }
+            }
+        };
+
+        window.submitWithdrawRequest = async function(e) {
+            e.preventDefault();
+            if (!window.CURRENT_USER_ID) return;
+
+            const amt = Number(document.getElementById("withdrawAmountInput").value || 0);
+            const currentBal = Number(window.FINSHARE_BALANCE || 0);
+
+            if (amt < 100) {
+                showToast("Minimum withdrawal ₹100.00 hai.");
+                return;
+            }
+            if (amt > currentBal) {
+                showToast("Amount available balance se zyada nahi ho sakta.");
+                return;
+            }
+
+            const btn = document.getElementById("submitWithdrawBtn");
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+
+            try {
+                const uSnap = await getDoc(doc(db, "users", window.CURRENT_USER_ID));
+                const uData = uSnap.exists() ? uSnap.data() : {};
+                const bank = uData.bankDetails || window.CURRENT_USER_BANK || {};
+                const now = new Date();
+                const dateText = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+
+                await addDoc(collection(db, "withdrawals"), {
+                    userId: window.CURRENT_USER_ID,
+                    userName: uData.name || document.getElementById("displayUserName").innerText || "FinShare Partner",
+                    email: uData.email || auth.currentUser?.email || "",
+                    phone: uData.phone || "",
+                    amount: amt,
+                    status: "Pending",
+                    bankDetails: {
+                        holderName: bank.holderName || "",
+                        bankName: bank.bankName || "",
+                        accountNumber: bank.accountNumber || "",
+                        ifsc: bank.ifsc || ""
+                    },
+                    bankSummary: bank.accountNumber ? `${bank.bankName || "Bank"} - ${bank.accountNumber}` : "Bank Not Added",
+                    dateText,
+                    createdAt: now.toISOString()
+                });
+
+                const newBal = Math.max(0, currentBal - amt);
+                latestDbBalance = newBal;
+                await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
+                    balance: newBal
+                }, { merge: true });
+
+                closeModal("withdrawModal");
+                showToast("Withdraw request Pending mein bhej di gayi hai!");
+                switchTab("earnings", { updateHash: true });
+            } catch (err) {
+                console.error("Withdraw error:", err);
+                showToast("Withdraw request submit nahi ho saki.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Withdraw Request";
             }
         };
 
@@ -2278,6 +2414,7 @@
                     const uData = uSnap.data();
                     if (typeof uData.balance === "number") latestDbBalance = uData.balance;
                     if (typeof uData.pending === "number") latestDbPending = uData.pending;
+                    if (uData.bankDetails) renderBankCardUI(uData.bankDetails);
                 }
                 window.recalculateEarningsUI();
             });
@@ -2289,6 +2426,19 @@
             }, (err) => {
                 console.error("Leads snapshot error:", err);
                 window.recalculateEarningsUI();
+            });
+
+            const withdrawQuery = query(collection(db, "withdrawals"), where("userId", "==", user.uid));
+            onSnapshot(withdrawQuery, (wSnap) => {
+                const items = [];
+                wSnap.forEach((d) => {
+                    items.push({ id: d.id, ...d.data() });
+                });
+                items.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+                window.FINSHARE_WITHDRAWALS = items;
+                window.renderWithdrawalsList();
+            }, (err) => {
+                console.error("Withdrawals snapshot error:", err);
             });
         });
 
