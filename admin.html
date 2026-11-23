@@ -601,14 +601,25 @@
 
     function getUserTotalEarning(uid, userData) {
         let confirmedLeadsSum = 0;
+        let userLeadCount = 0;
+
         allLeadsList.forEach((lead) => {
             if (lead.userId === uid) {
+                userLeadCount += 1;
                 const st = String(lead.status || "").trim().toLowerCase();
                 if (st === "completed" || st === "confirm" || st === "confirmed") {
                     confirmedLeadsSum += getLeadOfferAmount(lead);
                 }
             }
         });
+
+        if (userLeadCount > 0) {
+            return confirmedLeadsSum;
+        }
+
+        if (typeof userData.lifetimeEarnings === "number") {
+            return userData.lifetimeEarnings;
+        }
 
         let withdrawnSum = 0;
         allWithdrawalsList.forEach((w) => {
@@ -620,8 +631,7 @@
             }
         });
 
-        const dbBal = Number(userData.balance || 0);
-        return Math.max(confirmedLeadsSum, dbBal + withdrawnSum);
+        return Number(userData.balance || 0) + withdrawnSum;
     }
 
     async function loadUsers() {
