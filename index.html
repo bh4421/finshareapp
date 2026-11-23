@@ -1177,6 +1177,10 @@
                     <span class="detail-value" id="earningConfirmedVal">₹0.00</span>
                 </div>
                 <div class="detail-row">
+                    <span class="detail-label">Lifetime Total Earning</span>
+                    <span class="detail-value" id="earningLifetimeVal">₹0.00</span>
+                </div>
+                <div class="detail-row">
                     <span class="detail-label">Pending Leads Amount</span>
                     <span class="detail-value" id="earningPendingVal">₹0.00</span>
                 </div>
@@ -2104,10 +2108,23 @@
         let latestDbBalance = 0;
         let latestDbPending = 0;
         let latestLeadDocs = [];
+        let latestWithdrawDocs = [];
 
         function formatRupees(amount) {
             const num = Number(amount || 0);
             return "₹" + num.toFixed(2);
+        }
+
+        function getWithdrawnTotal(withdrawDocs) {
+            let sum = 0;
+            (withdrawDocs || []).forEach((dSnap) => {
+                const w = typeof dSnap.data === "function" ? dSnap.data() : dSnap;
+                const st = String(w.status || "Pending").trim().toLowerCase();
+                if (st === "pending" || st === "success" || st === "approved" || st === "completed" || st === "confirm" || st === "confirmed") {
+                    sum += Number(w.amount || 0);
+                }
+            });
+            return sum;
         }
 
         window.recalculateEarningsUI = async function() {
@@ -2127,22 +2144,27 @@
                 }
             });
 
-            const finalEarnings = Math.max(Number(latestDbBalance || 0), confirmedSum);
+            const withdrawnTotal = getWithdrawnTotal(latestWithdrawDocs);
+            const lifetimeTotalEarning = Math.max(confirmedSum, Number(latestDbBalance || 0) + withdrawnTotal);
+            const availableBalance = Math.max(0, lifetimeTotalEarning - withdrawnTotal);
             const finalPending = totalLeads > 0 ? pendingSum : Number(latestDbPending || 0);
 
-            window.FINSHARE_BALANCE = finalEarnings;
+            window.FINSHARE_BALANCE = availableBalance;
 
             document.getElementById("myLeadsCount").innerText = `${totalLeads} ${totalLeads === 1 ? "Lead" : "Leads"}`;
-            document.getElementById("totalEarningsText").innerText = formatRupees(finalEarnings);
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(finalEarnings);
-            document.getElementById("accWalletBalance").innerText = formatRupees(finalEarnings);
+            document.getElementById("totalEarningsText").innerText = formatRupees(availableBalance);
+            document.getElementById("earningConfirmedVal").innerText = formatRupees(availableBalance);
+            const lifetimeEl = document.getElementById("earningLifetimeVal");
+            if (lifetimeEl) lifetimeEl.innerText = formatRupees(lifetimeTotalEarning);
+            document.getElementById("accWalletBalance").innerText = formatRupees(availableBalance);
             document.getElementById("pendingEarningsText").innerText = formatRupees(finalPending);
             document.getElementById("earningPendingVal").innerText = formatRupees(finalPending);
 
-            if (window.CURRENT_USER_ID && confirmedSum > Number(latestDbBalance || 0)) {
+            if (window.CURRENT_USER_ID && Math.abs(availableBalance - Number(latestDbBalance || 0)) > 0.009) {
                 try {
+                    latestDbBalance = availableBalance;
                     await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
-                        balance: confirmedSum
+                        balance: availableBalance
                     }, { merge: true });
                 } catch (e) {
                     console.error("Balance sync error:", e);
@@ -2430,6 +2452,7 @@
 
             const withdrawQuery = query(collection(db, "withdrawals"), where("userId", "==", user.uid));
             onSnapshot(withdrawQuery, (wSnap) => {
+                latestWithdrawDocs = wSnap.docs;
                 const items = [];
                 wSnap.forEach((d) => {
                     items.push({ id: d.id, ...d.data() });
@@ -2437,6 +2460,7 @@
                 items.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
                 window.FINSHARE_WITHDRAWALS = items;
                 window.renderWithdrawalsList();
+                window.recalculateEarningsUI();
             }, (err) => {
                 console.error("Withdrawals snapshot error:", err);
             });
