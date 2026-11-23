@@ -622,16 +622,49 @@
         function buildTrackedShareUrl(item) {
             const baseUrl = item.shareUrl || "https://finshareapp.in";
             const uid = window.CURRENT_USER_ID || "";
-            if (!uid) return baseUrl;
 
             try {
                 const goUrl = new URL("go.html", window.location.origin + window.location.pathname.replace(/[^/]*$/, ""));
-                goUrl.searchParams.set("ref", uid);
+                if (uid) goUrl.searchParams.set("ref", uid);
                 if (item.id) goUrl.searchParams.set("pid", item.id);
                 return goUrl.toString();
             } catch (e) {
                 const sep = baseUrl.includes("?") ? "&" : "?";
-                return `${baseUrl}${sep}ref=${encodeURIComponent(uid)}`;
+                return uid ? `${baseUrl}${sep}ref=${encodeURIComponent(uid)}` : baseUrl;
+            }
+        }
+
+        async function copyTrackedLink(textToCopy) {
+            if (!textToCopy) {
+                showToast("Link available nahi hai.");
+                return;
+            }
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(textToCopy);
+                    showToast("Offer link copied!");
+                    return;
+                }
+            } catch (e) {}
+
+            try {
+                const ta = document.createElement("textarea");
+                ta.value = textToCopy;
+                ta.setAttribute("readonly", "");
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, textToCopy.length);
+                const ok = document.execCommand("copy");
+                document.body.removeChild(ta);
+                if (ok) {
+                    showToast("Offer link copied!");
+                } else {
+                    showToast("Copy nahi ho saka, link manually copy karein.");
+                }
+            } catch (err) {
+                showToast("Copy error: link manually copy karein.");
             }
         }
 
@@ -660,13 +693,8 @@
                 }
             };
 
-            document.getElementById("popupCopyLinkBtn").onclick = async () => {
-                try {
-                    await navigator.clipboard.writeText(trackedUrl);
-                    showToast("Offer link copied!");
-                } catch (e) {
-                    showToast(trackedUrl);
-                }
+            document.getElementById("popupCopyLinkBtn").onclick = () => {
+                copyTrackedLink(buildTrackedShareUrl(item));
             };
         }
 
@@ -711,15 +739,8 @@
             const termsArr = normalizeTermsList(item.terms);
             listEl.innerHTML = termsArr.map((t) => `<li>${escapeAttr(t)}</li>`).join("");
 
-            const trackedUrl = buildTrackedShareUrl(item);
-
-            document.getElementById("copyLinkBtn").onclick = async () => {
-                try {
-                    await navigator.clipboard.writeText(trackedUrl);
-                    showToast("Offer link copied!");
-                } catch (e) {
-                    showToast(trackedUrl);
-                }
+            document.getElementById("copyLinkBtn").onclick = () => {
+                copyTrackedLink(buildTrackedShareUrl(item));
             };
 
             syncSharePopupUI(item);
