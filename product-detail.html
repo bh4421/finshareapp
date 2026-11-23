@@ -622,18 +622,12 @@
         function buildTrackedShareUrl(item) {
             const baseUrl = item.shareUrl || "https://finshareapp.in";
             const uid = window.CURRENT_USER_ID || "";
-            const pCode = getPartnerCode();
+            if (!uid) return baseUrl;
 
             try {
                 const goUrl = new URL("go.html", window.location.origin + window.location.pathname.replace(/[^/]*$/, ""));
-                if (uid) goUrl.searchParams.set("ref", uid);
-                if (pCode) goUrl.searchParams.set("rcode", pCode);
-                if (window.PARTNER_INFO.name) goUrl.searchParams.set("pname", window.PARTNER_INFO.name);
-                if (window.PARTNER_INFO.mobile) goUrl.searchParams.set("pmobile", window.PARTNER_INFO.mobile);
-                if (window.PARTNER_INFO.email) goUrl.searchParams.set("pemail", window.PARTNER_INFO.email);
+                goUrl.searchParams.set("ref", uid);
                 if (item.id) goUrl.searchParams.set("pid", item.id);
-                if (item.title) goUrl.searchParams.set("title", item.title);
-                goUrl.searchParams.set("url", baseUrl);
                 return goUrl.toString();
             } catch (e) {
                 const sep = baseUrl.includes("?") ? "&" : "?";
@@ -660,7 +654,7 @@
 
             document.getElementById("popupShareNowBtn").onclick = () => {
                 if (navigator.share) {
-                    navigator.share({ title: item.title, text: shareText, url: trackedUrl }).catch(() => {});
+                    navigator.share({ title: item.title, text: shareText }).catch(() => {});
                 } else {
                     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
                 }
