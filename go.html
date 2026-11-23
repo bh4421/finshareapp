@@ -189,7 +189,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -219,18 +219,23 @@
         };
 
         let safeTargetUrl = "https://finshareapp.in";
-        try {
-            const parsed = new URL(rawUrl);
-            if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-                if (refUid && !parsed.searchParams.get("subid")) {
-                    parsed.searchParams.set("subid", refUid);
-                }
-                safeTargetUrl = parsed.toString();
-            }
-        } catch (e) {}
+        let resolvedTitle = title;
 
-        document.title = `${title} - FinShare`;
-        document.getElementById("goOfferTitle").textContent = title;
+        function setTargetUrl(raw) {
+            try {
+                const parsed = new URL(raw);
+                if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+                    if (refUid && !parsed.searchParams.get("subid")) {
+                        parsed.searchParams.set("subid", refUid);
+                    }
+                    safeTargetUrl = parsed.toString();
+                }
+            } catch (e) {}
+        }
+        setTargetUrl(rawUrl);
+
+        document.title = `${resolvedTitle} - FinShare`;
+        document.getElementById("goOfferTitle").textContent = resolvedTitle;
 
         const partnerBox = document.getElementById("partnerRefBox");
         function updatePartnerBox() {
@@ -265,6 +270,14 @@
                     const pSnap = await getDoc(doc(db, "products", pid));
                     if (pSnap.exists()) {
                         const pData = pSnap.data();
+                        if (pData.title) {
+                            resolvedTitle = pData.title;
+                            document.title = `${resolvedTitle} - FinShare`;
+                            document.getElementById("goOfferTitle").textContent = resolvedTitle;
+                        }
+                        if (pData.shareUrl) {
+                            setTargetUrl(pData.shareUrl);
+                        }
                         if (pData.subtitle) {
                             document.getElementById("goOfferSubtitle").textContent = pData.subtitle;
                         }
@@ -325,6 +338,26 @@
             } catch (e) {}
 
             if (!alreadySentRecently) {
+                try {
+                    const existingSnap = await getDocs(
+                        query(
+                            collection(db, "leads"),
+                            where("productId", "==", pid || ""),
+                            where("customerMobile", "==", mobile)
+                        )
+                    );
+
+                    if (!existingSnap.empty) {
+                        try {
+                            sessionStorage.setItem(alreadySentKey, String(Date.now()));
+                        } catch (e) {}
+                        window.location.replace(safeTargetUrl);
+                        return;
+                    }
+                } catch (dupErr) {
+                    console.warn("Duplicate lead check skipped:", dupErr);
+                }
+
                 const leadPayload = {
                     userId: refUid || "",
                     partnerCode: partnerMeta.partnerCode || "",
@@ -332,7 +365,7 @@
                     partnerMobile: partnerMeta.partnerMobile || "",
                     partnerEmail: partnerMeta.partnerEmail || "",
                     productId: pid || "",
-                    productTitle: title,
+                    productTitle: resolvedTitle,
                     customerFirstName: firstName,
                     customerLastName: lastName,
                     customerName: `${firstName} ${lastName}`.trim(),
@@ -361,4 +394,3 @@
     </script>
 </body>
 </html>
-
