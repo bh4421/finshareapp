@@ -71,7 +71,7 @@
             color: #ffffff;
         }
 
-        /* Filter & Add Lead Card */
+        /* Filter Card */
         .filter-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -95,7 +95,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 12px;
         }
         .status-pill {
             background: #f1f5f9;
@@ -111,23 +110,6 @@
             background: #16a34a;
             color: #ffffff;
             border-color: #16a34a;
-        }
-        .btn-add-lead {
-            background: #ffffff;
-            color: #0f172a;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 9px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn-add-lead:hover {
-            border-color: #2563eb;
-            color: #2563eb;
         }
 
         /* Leads List */
@@ -233,76 +215,6 @@
             flex-shrink: 0;
         }
 
-        /* Add Lead Modal */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            z-index: 1000;
-        }
-        .modal-backdrop.open {
-            display: flex;
-        }
-        .modal-card {
-            width: 100%;
-            max-width: 420px;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
-        }
-        .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-        .modal-close {
-            background: #f1f5f9;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #334155;
-            cursor: pointer;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 5px;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-size: 13px;
-            color: #0f172a;
-            background: #ffffff;
-        }
-        .btn-save-lead {
-            width: 100%;
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            padding: 11px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
         .toast-bar {
             position: fixed;
             bottom: 78px;
@@ -375,44 +287,9 @@
                 <button class="status-pill" data-status="Rejected" onclick="setStatusFilter('Rejected')">Rejected: <span id="cntRejected">0</span></button>
                 <button class="status-pill" data-status="Expired" onclick="setStatusFilter('Expired')">Expired: <span id="cntExpired">0</span></button>
             </div>
-
-            <button class="btn-add-lead" onclick="openAddLeadModal()">+ Add Lead</button>
         </div>
 
         <div class="leads-list" id="leadsContainer"></div>
-
-        <!-- Add Lead Modal -->
-        <div class="modal-backdrop" id="addLeadModal" onclick="closeAddLeadModal(event)">
-            <div class="modal-card" onclick="event.stopPropagation()">
-                <div class="modal-head">
-                    <h3 style="font-size:17px;font-weight:700;color:#0f172a;">Add Shared Lead</h3>
-                    <button class="modal-close" onclick="hideAddLeadModal()">✕</button>
-                </div>
-                <form id="addLeadForm" onsubmit="submitNewLead(event)">
-                    <div class="form-group">
-                        <label>Offer / Product Name</label>
-                        <input type="text" id="leadProductTitle" placeholder="e.g. Upstox / Angel One" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Lead / Customer Name</label>
-                        <input type="text" id="leadCustomerName" placeholder="e.g. Rahul Sharma" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Customer Email / Contact</label>
-                        <input type="text" id="leadContact" placeholder="e.g. rahul@gmail.com" />
-                    </div>
-                    <div class="form-group">
-                        <label>Payout Amount (₹)</label>
-                        <input type="number" id="leadAmount" placeholder="e.g. 300" min="0" step="1" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Offer Link (Optional)</label>
-                        <input type="url" id="leadShareUrl" placeholder="https://finshareapp.in/offer/..." />
-                    </div>
-                    <button type="submit" class="btn-save-lead" id="saveLeadBtn">Save Lead</button>
-                </form>
-            </div>
-        </div>
 
         <div class="toast-bar" id="toastBar"></div>
 
@@ -452,13 +329,60 @@
     </div>
 
     <script>
+        const DEFAULT_OFFER_AMOUNTS = {
+            "angel-one-demat": 750,
+            "kotak-811-bank": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel-one": 150,
+            "axis-cc": 900
+        };
+
+        const DEFAULT_OFFER_AMOUNTS_BY_TITLE = {
+            "angel one demat": 750,
+            "kotak 811 savings": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel one": 150,
+            "axis rewards card": 900
+        };
+
         window.LEADS_DATA = [];
+        window.PRODUCTS_BY_ID = {};
+        window.PRODUCTS_BY_TITLE = {};
         window.ACTIVE_LEAD_STATUS = "ALL";
         window.CURRENT_USER_ID = null;
 
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get("status")) {
             window.ACTIVE_LEAD_STATUS = urlParams.get("status");
+        }
+
+        function extractAmountNumber(profitText) {
+            if (typeof profitText === "number" && Number.isFinite(profitText)) return profitText;
+            const match = String(profitText || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+            return match ? Number(match[1]) : 0;
+        }
+
+        function resolveLeadAmount(data, statusNorm) {
+            const savedAmt = Number(data.amount || 0);
+            if (savedAmt > 0) return savedAmt;
+
+            const pid = String(data.productId || "").trim();
+            const titleKey = String(data.productTitle || data.title || "").trim().toLowerCase();
+
+            const prodFromDb = (pid && window.PRODUCTS_BY_ID[pid]) || (titleKey && window.PRODUCTS_BY_TITLE[titleKey]) || null;
+            if (prodFromDb && prodFromDb.profitText) {
+                const parsed = extractAmountNumber(prodFromDb.profitText);
+                if (parsed > 0) return parsed;
+            }
+
+            if (pid && DEFAULT_OFFER_AMOUNTS[pid]) return DEFAULT_OFFER_AMOUNTS[pid];
+            if (titleKey && DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey]) return DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey];
+
+            return statusNorm === "Confirm" ? savedAmt : 0;
         }
 
         function showToast(msg) {
@@ -483,7 +407,7 @@
 
         function normalizeStatus(raw) {
             const s = String(raw || "Pending").trim().toLowerCase();
-            if (s === "confirm" || s === "confirmed" || s === "approved") return "Confirm";
+            if (s === "confirm" || s === "confirmed" || s === "approved" || s === "completed") return "Confirm";
             if (s === "rejected" || s === "reject") return "Rejected";
             if (s === "expired" || s === "expire") return "Expired";
             return "Pending";
@@ -544,7 +468,7 @@
             if (!filtered.length) {
                 container.innerHTML = `
                     <div class="lead-card">
-                        <p class="lead-meta">Is status mein abhi koi lead nahi hai. "+ Add Lead" se lead jodd sakte hain ya offer share kar sakte hain.</p>
+                        <p class="lead-meta">Is status mein abhi koi lead nahi hai. Offer share karke naye leads track karein.</p>
                     </div>
                 `;
                 return;
@@ -588,20 +512,6 @@
             }
             window.open(url, "_blank");
         }
-
-        function openAddLeadModal() {
-            document.getElementById("addLeadModal").classList.add("open");
-        }
-
-        function hideAddLeadModal() {
-            document.getElementById("addLeadModal").classList.remove("open");
-        }
-
-        function closeAddLeadModal(e) {
-            if (e.target && e.target.id === "addLeadModal") {
-                hideAddLeadModal();
-            }
-        }
     </script>
 
     <script type="module">
@@ -613,10 +523,8 @@
             query,
             where,
             getDocs,
-            addDoc,
             doc,
-            getDoc,
-            runTransaction
+            onSnapshot
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -633,153 +541,57 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let rawLeadDocs = [];
+
         function formatRupees(n) {
             return "₹" + Number(n || 0).toFixed(2);
         }
 
-        async function refreshWalletHeader(userId) {
-            try {
-                const uSnap = await getDoc(doc(db, "users", userId));
-                if (uSnap.exists()) {
-                    const bal = Number(uSnap.data().balance || 0);
-                    document.getElementById("headerWalletText").innerText = `Wallet: ${formatRupees(bal)}`;
-                }
-            } catch (e) {
-                console.error("Wallet refresh error:", e);
-            }
-        }
-
-        // Jab database mein lead ka status `Confirm` hota hai, toh uska amount user wallet (`users/{uid}.balance` aur `walletInfo`) mein add hota hai
-        async function syncConfirmedLeadsToWallet(userId, docs) {
-            for (const d of docs) {
+        function rebuildLeadsList() {
+            const list = rawLeadDocs.map((d) => {
                 const data = d.data();
                 const statusNorm = normalizeStatus(data.status);
-                const amount = Number(data.amount || 0);
-                const alreadyCredited = Boolean(data.walletCredited);
+                const resolvedAmt = resolveLeadAmount(data, statusNorm);
+                const contactStr = data.contact || [data.customerMobile, data.customerEmail].filter(Boolean).join(" • ") || "";
 
-                if (statusNorm === "Confirm" && !alreadyCredited && amount > 0) {
-                    const leadRef = doc(db, "leads", d.id);
-                    const userRef = doc(db, "users", userId);
+                return {
+                    id: d.id,
+                    productTitle: data.productTitle || data.title || "Offer",
+                    customerName: data.customerName || data.leadName || "",
+                    contact: contactStr,
+                    amount: resolvedAmt,
+                    status: statusNorm,
+                    logoUrl: (data.logoUrl || data.logo || "").trim(),
+                    shareUrl: data.shareUrl || (data.productId ? `product-detail.html?id=${encodeURIComponent(data.productId)}` : "products.html"),
+                    dateText: data.dateText || "",
+                    createdAt: data.createdAt || ""
+                };
+            });
 
-                    try {
-                        await runTransaction(db, async (tx) => {
-                            const freshLead = await tx.get(leadRef);
-                            if (!freshLead.exists()) return;
-                            const freshLeadData = freshLead.data();
-                            if (freshLeadData.walletCredited) return;
-
-                            const freshUser = await tx.get(userRef);
-                            const currentBal = freshUser.exists() ? Number(freshUser.data().balance || 0) : 0;
-                            const currentPending = freshUser.exists() ? Number(freshUser.data().pending || 0) : 0;
-                            const newBal = currentBal + amount;
-                            const newPending = Math.max(0, currentPending - amount);
-
-                            tx.set(userRef, {
-                                balance: newBal,
-                                pending: newPending,
-                                "wallet-info": {
-                                    balance: newBal,
-                                    lastCreditedAmount: amount,
-                                    lastLeadId: d.id,
-                                    updatedAt: new Date().toISOString()
-                                }
-                            }, { merge: true });
-
-                            tx.update(leadRef, {
-                                walletCredited: true,
-                                creditedAt: new Date().toISOString()
-                            });
-                        });
-                    } catch (err) {
-                        console.error("Wallet credit transaction error:", err);
-                    }
-                }
-            }
-        }
-
-        async function loadLeads(userId) {
-            try {
-                const q = query(collection(db, "leads"), where("userId", "==", userId));
-                const snap = await getDocs(q);
-
-                await syncConfirmedLeadsToWallet(userId, snap.docs);
-                await refreshWalletHeader(userId);
-
-                const updatedSnap = await getDocs(q);
-                const list = updatedSnap.docs.map((d) => {
-                    const data = d.data();
-                    return {
-                        id: d.id,
-                        productTitle: data.productTitle || data.title || "Offer",
-                        customerName: data.customerName || data.leadName || "",
-                        contact: data.contact || data.email || "",
-                        amount: Number(data.amount || 0),
-                        status: normalizeStatus(data.status),
-                        logoUrl: (data.logoUrl || data.logo || "").trim(),
-                        shareUrl: data.shareUrl || "products.html",
-                        dateText: data.dateText || "",
-                        createdAt: data.createdAt || ""
-                    };
-                });
-
-                list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-                window.LEADS_DATA = list;
-            } catch (err) {
-                console.error("Leads load error:", err);
-            }
+            list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+            window.LEADS_DATA = list;
             renderLeads();
         }
 
-        window.submitNewLead = async function(e) {
-            e.preventDefault();
-            if (!window.CURRENT_USER_ID) {
-                showToast("Please login first.");
-                return;
-            }
-
-            const btn = document.getElementById("saveLeadBtn");
-            btn.disabled = true;
-            btn.innerText = "Saving...";
-
-            const productTitle = document.getElementById("leadProductTitle").value.trim();
-            const customerName = document.getElementById("leadCustomerName").value.trim();
-            const contact = document.getElementById("leadContact").value.trim();
-            const amount = Number(document.getElementById("leadAmount").value || 0);
-            const shareUrl = document.getElementById("leadShareUrl").value.trim() || "products.html";
-
-            const now = new Date();
-            const dateText = now.toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            });
-
+        async function loadProductsLookup() {
             try {
-                await addDoc(collection(db, "leads"), {
-                    userId: window.CURRENT_USER_ID,
-                    productTitle,
-                    customerName,
-                    contact,
-                    amount,
-                    status: "Pending",
-                    walletCredited: false,
-                    shareUrl,
-                    dateText,
-                    createdAt: now.toISOString()
+                const snap = await getDocs(collection(db, "products"));
+                const byId = {};
+                const byTitle = {};
+                snap.forEach((d) => {
+                    const pData = d.data();
+                    byId[d.id] = pData;
+                    if (pData.title) {
+                        byTitle[String(pData.title).trim().toLowerCase()] = pData;
+                    }
                 });
-
-                document.getElementById("addLeadForm").reset();
-                hideAddLeadModal();
-                showToast("Lead added as Pending!");
-                await loadLeads(window.CURRENT_USER_ID);
-            } catch (err) {
-                console.error("Add lead error:", err);
-                showToast("Could not save lead. Check Firestore rules.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Save Lead";
+                window.PRODUCTS_BY_ID = byId;
+                window.PRODUCTS_BY_TITLE = byTitle;
+                rebuildLeadsList();
+            } catch (e) {
+                console.error("Products lookup error:", e);
             }
-        };
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -787,10 +599,27 @@
                 return;
             }
             window.CURRENT_USER_ID = user.uid;
-            await refreshWalletHeader(user.uid);
-            await loadLeads(user.uid);
+
+            await loadProductsLookup();
+
+            onSnapshot(doc(db, "users", user.uid), (uSnap) => {
+                if (uSnap.exists()) {
+                    const bal = Number(uSnap.data().balance || 0);
+                    document.getElementById("headerWalletText").innerText = `Wallet: ${formatRupees(bal)}`;
+                }
+            }, (err) => {
+                console.error("Wallet snapshot error:", err);
+            });
+
+            const q = query(collection(db, "leads"), where("userId", "==", user.uid));
+            onSnapshot(q, (snap) => {
+                rawLeadDocs = snap.docs;
+                rebuildLeadsList();
+            }, (err) => {
+                console.error("Leads snapshot error:", err);
+                renderLeads();
+            });
         });
     </script>
 </body>
 </html>
-
