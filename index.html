@@ -1584,6 +1584,31 @@
             }
         ];
 
+        const DEFAULT_OFFER_AMOUNTS = {
+            "angel-one-demat": 750,
+            "kotak-811-bank": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel-one": 150,
+            "axis-cc": 900,
+            "instant-loan": 0,
+            "bond-invest": 1200,
+            "more-offer": 300
+        };
+
+        const DEFAULT_OFFER_AMOUNTS_BY_TITLE = {
+            "angel one demat": 750,
+            "kotak 811 savings": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel one": 150,
+            "axis rewards card": 900,
+            "fixed income bonds": 1200,
+            "partner referral bonus": 300
+        };
+
         function readCachedHomeProducts() {
             try {
                 const raw = sessionStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
@@ -1605,6 +1630,44 @@
         window.FINSHARE_HOME_CAT = "ALL";
         window.FINSHARE_BALANCE = 0;
         window.CURRENT_USER_ID = null;
+
+        function extractRupeeNumber(val) {
+            if (typeof val === "number" && Number.isFinite(val)) return val;
+            const match = String(val || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+            return match ? Number(match[1]) : 0;
+        }
+
+        function normalizeLeadStatus(raw) {
+            const s = String(raw || "Pending").trim().toLowerCase();
+            if (s === "confirm" || s === "confirmed" || s === "approved" || s === "completed") return "Confirm";
+            if (s === "rejected" || s === "reject") return "Rejected";
+            if (s === "expired" || s === "expire") return "Expired";
+            return "Pending";
+        }
+
+        function resolveLeadAmount(data) {
+            const savedAmt = Number(data.amount || 0);
+            if (savedAmt > 0) return savedAmt;
+
+            const pid = String(data.productId || "").trim();
+            const titleKey = String(data.productTitle || data.title || "").trim().toLowerCase();
+
+            const prodMatch = window.FINSHARE_PRODUCTS.find((p) => {
+                const matchId = pid && String(p.id || "").trim() === pid;
+                const matchTitle = titleKey && String(p.title || "").trim().toLowerCase() === titleKey;
+                return matchId || matchTitle;
+            });
+
+            if (prodMatch && prodMatch.profitText) {
+                const parsed = extractRupeeNumber(prodMatch.profitText);
+                if (parsed > 0) return parsed;
+            }
+
+            if (pid && DEFAULT_OFFER_AMOUNTS[pid]) return DEFAULT_OFFER_AMOUNTS[pid];
+            if (titleKey && DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey]) return DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey];
+
+            return 0;
+        }
 
         function getTabFromHash() {
             const h = (window.location.hash || "").toLowerCase().replace(/^#/, "");
@@ -1829,6 +1892,9 @@
             if (prevSerialized !== nextSerialized) {
                 renderHomeProducts();
             }
+            if (typeof window.recalculateEarningsUI === "function") {
+                window.recalculateEarningsUI();
+            }
         };
 
         function selectHomeCategory(category) {
@@ -1946,7 +2012,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
@@ -1962,10 +2028,54 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let latestDbBalance = 0;
+        let latestDbPending = 0;
+        let latestLeadDocs = [];
+
         function formatRupees(amount) {
             const num = Number(amount || 0);
             return "₹" + num.toFixed(2);
         }
+
+        window.recalculateEarningsUI = async function() {
+            let totalLeads = 0;
+            let confirmedSum = 0;
+            let pendingSum = 0;
+
+            latestLeadDocs.forEach((docSnap) => {
+                const d = docSnap.data();
+                totalLeads += 1;
+                const statusNorm = normalizeLeadStatus(d.status);
+                const amt = resolveLeadAmount(d);
+                if (statusNorm === "Confirm") {
+                    confirmedSum += amt;
+                } else if (statusNorm === "Pending") {
+                    pendingSum += amt;
+                }
+            });
+
+            const finalEarnings = Math.max(Number(latestDbBalance || 0), confirmedSum);
+            const finalPending = totalLeads > 0 ? pendingSum : Number(latestDbPending || 0);
+
+            window.FINSHARE_BALANCE = finalEarnings;
+
+            document.getElementById("myLeadsCount").innerText = `${totalLeads} ${totalLeads === 1 ? "Lead" : "Leads"}`;
+            document.getElementById("totalEarningsText").innerText = formatRupees(finalEarnings);
+            document.getElementById("earningConfirmedVal").innerText = formatRupees(finalEarnings);
+            document.getElementById("accWalletBalance").innerText = formatRupees(finalEarnings);
+            document.getElementById("pendingEarningsText").innerText = formatRupees(finalPending);
+            document.getElementById("earningPendingVal").innerText = formatRupees(finalPending);
+
+            if (window.CURRENT_USER_ID && confirmedSum > Number(latestDbBalance || 0)) {
+                try {
+                    await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
+                        balance: confirmedSum
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Balance sync error:", e);
+                }
+            }
+        };
 
         window.saveBankDetails = async function(e) {
             e.preventDefault();
@@ -2053,38 +2163,6 @@
             }
         }
 
-        async function loadUserLeadsSummary(userId, fallbackBalance, fallbackPending) {
-            try {
-                const q = query(collection(db, "leads"), where("userId", "==", userId));
-                const snap = await getDocs(q);
-                let totalLeads = 0;
-                let pendingAmt = 0;
-
-                snap.forEach((docSnap) => {
-                    const d = docSnap.data();
-                    totalLeads += 1;
-                    const statusLower = String(d.status || "Pending").toLowerCase();
-                    const amt = Number(d.amount || 0);
-                    if (statusLower === "pending") {
-                        pendingAmt += amt;
-                    }
-                });
-
-                document.getElementById("myLeadsCount").innerText = `${totalLeads} ${totalLeads === 1 ? "Lead" : "Leads"}`;
-                const finalPending = totalLeads > 0 ? pendingAmt : Number(fallbackPending || 0);
-                document.getElementById("pendingEarningsText").innerText = formatRupees(finalPending);
-                document.getElementById("earningPendingVal").innerText = formatRupees(finalPending);
-            } catch (err) {
-                console.error("Leads summary error:", err);
-                document.getElementById("pendingEarningsText").innerText = formatRupees(fallbackPending);
-                document.getElementById("earningPendingVal").innerText = formatRupees(fallbackPending);
-            }
-
-            document.getElementById("totalEarningsText").innerText = formatRupees(fallbackBalance);
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(fallbackBalance);
-            document.getElementById("accWalletBalance").innerText = formatRupees(fallbackBalance);
-        }
-
         window.handleDeleteAccount = async function() {
             const user = auth.currentUser;
             if (!user) return;
@@ -2144,8 +2222,6 @@
             let userName = user.displayName || localStorage.getItem("userName") || "FinShare Partner";
             let userEmail = user.email || "-";
             let userPhone = localStorage.getItem("userPhone") || "-";
-            let balance = 0;
-            let pending = 0;
 
             try {
                 const snap = await getDoc(doc(db, "users", user.uid));
@@ -2167,8 +2243,8 @@
                     if (data.name) userName = data.name;
                     if (data.email) userEmail = data.email;
                     if (data.phone) userPhone = data.phone;
-                    if (typeof data.balance === "number") balance = data.balance;
-                    if (typeof data.pending === "number") pending = data.pending;
+                    if (typeof data.balance === "number") latestDbBalance = data.balance;
+                    if (typeof data.pending === "number") latestDbPending = data.pending;
 
                     if (data.bankDetails) {
                         document.getElementById("bankHolderName").value = data.bankDetails.holderName || "";
@@ -2182,8 +2258,6 @@
                 console.error("Firestore read error:", err);
             }
 
-            window.FINSHARE_BALANCE = balance;
-
             const initials = userName
                 .split(" ")
                 .filter(Boolean)
@@ -2194,16 +2268,28 @@
             document.getElementById("avatarInitials").innerText = initials;
             document.getElementById("displayUserName").innerText = userName;
             document.getElementById("displayUserId").innerText = `ID: ${shortId}`;
-            document.getElementById("totalEarningsText").innerText = formatRupees(balance);
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(balance);
-            document.getElementById("accWalletBalance").innerText = formatRupees(balance);
-
             document.getElementById("accName").innerText = userName;
             document.getElementById("accId").innerText = shortId;
             document.getElementById("accEmail").innerText = userEmail;
             document.getElementById("accPhone").innerText = userPhone;
 
-            await loadUserLeadsSummary(user.uid, balance, pending);
+            onSnapshot(doc(db, "users", user.uid), (uSnap) => {
+                if (uSnap.exists()) {
+                    const uData = uSnap.data();
+                    if (typeof uData.balance === "number") latestDbBalance = uData.balance;
+                    if (typeof uData.pending === "number") latestDbPending = uData.pending;
+                }
+                window.recalculateEarningsUI();
+            });
+
+            const leadsQuery = query(collection(db, "leads"), where("userId", "==", user.uid));
+            onSnapshot(leadsQuery, (leadSnap) => {
+                latestLeadDocs = leadSnap.docs;
+                window.recalculateEarningsUI();
+            }, (err) => {
+                console.error("Leads snapshot error:", err);
+                window.recalculateEarningsUI();
+            });
         });
 
         loadProductsFromFirestore();
