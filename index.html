@@ -2145,7 +2145,7 @@
             });
 
             const withdrawnTotal = getWithdrawnTotal(latestWithdrawDocs);
-            const lifetimeTotalEarning = Math.max(confirmedSum, Number(latestDbBalance || 0) + withdrawnTotal);
+            const lifetimeTotalEarning = totalLeads > 0 ? confirmedSum : Math.max(Number(latestDbBalance || 0), withdrawnTotal);
             const availableBalance = Math.max(0, lifetimeTotalEarning - withdrawnTotal);
             const finalPending = totalLeads > 0 ? pendingSum : Number(latestDbPending || 0);
 
@@ -2164,7 +2164,8 @@
                 try {
                     latestDbBalance = availableBalance;
                     await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
-                        balance: availableBalance
+                        balance: availableBalance,
+                        lifetimeEarnings: lifetimeTotalEarning
                     }, { merge: true });
                 } catch (e) {
                     console.error("Balance sync error:", e);
