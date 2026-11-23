@@ -171,7 +171,7 @@
 
             <div class="field-group">
                 <label class="field-label" for="mobileInput">Enter Mobile Number</label>
-                <input class="field-input" type="tel" id="mobileInput" inputmode="numeric" maxlength="15" placeholder="Enter Mobile Number" required />
+                <input class="field-input" type="tel" id="mobileInput" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit Mobile Number" required />
             </div>
 
             <label class="terms-row">
@@ -295,6 +295,12 @@
         const submitBtn = document.getElementById("proceedLeadBtn");
         let isSubmitting = false;
 
+        function resetSubmitState() {
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = "PROCEED";
+        }
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (isSubmitting) return;
@@ -302,7 +308,7 @@
 
             const firstName = document.getElementById("firstNameInput").value.trim();
             const lastName = document.getElementById("lastNameInput").value.trim();
-            const email = document.getElementById("emailInput").value.trim();
+            const email = document.getElementById("emailInput").value.trim().toLowerCase();
             const mobile = document.getElementById("mobileInput").value.replace(/\D/g, "").trim();
             const agreed = document.getElementById("agreeTermsCheck").checked;
 
@@ -314,8 +320,8 @@
                 errEl.textContent = "Kripya sahi Email address bharein.";
                 return;
             }
-            if (!mobile || mobile.length < 10) {
-                errEl.textContent = "Kripya sahi 10-digit Mobile Number bharein.";
+            if (!/^[6-9]\d{9}$/.test(mobile)) {
+                errEl.textContent = "Kripya sahi 10-digit Mobile Number bharein (0 se shuru nahi hona chahiye).";
                 return;
             }
             if (!agreed) {
@@ -327,66 +333,51 @@
             submitBtn.disabled = true;
             submitBtn.textContent = "PROCESSING...";
 
-            const dedupKey = `${refUid}|${pid}|${mobile}`;
-            const alreadySentKey = "FINSHARE_LEAD_SENT_" + dedupKey;
-            let alreadySentRecently = false;
             try {
-                const lastSent = Number(sessionStorage.getItem(alreadySentKey) || 0);
-                if (lastSent && Date.now() - lastSent < 120000) {
-                    alreadySentRecently = true;
+                const mobileQuery = pid
+                    ? query(collection(db, "leads"), where("productId", "==", pid), where("customerMobile", "==", mobile))
+                    : query(collection(db, "leads"), where("productTitle", "==", resolvedTitle), where("customerMobile", "==", mobile));
+                const mobileSnap = await getDocs(mobileQuery);
+
+                const emailQuery = pid
+                    ? query(collection(db, "leads"), where("productId", "==", pid), where("customerEmail", "==", email))
+                    : query(collection(db, "leads"), where("productTitle", "==", resolvedTitle), where("customerEmail", "==", email));
+                const emailSnap = await getDocs(emailQuery);
+
+                if (!mobileSnap.empty || !emailSnap.empty) {
+                    errEl.textContent = "User already exists: Is offer ke liye yeh mobile number ya email pehle se registered hai.";
+                    resetSubmitState();
+                    return;
                 }
-            } catch (e) {}
+            } catch (dupErr) {
+                console.warn("Duplicate check error:", dupErr);
+            }
 
-            if (!alreadySentRecently) {
-                try {
-                    const existingSnap = await getDocs(
-                        query(
-                            collection(db, "leads"),
-                            where("productId", "==", pid || ""),
-                            where("customerMobile", "==", mobile)
-                        )
-                    );
+            const leadPayload = {
+                userId: refUid || "",
+                partnerCode: partnerMeta.partnerCode || "",
+                partnerName: partnerMeta.partnerName || "",
+                partnerMobile: partnerMeta.partnerMobile || "",
+                partnerEmail: partnerMeta.partnerEmail || "",
+                productId: pid || "",
+                productTitle: resolvedTitle,
+                customerFirstName: firstName,
+                customerLastName: lastName,
+                customerName: `${firstName} ${lastName}`.trim(),
+                customerEmail: email,
+                customerMobile: mobile,
+                status: "Pending",
+                amount: 0,
+                targetUrl: safeTargetUrl,
+                createdAt: new Date().toISOString(),
+                serverTime: serverTimestamp()
+            };
 
-                    if (!existingSnap.empty) {
-                        try {
-                            sessionStorage.setItem(alreadySentKey, String(Date.now()));
-                        } catch (e) {}
-                        window.location.replace(safeTargetUrl);
-                        return;
-                    }
-                } catch (dupErr) {
-                    console.warn("Duplicate lead check skipped:", dupErr);
-                }
-
-                const leadPayload = {
-                    userId: refUid || "",
-                    partnerCode: partnerMeta.partnerCode || "",
-                    partnerName: partnerMeta.partnerName || "",
-                    partnerMobile: partnerMeta.partnerMobile || "",
-                    partnerEmail: partnerMeta.partnerEmail || "",
-                    productId: pid || "",
-                    productTitle: resolvedTitle,
-                    customerFirstName: firstName,
-                    customerLastName: lastName,
-                    customerName: `${firstName} ${lastName}`.trim(),
-                    customerEmail: email,
-                    customerMobile: mobile,
-                    status: "Pending",
-                    amount: 0,
-                    targetUrl: safeTargetUrl,
-                    createdAt: new Date().toISOString(),
-                    serverTime: serverTimestamp()
-                };
-
-                try {
-                    await addDoc(collection(db, "leads"), leadPayload);
-                    try {
-                        sessionStorage.setItem(alreadySentKey, String(Date.now()));
-                    } catch (e) {}
-                } catch (err) {
-                    console.error("Lead save error:", err);
-                    errEl.textContent = "Lead save karne mein issue aaya, phir bhi aage bheja ja raha hai...";
-                }
+            try {
+                await addDoc(collection(db, "leads"), leadPayload);
+            } catch (err) {
+                console.error("Lead save error:", err);
+                errEl.textContent = "Lead save karne mein issue aaya, phir bhi aage bheja ja raha hai...";
             }
 
             window.location.replace(safeTargetUrl);
