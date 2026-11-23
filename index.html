@@ -969,28 +969,28 @@
                         <span>Earnings</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('About Us', 'FinShare (finshareapp.in) helps partner users share verified financial and referral offers and track their leads and payouts in one place.')">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='about.html'">
                         <span>About Us</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Contact Us', 'Need assistance with your account, leads, or payouts? Reach out to FinShare Support at support@finshareapp.in.')">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='contact.html'">
                         <span>Contact Us</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('DMCA', 'FinShare respects intellectual property rights. If you believe any listing or promotional material on FinShare infringes your copyright, please notify support@finshareapp.in with details.')">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='dmca.html'">
                         <span>DMCA</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Disclaimer', 'Offer terms, eligibility, approval timelines, and payout amounts are subject to partner campaign rules and verification. Always review official offer details before sharing.')">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='disclaimer.html'">
                         <span>Disclaimer</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Privacy Policy', 'FinShare collects only essential account, lead tracking, and payout details needed to operate your partner profile securely and never sells personal data to unauthorized third parties.')">
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='privacy-policy.html'">
                         <span>Privacy Policy</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); openInfoModal('Terms & Conditions', 'By using FinShare, partners agree to share offers ethically without misleading claims or spam, and follow platform verification and payout rules.')">
-                        <span>Terms & Conditions</span>
+                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='terms.html'">
+                        <span>Terms &amp; Conditions</span>
                         <span>›</span>
                     </button>
                 </nav>
@@ -1365,18 +1365,6 @@
             </div>
         </div>
 
-        <!-- Info Modal for Menu Links -->
-        <div class="modal-backdrop" id="infoModal" onclick="closeModalById(event, 'infoModal')">
-            <div class="modal-card" onclick="event.stopPropagation()">
-                <div class="modal-head">
-                    <h3 id="infoModalTitle" style="font-size:17px;font-weight:700;color:#0f172a;"></h3>
-                    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
-                </div>
-                <p id="infoModalBody" style="font-size:13.5px;line-height:1.6;color:#475569;margin-bottom:16px;"></p>
-                <button class="btn-primary-modal" onclick="closeModal('infoModal')">Close</button>
-            </div>
-        </div>
-
         <!-- Add Bank Modal -->
         <div class="modal-backdrop" id="bankModal" onclick="closeModalById(event, 'bankModal')">
             <div class="modal-card" onclick="event.stopPropagation()">
@@ -1718,12 +1706,6 @@
         function closeMenuDrawer() {
             const backdrop = document.getElementById("menuDrawerBackdrop");
             if (backdrop) backdrop.classList.remove("open");
-        }
-
-        function openInfoModal(title, text) {
-            document.getElementById("infoModalTitle").innerText = title;
-            document.getElementById("infoModalBody").innerText = text;
-            document.getElementById("infoModal").classList.add("open");
         }
 
         function showToast(msg) {
