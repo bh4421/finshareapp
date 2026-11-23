@@ -1832,10 +1832,12 @@
         };
 
         function selectHomeCategory(category) {
-            window.FINSHARE_HOME_CAT = category;
-            renderHomeProducts();
-            const sec = document.getElementById("homeProductsSection");
-            if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+            const targetCat = String(category || "ALL").trim();
+            if (!targetCat || targetCat.toUpperCase() === "ALL") {
+                window.location.href = "products.html";
+                return;
+            }
+            window.location.href = `products.html?cat=${encodeURIComponent(targetCat)}`;
         }
 
         function switchTab(tabName, options = {}) {
