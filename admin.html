@@ -175,9 +175,9 @@
                 <thead>
                     <tr>
                         <th>User Name</th>
-                        <th>Mobile/Email</th>
-                        <th>Bank Account</th>
-                        <th>Wallet</th>
+                        <th>Mobile & Email</th>
+                        <th>Full Bank Details</th>
+                        <th>Total Earning</th>
                         <th>Account Status</th>
                         <th>Action</th>
                     </tr>
@@ -206,6 +206,27 @@
                 </thead>
                 <tbody id="referralsTable">
                     <tr><td colspan="6">Tasks load ho rahe hain...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Withdrawal Requests -->
+    <div class="card">
+        <h3>3. Withdrawal Requests</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User & Contact</th>
+                        <th>Full Bank Details</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawalsTable">
+                    <tr><td colspan="5">Withdrawal requests load ho rahi hain...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -377,6 +398,32 @@
         return match ? Number(match[1]) : 0;
     }
 
+    function formatFullBankHtml(bankDetails, fallbackStr) {
+        if (bankDetails && (bankDetails.accountNumber || bankDetails.ifsc || bankDetails.bankName || bankDetails.holderName)) {
+            const parts = [];
+            if (bankDetails.bankName) parts.push(`<strong>${esc(bankDetails.bankName)}</strong>`);
+            if (bankDetails.accountNumber) parts.push(`A/C: <strong>${esc(bankDetails.accountNumber)}</strong>`);
+            if (bankDetails.ifsc) parts.push(`IFSC: <strong>${esc(bankDetails.ifsc)}</strong>`);
+            if (bankDetails.holderName) parts.push(`Holder: ${esc(bankDetails.holderName)}`);
+            return parts.join("<br>");
+        }
+        if (fallbackStr && fallbackStr !== "N/A") {
+            return esc(fallbackStr);
+        }
+        return "N/A";
+    }
+
+    function formatContactHtml(phone, email) {
+        const lines = [];
+        if (phone && String(phone).trim() && String(phone).trim() !== "-") {
+            lines.push(`<div><strong>Mob:</strong> ${esc(String(phone).trim())}</div>`);
+        }
+        if (email && String(email).trim() && String(email).trim() !== "-") {
+            lines.push(`<div><strong>Email:</strong> ${esc(String(email).trim())}</div>`);
+        }
+        return lines.length ? lines.join("") : "N/A";
+    }
+
     const selectEl = document.getElementById("existingProductSelect");
     const prodForm = document.getElementById("productForm");
     const prodMsg = document.getElementById("prodMsg");
@@ -385,6 +432,7 @@
     const clearProdBtn = document.getElementById("clearProdBtn");
     let productsCache = {};
     let productsByTitle = {};
+    let allLeadsList = [];
 
     function fillFormForProduct(p) {
         if (!p) {
@@ -534,57 +582,6 @@
         }
     }
 
-    prodForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        saveProdBtn.disabled = true;
-        prodMsg.innerText = "";
-
-        const titleVal = document.getElementById("prodTitle").value.trim();
-        const codeVal = (document.getElementById("prodCode").value.trim() || titleVal.slice(0, 2)).toUpperCase();
-        const termsRaw = document.getElementById("prodTerms").value.trim();
-        const termsArr = termsRaw ? termsRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
-
-        const payload = {
-            title: titleVal,
-            subtitle: document.getElementById("prodSubtitle").value.trim(),
-            category: document.getElementById("prodCategory").value,
-            profitText: document.getElementById("prodProfitText").value.trim(),
-            shareUrl: document.getElementById("prodShareUrl").value.trim(),
-            logoUrl: document.getElementById("prodLogoUrl").value.trim(),
-            code: codeVal,
-            order: Number(document.getElementById("prodOrder").value || 1),
-            trackingTime: document.getElementById("prodTrackingTime").value.trim() || "24 - 72 Hours",
-            confirmationTime: document.getElementById("prodConfirmTime").value.trim() || "7 - 15 Working Days",
-            details: document.getElementById("prodDetails").value.trim(),
-            terms: termsArr,
-            showOnHome: document.getElementById("prodShowOnHome").checked,
-            updatedAt: new Date().toISOString()
-        };
-
-        try {
-            const editId = selectEl.value;
-            if (editId) {
-                await setDoc(doc(db, "products", editId), payload, { merge: true });
-                prodMsg.style.color = "#16a34a";
-                prodMsg.innerText = "Offer successfully update ho gaya!";
-            } else {
-                payload.createdAt = new Date().toISOString();
-                await addDoc(collection(db, "products"), payload);
-                prodMsg.style.color = "#16a34a";
-                prodMsg.innerText = "Naya product successfully add ho gaya!";
-                fillFormForProduct(null);
-            }
-            await loadProductsAdmin();
-            await loadReferrals();
-        } catch (err) {
-            prodMsg.style.color = "#dc2626";
-            prodMsg.innerText = "Error: " + err.message;
-        } finally {
-            saveProdBtn.disabled = false;
-            saveProdBtn.innerText = selectEl.value ? "Update Product" : "Save Product";
-        }
-    });
-
     window.setUserAccountStatus = async function(uid, newStatus) {
         if (!uid) return;
         const isApproved = newStatus === "Approved";
@@ -601,6 +598,22 @@
         }
     };
 
+    function getUserTotalEarning(uid, userData) {
+        const dbBal = Number(userData.balance || 0);
+        let confirmedLeadsSum = 0;
+
+        allLeadsList.forEach((lead) => {
+            if (lead.userId === uid) {
+                const st = String(lead.status || "").trim().toLowerCase();
+                if (st === "completed" || st === "confirm" || st === "confirmed") {
+                    confirmedLeadsSum += getLeadOfferAmount(lead);
+                }
+            }
+        });
+
+        return Math.max(dbBal, confirmedLeadsSum);
+    }
+
     async function loadUsers() {
         const tbody = document.getElementById("usersTable");
         tbody.innerHTML = "";
@@ -613,10 +626,9 @@
             querySnapshot.forEach((docSnap) => {
                 const u = docSnap.data();
                 const uid = docSnap.id;
-                const bankStr = u.bankDetails
-                    ? `${u.bankDetails.bankName || ""} - ${u.bankDetails.accountNumber || ""}`
-                    : (u.bankAccount || "N/A");
-                const bal = Number(u.balance || 0).toFixed(2);
+                const bankHtml = formatFullBankHtml(u.bankDetails, u.bankAccount);
+                const contactHtml = formatContactHtml(u.phone, u.email);
+                const totalEarning = getUserTotalEarning(uid, u).toFixed(2);
                 const statusVal = u.accountStatus || (u.accountApproved === true ? "Approved" : "Pending");
                 const isApproved = String(statusVal).toLowerCase() === "approved";
 
@@ -637,9 +649,9 @@
                             <strong>${esc(u.name || "N/A")}</strong>
                             <span class="sub-meta">ID: #FS${esc(uid.slice(-4).toUpperCase())}</span>
                         </td>
-                        <td>${esc(u.phone || u.email || "N/A")}</td>
-                        <td>${esc(bankStr)}</td>
-                        <td>₹${esc(bal)}</td>
+                        <td>${contactHtml}</td>
+                        <td>${bankHtml}</td>
+                        <td><strong>₹${esc(totalEarning)}</strong></td>
                         <td>${statusBadge}</td>
                         <td>${actionButtons}</td>
                     </tr>
@@ -669,18 +681,18 @@
         tbody.innerHTML = "";
         try {
             const querySnapshot = await getDocs(collection(db, "leads"));
+            allLeadsList = [];
             if (querySnapshot.empty) {
                 tbody.innerHTML = "<tr><td colspan='6'>Koi lead tracking data nahi hai.</td></tr>";
                 return;
             }
 
-            const rows = [];
             querySnapshot.forEach((documentSnap) => {
-                rows.push({ id: documentSnap.id, ...documentSnap.data() });
+                allLeadsList.push({ id: documentSnap.id, ...documentSnap.data() });
             });
-            rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+            allLeadsList.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
 
-            rows.forEach((ref) => {
+            allLeadsList.forEach((ref) => {
                 const statusLower = String(ref.status || "Pending").toLowerCase();
                 const isPending = statusLower === "pending";
                 const amt = getLeadOfferAmount(ref);
@@ -742,6 +754,68 @@
             tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Error loading leads!</td></tr>";
         }
     }
+
+    async function loadWithdrawals() {
+        const tbody = document.getElementById("withdrawalsTable");
+        tbody.innerHTML = "";
+        try {
+            const snap = await getDocs(collection(db, "withdrawals"));
+            if (snap.empty) {
+                tbody.innerHTML = "<tr><td colspan='5'>Abhi koi withdrawal request nahi hai.</td></tr>";
+                return;
+            }
+
+            const rows = [];
+            snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
+            rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+
+            tbody.innerHTML = rows.map((w) => {
+                const stLower = String(w.status || "Pending").trim().toLowerCase();
+                const isSuccess = stLower === "success" || stLower === "approved" || stLower === "completed";
+                const statusBadge = isSuccess
+                    ? `<span class="badge completed">Success</span>`
+                    : `<span class="badge pending">Pending</span>`;
+
+                const contactHtml = formatContactHtml(w.phone, w.email);
+                const bankHtml = formatFullBankHtml(w.bankDetails, w.bankSummary);
+                const amtText = "₹" + Number(w.amount || 0).toFixed(2);
+
+                const actionHtml = !isSuccess
+                    ? `<button type="button" class="btn-approve" onclick="approveWithdrawal('${esc(w.id)}')">Approve</button>`
+                    : `Success`;
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${esc(w.userName || "Partner")}</strong>
+                            <span class="sub-meta">${esc(w.dateText || "")}</span>
+                            <div class="sub-meta">${contactHtml}</div>
+                        </td>
+                        <td>${bankHtml}</td>
+                        <td><strong>${esc(amtText)}</strong></td>
+                        <td>${statusBadge}</td>
+                        <td>${actionHtml}</td>
+                    </tr>
+                `;
+            }).join("");
+        } catch (e) {
+            tbody.innerHTML = "<tr><td colspan='5' style='color:red;'>Withdrawal requests load karne mein error!</td></tr>";
+        }
+    }
+
+    window.approveWithdrawal = async function(withdrawId) {
+        if (!withdrawId) return;
+        try {
+            await updateDoc(doc(db, "withdrawals", withdrawId), {
+                status: "Success",
+                approvedAt: new Date().toISOString()
+            });
+            alert("Withdrawal Approve ho gaya aur status Success update ho gaya!");
+            await loadWithdrawals();
+        } catch (e) {
+            alert("Withdrawal approve karne me error aayi: " + e.message);
+        }
+    };
 
     window.approveTask = async function(docId, userId, fallbackAmount) {
         try {
@@ -806,8 +880,9 @@
 
     (async function initAdmin() {
         await loadProductsAdmin();
-        await loadUsers();
         await loadReferrals();
+        await loadUsers();
+        await loadWithdrawals();
     })();
 </script>
 
