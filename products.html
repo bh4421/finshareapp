@@ -235,6 +235,7 @@
                 <button class="pill-btn" data-pill="Banking" onclick="selectCategory('Banking')">Banking</button>
                 <button class="pill-btn" data-pill="Credit Card" onclick="selectCategory('Credit Card')">Credit Card</button>
                 <button class="pill-btn" data-pill="Loans" onclick="selectCategory('Loans')">Loans</button>
+                <button class="pill-btn" data-pill="Investment" onclick="selectCategory('Investment')">Investment</button>
                 <button class="pill-btn" data-pill="More" onclick="selectCategory('More')">More</button>
             </div>
         </div>
@@ -276,7 +277,7 @@
     </div>
 
     <script>
-        const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans"];
+        const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans", "Investment"];
         const PRODUCTS_CACHE_KEY = "FINSHARE_PRODUCTS_CACHE_V1";
         const FALLBACK_PRODUCTS = [
             {
@@ -329,6 +330,31 @@
             }
         ];
 
+        function normalizeCategory(raw) {
+            const val = String(raw || "").trim();
+            if (!val || val.toLowerCase() === "all") return "ALL";
+            const lower = val.toLowerCase();
+            if (lower === "demat") return "Demat";
+            if (lower === "banking" || lower === "bank" || lower === "savings") return "Banking";
+            if (lower === "credit card" || lower === "creditcard" || lower === "cards") return "Credit Card";
+            if (lower === "loans" || lower === "loan") return "Loans";
+            if (lower === "investment" || lower === "invest" || lower === "bonds") return "Investment";
+            if (lower === "more") return "More";
+            return val;
+        }
+
+        function getInitialCategoryFromUrl() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const qCat = params.get("cat") || params.get("category");
+                if (qCat) return normalizeCategory(qCat);
+            } catch (e) {}
+
+            const hashCat = decodeURIComponent((window.location.hash || "").replace(/^#/, "")).trim();
+            if (hashCat) return normalizeCategory(hashCat);
+            return "ALL";
+        }
+
         function readCachedProducts() {
             try {
                 const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
@@ -347,7 +373,7 @@
         }
 
         window.PAGE_PRODUCTS = readCachedProducts() || FALLBACK_PRODUCTS.slice();
-        window.ACTIVE_CAT = "ALL";
+        window.ACTIVE_CAT = getInitialCategoryFromUrl();
 
         function escapeAttr(val) {
             return String(val || "")
@@ -387,9 +413,11 @@
         }
 
         function matchesCategory(itemCat, selectedCat) {
-            if (selectedCat === "ALL") return true;
-            if (selectedCat === "More") return !MAIN_CATS.includes(itemCat);
-            return itemCat === selectedCat;
+            const sel = normalizeCategory(selectedCat);
+            if (sel === "ALL") return true;
+            const cat = String(itemCat || "").trim();
+            if (sel === "More") return !MAIN_CATS.some((c) => c.toLowerCase() === cat.toLowerCase());
+            return cat.toLowerCase() === sel.toLowerCase();
         }
 
         function renderProducts() {
@@ -398,7 +426,11 @@
             if (!container) return;
 
             document.querySelectorAll("#categoryFilterPills .pill-btn").forEach((btn) => {
-                btn.classList.toggle("active", btn.dataset.pill === window.ACTIVE_CAT);
+                const isActive = btn.dataset.pill.toLowerCase() === String(window.ACTIVE_CAT).toLowerCase();
+                btn.classList.toggle("active", isActive);
+                if (isActive) {
+                    btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                }
             });
 
             if (heading) {
@@ -412,7 +444,12 @@
             );
 
             if (!filtered.length) {
-                container.innerHTML = `<div class="offer-row-card"><p class="offer-desc">Is category mein abhi koi product available nahi hai.</p></div>`;
+                container.innerHTML = `
+                    <div class="offer-row-card" style="flex-direction:column;align-items:flex-start;gap:10px;">
+                        <p class="offer-desc">Is category mein abhi koi product available nahi hai.</p>
+                        <button type="button" class="btn-view-detail" onclick="selectCategory('ALL')">Show All Products</button>
+                    </div>
+                `;
                 return;
             }
 
@@ -432,7 +469,16 @@
         }
 
         function selectCategory(cat) {
-            window.ACTIVE_CAT = cat;
+            window.ACTIVE_CAT = normalizeCategory(cat);
+            try {
+                const url = new URL(window.location.href);
+                if (window.ACTIVE_CAT === "ALL") {
+                    url.searchParams.delete("cat");
+                } else {
+                    url.searchParams.set("cat", window.ACTIVE_CAT);
+                }
+                history.replaceState(null, "", url.toString());
+            } catch (e) {}
             renderProducts();
         }
 
@@ -456,6 +502,11 @@
                 renderProducts();
             }
         };
+
+        window.addEventListener("popstate", () => {
+            window.ACTIVE_CAT = getInitialCategoryFromUrl();
+            renderProducts();
+        });
 
         renderProducts();
     </script>
