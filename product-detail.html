@@ -233,6 +233,86 @@
             flex-shrink: 0;
         }
 
+        /* Share Popup Modal */
+        .share-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 300;
+        }
+        .share-modal-backdrop.open {
+            display: flex;
+        }
+        .share-modal-sheet {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
+            padding: 18px 16px 22px;
+            box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.2);
+        }
+        .share-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .share-modal-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .share-modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            border: none;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .partner-card-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .partner-name-txt {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .partner-sub-txt {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 2px;
+        }
+        .partner-id-pill {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .share-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
         .toast-bar {
             position: fixed;
             bottom: 76px;
@@ -244,7 +324,7 @@
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            z-index: 200;
+            z-index: 400;
             display: none;
             max-width: 90%;
             text-align: center;
@@ -300,7 +380,7 @@
         </main>
 
         <div class="action-bar">
-            <button class="btn-share" id="shareOfferBtn">Share Offer</button>
+            <button class="btn-share" id="shareOfferBtn" onclick="openSharePopup()">Share Offer</button>
             <button class="btn-copy" id="copyLinkBtn" title="Copy Link">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -308,6 +388,29 @@
                 </svg>
                 <span>Copy Link</span>
             </button>
+        </div>
+
+        <!-- Partner Share Popup -->
+        <div class="share-modal-backdrop" id="sharePopupModal" onclick="closeSharePopup()">
+            <div class="share-modal-sheet" onclick="event.stopPropagation()">
+                <div class="share-modal-head">
+                    <span class="share-modal-title" id="popupOfferTitle">Share Offer</span>
+                    <button type="button" class="share-modal-close" onclick="closeSharePopup()">✕</button>
+                </div>
+
+                <div class="partner-card-box">
+                    <div>
+                        <div class="partner-name-txt" id="popupPartnerName">FinShare Partner</div>
+                        <div class="partner-sub-txt" id="popupPartnerContact">Partner Referral Link</div>
+                    </div>
+                    <span class="partner-id-pill" id="popupPartnerCode">ID: #FS8892</span>
+                </div>
+
+                <div class="share-modal-actions">
+                    <button type="button" class="btn-share" id="popupShareNowBtn">Share Now</button>
+                    <button type="button" class="btn-copy" id="popupCopyLinkBtn">Copy Link</button>
+                </div>
+            </div>
         </div>
 
         <div class="toast-bar" id="toastBar"></div>
@@ -429,6 +532,12 @@
 
         window.CURRENT_USER_ID = null;
         window.CURRENT_PRODUCT = null;
+        window.PARTNER_INFO = {
+            name: localStorage.getItem("userName") || "FinShare Partner",
+            code: "",
+            mobile: localStorage.getItem("userPhone") || "",
+            email: ""
+        };
 
         function goBackSmart() {
             if (window.history.length > 1 && document.referrer && document.referrer.includes("index.html")) {
@@ -504,14 +613,24 @@
             ];
         }
 
+        function getPartnerCode() {
+            if (window.PARTNER_INFO.code) return window.PARTNER_INFO.code;
+            if (window.CURRENT_USER_ID) return "#FS" + window.CURRENT_USER_ID.slice(-4).toUpperCase();
+            return "PARTNER";
+        }
+
         function buildTrackedShareUrl(item) {
             const baseUrl = item.shareUrl || "https://finshareapp.in";
             const uid = window.CURRENT_USER_ID || "";
-            if (!uid) return baseUrl;
+            const pCode = getPartnerCode();
 
             try {
                 const goUrl = new URL("go.html", window.location.origin + window.location.pathname.replace(/[^/]*$/, ""));
-                goUrl.searchParams.set("ref", uid);
+                if (uid) goUrl.searchParams.set("ref", uid);
+                if (pCode) goUrl.searchParams.set("rcode", pCode);
+                if (window.PARTNER_INFO.name) goUrl.searchParams.set("pname", window.PARTNER_INFO.name);
+                if (window.PARTNER_INFO.mobile) goUrl.searchParams.set("pmobile", window.PARTNER_INFO.mobile);
+                if (window.PARTNER_INFO.email) goUrl.searchParams.set("pemail", window.PARTNER_INFO.email);
                 if (item.id) goUrl.searchParams.set("pid", item.id);
                 if (item.title) goUrl.searchParams.set("title", item.title);
                 goUrl.searchParams.set("url", baseUrl);
@@ -520,6 +639,54 @@
                 const sep = baseUrl.includes("?") ? "&" : "?";
                 return `${baseUrl}${sep}ref=${encodeURIComponent(uid)}`;
             }
+        }
+
+        function syncSharePopupUI(item) {
+            if (!item) return;
+            const pCode = getPartnerCode();
+            const contactParts = [];
+            if (window.PARTNER_INFO.mobile && window.PARTNER_INFO.mobile !== "-") contactParts.push(window.PARTNER_INFO.mobile);
+            if (window.PARTNER_INFO.email && window.PARTNER_INFO.email !== "-") contactParts.push(window.PARTNER_INFO.email);
+
+            document.getElementById("popupOfferTitle").innerText = item.title || "Share Offer";
+            document.getElementById("popupPartnerName").innerText = window.PARTNER_INFO.name || "FinShare Partner";
+            document.getElementById("popupPartnerContact").innerText = contactParts.length
+                ? contactParts.join(" • ")
+                : "Partner Referral Link";
+            document.getElementById("popupPartnerCode").innerText = `ID: ${pCode}`;
+
+            const trackedUrl = buildTrackedShareUrl(item);
+            const shareText = `${item.title} - ${item.profitText}\nJoin here: ${trackedUrl}`;
+
+            document.getElementById("popupShareNowBtn").onclick = () => {
+                if (navigator.share) {
+                    navigator.share({ title: item.title, text: shareText, url: trackedUrl }).catch(() => {});
+                } else {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+                }
+            };
+
+            document.getElementById("popupCopyLinkBtn").onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(trackedUrl);
+                    showToast("Offer link copied!");
+                } catch (e) {
+                    showToast(trackedUrl);
+                }
+            };
+        }
+
+        function openSharePopup() {
+            if (window.CURRENT_PRODUCT) {
+                syncSharePopupUI(window.CURRENT_PRODUCT);
+            }
+            const modal = document.getElementById("sharePopupModal");
+            if (modal) modal.classList.add("open");
+        }
+
+        function closeSharePopup() {
+            const modal = document.getElementById("sharePopupModal");
+            if (modal) modal.classList.remove("open");
         }
 
         function renderProductDetail(item) {
@@ -551,15 +718,6 @@
             listEl.innerHTML = termsArr.map((t) => `<li>${escapeAttr(t)}</li>`).join("");
 
             const trackedUrl = buildTrackedShareUrl(item);
-            const shareText = `${item.title} - ${item.profitText}\nJoin here: ${trackedUrl}`;
-
-            document.getElementById("shareOfferBtn").onclick = () => {
-                if (navigator.share) {
-                    navigator.share({ title: item.title, text: shareText, url: trackedUrl }).catch(() => {});
-                } else {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
-                }
-            };
 
             document.getElementById("copyLinkBtn").onclick = async () => {
                 try {
@@ -569,6 +727,8 @@
                     showToast(trackedUrl);
                 }
             };
+
+            syncSharePopupUI(item);
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -632,6 +792,20 @@
                 return;
             }
             window.CURRENT_USER_ID = user.uid;
+            window.PARTNER_INFO.code = "#FS" + user.uid.slice(-4).toUpperCase();
+            window.PARTNER_INFO.name = user.displayName || window.PARTNER_INFO.name || "FinShare Partner";
+            window.PARTNER_INFO.email = user.email || "";
+
+            try {
+                const uSnap = await getDoc(doc(db, "users", user.uid));
+                if (uSnap.exists()) {
+                    const uData = uSnap.data();
+                    if (uData.name) window.PARTNER_INFO.name = uData.name;
+                    if (uData.phone) window.PARTNER_INFO.mobile = uData.phone;
+                    if (uData.email) window.PARTNER_INFO.email = uData.email;
+                }
+            } catch (e) {}
+
             if (window.CURRENT_PRODUCT) {
                 renderProductDetail(window.CURRENT_PRODUCT);
             }
@@ -671,4 +845,3 @@
     </script>
 </body>
 </html>
-
