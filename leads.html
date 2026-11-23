@@ -354,6 +354,7 @@
         window.PRODUCTS_BY_TITLE = {};
         window.ACTIVE_LEAD_STATUS = "ALL";
         window.CURRENT_USER_ID = null;
+        window.DB_USER_BALANCE = 0;
 
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get("status")) {
@@ -383,6 +384,14 @@
             if (titleKey && DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey]) return DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey];
 
             return statusNorm === "Confirm" ? savedAmt : 0;
+        }
+
+        function updateWalletDisplay() {
+            const confirmedSum = window.LEADS_DATA
+                .filter((l) => l.status === "Confirm")
+                .reduce((acc, l) => acc + Number(l.amount || 0), 0);
+            const effectiveBalance = Math.max(Number(window.DB_USER_BALANCE || 0), confirmedSum);
+            document.getElementById("headerWalletText").innerText = "Wallet: ₹" + effectiveBalance.toFixed(2);
         }
 
         function showToast(msg) {
@@ -455,6 +464,7 @@
 
         function renderLeads() {
             updateCounts();
+            updateWalletDisplay();
 
             document.querySelectorAll("#statusPills .status-pill").forEach((btn) => {
                 btn.classList.toggle("active", btn.dataset.status === window.ACTIVE_LEAD_STATUS);
@@ -524,6 +534,7 @@
             where,
             getDocs,
             doc,
+            setDoc,
             onSnapshot
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -543,8 +554,20 @@
 
         let rawLeadDocs = [];
 
-        function formatRupees(n) {
-            return "₹" + Number(n || 0).toFixed(2);
+        async function syncConfirmedBalanceToUserDoc(userId, list) {
+            const confirmedSum = list
+                .filter((l) => l.status === "Confirm")
+                .reduce((acc, l) => acc + Number(l.amount || 0), 0);
+
+            if (confirmedSum > Number(window.DB_USER_BALANCE || 0)) {
+                try {
+                    await setDoc(doc(db, "users", userId), {
+                        balance: confirmedSum
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("User balance sync error:", e);
+                }
+            }
         }
 
         function rebuildLeadsList() {
@@ -571,6 +594,9 @@
             list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
             window.LEADS_DATA = list;
             renderLeads();
+            if (window.CURRENT_USER_ID) {
+                syncConfirmedBalanceToUserDoc(window.CURRENT_USER_ID, list);
+            }
         }
 
         async function loadProductsLookup() {
@@ -604,9 +630,11 @@
 
             onSnapshot(doc(db, "users", user.uid), (uSnap) => {
                 if (uSnap.exists()) {
-                    const bal = Number(uSnap.data().balance || 0);
-                    document.getElementById("headerWalletText").innerText = `Wallet: ${formatRupees(bal)}`;
+                    window.DB_USER_BALANCE = Number(uSnap.data().balance || 0);
+                } else {
+                    window.DB_USER_BALANCE = 0;
                 }
+                updateWalletDisplay();
             }, (err) => {
                 console.error("Wallet snapshot error:", err);
             });
