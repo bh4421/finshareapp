@@ -30,8 +30,14 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11.5px; font-weight: bold; color: white; display: inline-block; }
         .pending { background-color: #ff9800; }
         .completed { background-color: #4caf50; }
-        .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .rejected { background-color: #dc2626; }
+        .expired { background-color: #64748b; }
+        .btn-approve { background: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
         .btn-approve:hover { background: #45a049; }
+        .btn-reject { background: #dc2626; color: white; border: none; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
+        .btn-reject:hover { background: #b91c1c; }
+        .btn-expire { background: #64748b; color: white; border: none; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
+        .btn-expire:hover { background: #475569; }
         .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
         .btn-edit-mini { background: #eff6ff; color: #1a73e8; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
         .btn-del-mini { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
@@ -606,9 +612,14 @@
                 const isPending = statusLower === "pending";
                 const amt = Number(ref.amount || 0);
 
-                const statusBadge = isPending
-                    ? `<span class="badge pending">Pending</span>`
-                    : `<span class="badge completed">${esc(ref.status || "Completed")}</span>`;
+                let statusBadge = `<span class="badge pending">Pending</span>`;
+                if (statusLower === "completed" || statusLower === "confirm" || statusLower === "confirmed") {
+                    statusBadge = `<span class="badge completed">${esc(ref.status || "Completed")}</span>`;
+                } else if (statusLower === "rejected") {
+                    statusBadge = `<span class="badge rejected">Rejected</span>`;
+                } else if (statusLower === "expired") {
+                    statusBadge = `<span class="badge expired">Expired</span>`;
+                }
 
                 const partnerMain = ref.partnerName || ref.userName || ref.partnerCode || ref.userId || "N/A";
                 const partnerMeta = [
@@ -628,7 +639,13 @@
                     : `₹${esc(amt)}`;
 
                 const actionBtn = isPending
-                    ? `<button type="button" class="btn-approve" onclick="approveTask('${esc(ref.id)}', '${esc(ref.userId || "")}', ${amt})">Approve</button>`
+                    ? `
+                        <div class="action-group">
+                            <button type="button" class="btn-approve" onclick="approveTask('${esc(ref.id)}', '${esc(ref.userId || "")}', ${amt})">Approve</button>
+                            <button type="button" class="btn-reject" onclick="rejectTask('${esc(ref.id)}')">Reject</button>
+                            <button type="button" class="btn-expire" onclick="expireTask('${esc(ref.id)}')">Expire</button>
+                        </div>
+                    `
                     : `Done`;
 
                 tbody.innerHTML += `
@@ -683,6 +700,34 @@
             loadUsers();
         } catch (e) {
             alert("Approve karne me error aayi: " + e.message);
+        }
+    };
+
+    window.rejectTask = async function(docId) {
+        if (!confirm("Kya aap is lead ko Rejected mark karna chahte hain?")) return;
+        try {
+            await updateDoc(doc(db, "leads", docId), {
+                status: "Rejected",
+                rejectedAt: new Date().toISOString()
+            });
+            alert("Lead Rejected mark ho gayi hai.");
+            loadReferrals();
+        } catch (e) {
+            alert("Reject karne me error aayi: " + e.message);
+        }
+    };
+
+    window.expireTask = async function(docId) {
+        if (!confirm("Kya aap is lead ko Expired mark karna chahte hain?")) return;
+        try {
+            await updateDoc(doc(db, "leads", docId), {
+                status: "Expired",
+                expiredAt: new Date().toISOString()
+            });
+            alert("Lead Expired mark ho gayi hai.");
+            loadReferrals();
+        } catch (e) {
+            alert("Expire karne me error aayi: " + e.message);
         }
     };
 
