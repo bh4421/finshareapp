@@ -25,7 +25,7 @@
         .btn-secondary { background: #e2e8f0; color: #0f172a; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .msg { margin-top: 10px; font-size: 13px; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         th { background-color: #1a73e8; color: white; }
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11.5px; font-weight: bold; color: white; display: inline-block; }
         .pending { background-color: #ff9800; }
@@ -36,6 +36,8 @@
         .btn-edit-mini { background: #eff6ff; color: #1a73e8; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
         .btn-del-mini { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
         .thumb-mini { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; padding: 2px; vertical-align: middle; }
+        .sub-meta { display: block; font-size: 11.5px; color: #475569; margin-top: 3px; line-height: 1.35; }
+        .amt-input-mini { width: 78px; padding: 4px 6px; font-size: 12.5px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -186,7 +188,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>User / Ref ID</th>
+                        <th>Partner / Ref ID</th>
+                        <th>Customer Details</th>
                         <th>Product</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -194,7 +197,7 @@
                     </tr>
                 </thead>
                 <tbody id="referralsTable">
-                    <tr><td colspan="5">Tasks load ho rahe hain...</td></tr>
+                    <tr><td colspan="6">Tasks load ho rahe hain...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -352,6 +355,14 @@
         }
     ];
 
+    function esc(val) {
+        return String(val || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
     const selectEl = document.getElementById("existingProductSelect");
     const prodForm = document.getElementById("productForm");
     const prodMsg = document.getElementById("prodMsg");
@@ -471,20 +482,20 @@
 
             tbody.innerHTML = list.map((p) => {
                 const logoHtml = p.logoUrl
-                    ? `<img src="${p.logoUrl}" alt="${p.title || ""}" class="thumb-mini" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;font-weight:700;">${p.code || "FS"}</span>`
-                    : `<span style="font-weight:700;">${p.code || "FS"}</span>`;
+                    ? `<img src="${esc(p.logoUrl)}" alt="${esc(p.title || "")}" class="thumb-mini" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;font-weight:700;">${esc(p.code || "FS")}</span>`
+                    : `<span style="font-weight:700;">${esc(p.code || "FS")}</span>`;
 
                 return `
                     <tr>
                         <td>${logoHtml}</td>
-                        <td>${p.title || "N/A"}</td>
-                        <td>${p.category || "-"}</td>
-                        <td>${p.profitText || "-"}</td>
+                        <td>${esc(p.title || "N/A")}</td>
+                        <td>${esc(p.category || "-")}</td>
+                        <td>${esc(p.profitText || "-")}</td>
                         <td>${p.showOnHome ? "Yes" : "No"}</td>
                         <td>
                             <div class="action-group">
-                                <button type="button" class="btn-edit-mini" onclick="editProductById('${p.id}')">Edit</button>
-                                <button type="button" class="btn-del-mini" onclick="deleteProductById('${p.id}')">Delete</button>
+                                <button type="button" class="btn-edit-mini" onclick="editProductById('${esc(p.id)}')">Edit</button>
+                                <button type="button" class="btn-del-mini" onclick="deleteProductById('${esc(p.id)}')">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -562,10 +573,10 @@
                 const bal = Number(u.balance || 0).toFixed(2);
                 tbody.innerHTML += `
                     <tr>
-                        <td>${u.name || "N/A"}</td>
-                        <td>${u.phone || u.email || "N/A"}</td>
-                        <td>${bankStr}</td>
-                        <td>₹${bal}</td>
+                        <td>${esc(u.name || "N/A")}</td>
+                        <td>${esc(u.phone || u.email || "N/A")}</td>
+                        <td>${esc(bankStr)}</td>
+                        <td>₹${esc(bal)}</td>
                     </tr>
                 `;
             });
@@ -580,45 +591,93 @@
         try {
             const querySnapshot = await getDocs(collection(db, "leads"));
             if (querySnapshot.empty) {
-                tbody.innerHTML = "<tr><td colspan='5'>Koi lead tracking data nahi hai.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='6'>Koi lead tracking data nahi hai.</td></tr>";
                 return;
             }
+
+            const rows = [];
             querySnapshot.forEach((documentSnap) => {
-                const ref = documentSnap.data();
-                const isPending = String(ref.status || "Pending").toLowerCase() === "pending";
+                rows.push({ id: documentSnap.id, ...documentSnap.data() });
+            });
+            rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+
+            rows.forEach((ref) => {
+                const statusLower = String(ref.status || "Pending").toLowerCase();
+                const isPending = statusLower === "pending";
                 const amt = Number(ref.amount || 0);
+
                 const statusBadge = isPending
                     ? `<span class="badge pending">Pending</span>`
-                    : `<span class="badge completed">Completed</span>`;
+                    : `<span class="badge completed">${esc(ref.status || "Completed")}</span>`;
+
+                const partnerMain = ref.partnerName || ref.userName || ref.partnerCode || ref.userId || "N/A";
+                const partnerMeta = [
+                    ref.partnerCode ? `ID: ${ref.partnerCode}` : (ref.userId ? `UID: ${ref.userId}` : ""),
+                    ref.partnerMobile ? `Mob: ${ref.partnerMobile}` : "",
+                    ref.partnerEmail ? ref.partnerEmail : ""
+                ].filter(Boolean).join(" • ");
+
+                const custName = ref.customerName || [ref.customerFirstName, ref.customerLastName].filter(Boolean).join(" ") || "N/A";
+                const custMeta = [
+                    ref.customerMobile ? `Mob: ${ref.customerMobile}` : "",
+                    ref.customerEmail ? ref.customerEmail : ""
+                ].filter(Boolean).join(" • ");
+
+                const amtCell = isPending
+                    ? `₹ <input type="number" min="0" step="1" class="amt-input-mini" id="leadAmt-${esc(ref.id)}" value="${amt}" />`
+                    : `₹${esc(amt)}`;
 
                 const actionBtn = isPending
-                    ? `<button class="btn-approve" onclick="approveTask('${documentSnap.id}', '${ref.userId || ""}', ${amt})">Approve</button>`
+                    ? `<button type="button" class="btn-approve" onclick="approveTask('${esc(ref.id)}', '${esc(ref.userId || "")}', ${amt})">Approve</button>`
                     : `Done`;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${ref.userName || ref.userId || "N/A"}</td>
-                        <td>${ref.productTitle || "N/A"}</td>
-                        <td>₹${amt}</td>
+                        <td>
+                            <strong>${esc(partnerMain)}</strong>
+                            ${partnerMeta ? `<span class="sub-meta">${esc(partnerMeta)}</span>` : ""}
+                        </td>
+                        <td>
+                            <strong>${esc(custName)}</strong>
+                            ${custMeta ? `<span class="sub-meta">${esc(custMeta)}</span>` : ""}
+                        </td>
+                        <td>${esc(ref.productTitle || "N/A")}</td>
+                        <td>${amtCell}</td>
                         <td>${statusBadge}</td>
                         <td>${actionBtn}</td>
                     </tr>
                 `;
             });
         } catch (e) {
-            tbody.innerHTML = "<tr><td colspan='5' style='color:red;'>Error loading leads!</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='6' style='color:red;'>Error loading leads!</td></tr>";
         }
     }
 
-    window.approveTask = async function(docId, userId, amount) {
+    window.approveTask = async function(docId, userId, fallbackAmount) {
         try {
-            await updateDoc(doc(db, "leads", docId), { status: "Completed" });
-            if (userId && Number(amount) > 0) {
-                const userRef = doc(db, "users", userId);
+            const leadRef = doc(db, "leads", docId);
+            const leadSnap = await getDoc(leadRef);
+            const prevData = leadSnap.exists() ? leadSnap.data() : {};
+            const prevStatus = String(prevData.status || "").toLowerCase();
+
+            const inputEl = document.getElementById(`leadAmt-${docId}`);
+            const rawAmt = inputEl ? Number(inputEl.value) : Number(fallbackAmount || 0);
+            const finalAmount = Number.isFinite(rawAmt) && rawAmt >= 0 ? rawAmt : 0;
+
+            await updateDoc(leadRef, {
+                status: "Completed",
+                amount: finalAmount,
+                approvedAt: new Date().toISOString()
+            });
+
+            const targetUid = prevData.userId || userId;
+            if (targetUid && prevStatus !== "completed" && finalAmount > 0) {
+                const userRef = doc(db, "users", targetUid);
                 const uSnap = await getDoc(userRef);
                 const currentBal = uSnap.exists() ? Number(uSnap.data().balance || 0) : 0;
-                await setDoc(userRef, { balance: currentBal + Number(amount) }, { merge: true });
+                await setDoc(userRef, { balance: currentBal + finalAmount }, { merge: true });
             }
+
             alert("Lead Approve ho gaya hai aur wallet balance update ho gaya!");
             loadReferrals();
             loadUsers();
