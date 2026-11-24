@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2563eb">
+    <meta name="google" content="notranslate">
     <link rel="manifest" href="/manifest.json">
     <title>FinShare - FinShare Partner</title>
     <style>
@@ -1485,7 +1486,10 @@
     </div>
 
     <script>
-        const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V1";
+        const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V2";
+        const USER_DASHBOARD_CACHE_PREFIX = "FINSHARE_USER_DASH_CACHE_V1_";
+        const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
+
         const DEFAULT_HOME_PRODUCTS = [
             {
                 id: "angel-one-demat",
@@ -1636,7 +1640,7 @@
 
         function readCachedHomeProducts() {
             try {
-                const raw = sessionStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
+                const raw = localStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
                 if (!raw) return null;
                 const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
@@ -1647,8 +1651,84 @@
 
         function writeCachedHomeProducts(list) {
             try {
-                sessionStorage.setItem(HOME_PRODUCTS_CACHE_KEY, JSON.stringify(list));
+                localStorage.setItem(HOME_PRODUCTS_CACHE_KEY, JSON.stringify(list));
             } catch (e) {}
+        }
+
+        function readCachedUserDash(uid) {
+            if (!uid) return null;
+            try {
+                const raw = localStorage.getItem(USER_DASHBOARD_CACHE_PREFIX + uid);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedUserDash(uid, partial) {
+            if (!uid) return;
+            try {
+                const prev = readCachedUserDash(uid) || {};
+                localStorage.setItem(USER_DASHBOARD_CACHE_PREFIX + uid, JSON.stringify({
+                    ...prev,
+                    ...partial
+                }));
+                localStorage.setItem(LAST_UID_KEY, uid);
+            } catch (e) {}
+        }
+
+        function formatRupeesFast(amount) {
+            const num = Number(amount || 0);
+            return "₹" + num.toFixed(2);
+        }
+
+        function applyUserIdentityToUI(userName, shortId, userEmail, userPhone) {
+            const initials = String(userName || "FS")
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => part[0].toUpperCase())
+                .join("") || "FS";
+
+            const avatarEl = document.getElementById("avatarInitials");
+            const nameEl = document.getElementById("displayUserName");
+            const idEl = document.getElementById("displayUserId");
+            const accNameEl = document.getElementById("accName");
+            const accIdEl = document.getElementById("accId");
+            const accEmailEl = document.getElementById("accEmail");
+            const accPhoneEl = document.getElementById("accPhone");
+
+            if (avatarEl && avatarEl.innerText !== initials) avatarEl.innerText = initials;
+            if (nameEl && nameEl.innerText !== userName) nameEl.innerText = userName;
+            if (idEl && idEl.innerText !== `ID: ${shortId}`) idEl.innerText = `ID: ${shortId}`;
+            if (accNameEl && accNameEl.innerText !== userName) accNameEl.innerText = userName;
+            if (accIdEl && accIdEl.innerText !== shortId) accIdEl.innerText = shortId;
+            if (userEmail && accEmailEl && accEmailEl.innerText !== userEmail) accEmailEl.innerText = userEmail;
+            if (userPhone && accPhoneEl && accPhoneEl.innerText !== userPhone) accPhoneEl.innerText = userPhone;
+        }
+
+        function applyEarningsNumbersToUI(totalLeads, availableBalance, lifetimeTotalEarning, finalPending) {
+            window.FINSHARE_BALANCE = availableBalance;
+            const leadsText = `${totalLeads} ${totalLeads === 1 ? "Lead" : "Leads"}`;
+            const balText = formatRupeesFast(availableBalance);
+            const lifeText = formatRupeesFast(lifetimeTotalEarning);
+            const pendText = formatRupeesFast(finalPending);
+
+            const leadsEl = document.getElementById("myLeadsCount");
+            const totalEl = document.getElementById("totalEarningsText");
+            const confEl = document.getElementById("earningConfirmedVal");
+            const lifeEl = document.getElementById("earningLifetimeVal");
+            const accBalEl = document.getElementById("accWalletBalance");
+            const pendHomeEl = document.getElementById("pendingEarningsText");
+            const pendEarnEl = document.getElementById("earningPendingVal");
+
+            if (leadsEl && leadsEl.innerText !== leadsText) leadsEl.innerText = leadsText;
+            if (totalEl && totalEl.innerText !== balText) totalEl.innerText = balText;
+            if (confEl && confEl.innerText !== balText) confEl.innerText = balText;
+            if (lifeEl && lifeEl.innerText !== lifeText) lifeEl.innerText = lifeText;
+            if (accBalEl && accBalEl.innerText !== balText) accBalEl.innerText = balText;
+            if (pendHomeEl && pendHomeEl.innerText !== pendText) pendHomeEl.innerText = pendText;
+            if (pendEarnEl && pendEarnEl.innerText !== pendText) pendEarnEl.innerText = pendText;
         }
 
         window.FINSHARE_PRODUCTS = readCachedHomeProducts() || DEFAULT_HOME_PRODUCTS.slice();
@@ -2059,7 +2139,38 @@
             document.getElementById("withdrawModal").classList.add("open");
         }
 
+        function hydrateFromLastCachedSession() {
+            try {
+                const lastUid = localStorage.getItem(LAST_UID_KEY);
+                if (!lastUid) return;
+                const cached = readCachedUserDash(lastUid);
+                if (!cached) return;
+
+                const shortId = cached.shortId || ("#FS" + lastUid.slice(-4).toUpperCase());
+                applyUserIdentityToUI(
+                    cached.userName || localStorage.getItem("userName") || "FinShare Partner",
+                    shortId,
+                    cached.userEmail || "-",
+                    cached.userPhone || localStorage.getItem("userPhone") || "-"
+                );
+                applyEarningsNumbersToUI(
+                    Number(cached.totalLeads || 0),
+                    Number(cached.availableBalance || 0),
+                    Number(cached.lifetimeTotalEarning || 0),
+                    Number(cached.finalPending || 0)
+                );
+                if (cached.bankDetails) {
+                    renderBankCardUI(cached.bankDetails);
+                }
+                if (Array.isArray(cached.withdrawals)) {
+                    window.FINSHARE_WITHDRAWALS = cached.withdrawals;
+                    window.renderWithdrawalsList();
+                }
+            } catch (e) {}
+        }
+
         window.addEventListener("DOMContentLoaded", () => {
+            hydrateFromLastCachedSession();
             switchTab(getTabFromHash(), { updateHash: false });
             renderHomeProducts();
             renderWithdrawalsList();
@@ -2069,6 +2180,7 @@
             switchTab(getTabFromHash(), { updateHash: false });
         });
 
+        hydrateFromLastCachedSession();
         switchTab(getTabFromHash(), { updateHash: false });
         renderHomeProducts();
         renderWithdrawalsList();
@@ -2097,11 +2209,7 @@
         let latestDbPending = 0;
         let latestLeadDocs = [];
         let latestWithdrawDocs = [];
-
-        function formatRupees(amount) {
-            const num = Number(amount || 0);
-            return "₹" + num.toFixed(2);
-        }
+        let lastSyncedBalance = null;
 
         function getWithdrawnTotal(withdrawDocs) {
             let sum = 0;
@@ -2121,7 +2229,7 @@
             let pendingSum = 0;
 
             latestLeadDocs.forEach((docSnap) => {
-                const d = docSnap.data();
+                const d = typeof docSnap.data === "function" ? docSnap.data() : docSnap;
                 totalLeads += 1;
                 const statusNorm = normalizeLeadStatus(d.status);
                 const amt = resolveLeadAmount(d);
@@ -2137,19 +2245,24 @@
             const availableBalance = Math.max(0, lifetimeTotalEarning - withdrawnTotal);
             const finalPending = totalLeads > 0 ? pendingSum : Number(latestDbPending || 0);
 
-            window.FINSHARE_BALANCE = availableBalance;
+            applyEarningsNumbersToUI(totalLeads, availableBalance, lifetimeTotalEarning, finalPending);
 
-            document.getElementById("myLeadsCount").innerText = `${totalLeads} ${totalLeads === 1 ? "Lead" : "Leads"}`;
-            document.getElementById("totalEarningsText").innerText = formatRupees(availableBalance);
-            document.getElementById("earningConfirmedVal").innerText = formatRupees(availableBalance);
-            const lifetimeEl = document.getElementById("earningLifetimeVal");
-            if (lifetimeEl) lifetimeEl.innerText = formatRupees(lifetimeTotalEarning);
-            document.getElementById("accWalletBalance").innerText = formatRupees(availableBalance);
-            document.getElementById("pendingEarningsText").innerText = formatRupees(finalPending);
-            document.getElementById("earningPendingVal").innerText = formatRupees(finalPending);
+            if (window.CURRENT_USER_ID) {
+                writeCachedUserDash(window.CURRENT_USER_ID, {
+                    totalLeads,
+                    availableBalance,
+                    lifetimeTotalEarning,
+                    finalPending
+                });
+            }
 
-            if (window.CURRENT_USER_ID && Math.abs(availableBalance - Number(latestDbBalance || 0)) > 0.009) {
+            if (
+                window.CURRENT_USER_ID &&
+                Math.abs(availableBalance - Number(latestDbBalance || 0)) > 0.009 &&
+                Math.abs(availableBalance - Number(lastSyncedBalance ?? -1)) > 0.009
+            ) {
                 try {
+                    lastSyncedBalance = availableBalance;
                     latestDbBalance = availableBalance;
                     await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
                         balance: availableBalance,
@@ -2208,6 +2321,7 @@
 
                 const newBal = Math.max(0, currentBal - amt);
                 latestDbBalance = newBal;
+                lastSyncedBalance = newBal;
                 await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
                     balance: newBal
                 }, { merge: true });
@@ -2244,6 +2358,7 @@
                 await setDoc(doc(db, "users", window.CURRENT_USER_ID), {
                     bankDetails: bankPayload
                 }, { merge: true });
+                writeCachedUserDash(window.CURRENT_USER_ID, { bankDetails: bankPayload });
                 renderBankCardUI(bankPayload);
                 closeModal("bankModal");
                 showToast("Bank details saved!");
@@ -2363,12 +2478,33 @@
             }
 
             window.CURRENT_USER_ID = user.uid;
-            renderHomeProducts();
-
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
-            let userName = user.displayName || localStorage.getItem("userName") || "FinShare Partner";
-            let userEmail = user.email || "-";
-            let userPhone = localStorage.getItem("userPhone") || "-";
+
+            const userCache = readCachedUserDash(user.uid);
+            let userName = (userCache && userCache.userName) || user.displayName || localStorage.getItem("userName") || "FinShare Partner";
+            let userEmail = (userCache && userCache.userEmail) || user.email || "-";
+            let userPhone = (userCache && userCache.userPhone) || localStorage.getItem("userPhone") || "-";
+
+            if (userCache) {
+                latestDbBalance = Number(userCache.availableBalance || 0);
+                latestDbPending = Number(userCache.finalPending || 0);
+                applyUserIdentityToUI(userName, shortId, userEmail, userPhone);
+                applyEarningsNumbersToUI(
+                    Number(userCache.totalLeads || 0),
+                    Number(userCache.availableBalance || 0),
+                    Number(userCache.lifetimeTotalEarning || 0),
+                    Number(userCache.finalPending || 0)
+                );
+                if (userCache.bankDetails) {
+                    renderBankCardUI(userCache.bankDetails);
+                }
+                if (Array.isArray(userCache.withdrawals)) {
+                    window.FINSHARE_WITHDRAWALS = userCache.withdrawals;
+                    window.renderWithdrawalsList();
+                }
+            }
+
+            renderHomeProducts();
 
             try {
                 const snap = await getDoc(doc(db, "users", user.uid));
@@ -2400,32 +2536,38 @@
                         document.getElementById("bankNameInput").value = data.bankDetails.bankName || "";
                         renderBankCardUI(data.bankDetails);
                     }
+
+                    writeCachedUserDash(user.uid, {
+                        shortId,
+                        userName,
+                        userEmail,
+                        userPhone,
+                        bankDetails: data.bankDetails || null
+                    });
                 }
             } catch (err) {
                 console.error("Firestore read error:", err);
             }
 
-            const initials = userName
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((part) => part[0].toUpperCase())
-                .join("") || "FS";
-
-            document.getElementById("avatarInitials").innerText = initials;
-            document.getElementById("displayUserName").innerText = userName;
-            document.getElementById("displayUserId").innerText = `ID: ${shortId}`;
-            document.getElementById("accName").innerText = userName;
-            document.getElementById("accId").innerText = shortId;
-            document.getElementById("accEmail").innerText = userEmail;
-            document.getElementById("accPhone").innerText = userPhone;
+            applyUserIdentityToUI(userName, shortId, userEmail, userPhone);
 
             onSnapshot(doc(db, "users", user.uid), (uSnap) => {
                 if (uSnap.exists()) {
                     const uData = uSnap.data();
                     if (typeof uData.balance === "number") latestDbBalance = uData.balance;
                     if (typeof uData.pending === "number") latestDbPending = uData.pending;
-                    if (uData.bankDetails) renderBankCardUI(uData.bankDetails);
+                    if (uData.bankDetails) {
+                        renderBankCardUI(uData.bankDetails);
+                        writeCachedUserDash(user.uid, { bankDetails: uData.bankDetails });
+                    }
+                    if (uData.name) {
+                        applyUserIdentityToUI(uData.name, shortId, uData.email || userEmail, uData.phone || userPhone);
+                        writeCachedUserDash(user.uid, {
+                            userName: uData.name,
+                            userEmail: uData.email || userEmail,
+                            userPhone: uData.phone || userPhone
+                        });
+                    }
                 }
                 window.recalculateEarningsUI();
             });
@@ -2448,6 +2590,7 @@
                 });
                 items.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
                 window.FINSHARE_WITHDRAWALS = items;
+                writeCachedUserDash(user.uid, { withdrawals: items });
                 window.renderWithdrawalsList();
                 window.recalculateEarningsUI();
             }, (err) => {
