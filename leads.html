@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
     <title>My Leads - FinShare</title>
     <style>
         * {
@@ -329,6 +330,10 @@
     </div>
 
     <script>
+        const LEADS_CACHE_PREFIX = "FINSHARE_LEADS_CACHE_V1_";
+        const PRODUCTS_LOOKUP_CACHE_KEY = "FINSHARE_PRODUCTS_LOOKUP_CACHE_V1";
+        const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
+
         const DEFAULT_OFFER_AMOUNTS = {
             "angel-one-demat": 750,
             "kotak-811-bank": 450,
@@ -361,6 +366,48 @@
             window.ACTIVE_LEAD_STATUS = urlParams.get("status");
         }
 
+        function readCachedLeads(uid) {
+            if (!uid) return null;
+            try {
+                const raw = localStorage.getItem(LEADS_CACHE_PREFIX + uid);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedLeads(uid, payload) {
+            if (!uid) return;
+            try {
+                const prev = readCachedLeads(uid) || {};
+                localStorage.setItem(LEADS_CACHE_PREFIX + uid, JSON.stringify({
+                    ...prev,
+                    ...payload
+                }));
+            } catch (e) {}
+        }
+
+        function readCachedProductsLookup() {
+            try {
+                const raw = localStorage.getItem(PRODUCTS_LOOKUP_CACHE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedProductsLookup(byId, byTitle) {
+            try {
+                localStorage.setItem(PRODUCTS_LOOKUP_CACHE_KEY, JSON.stringify({ byId, byTitle }));
+            } catch (e) {}
+        }
+
+        const cachedLookup = readCachedProductsLookup();
+        if (cachedLookup) {
+            window.PRODUCTS_BY_ID = cachedLookup.byId || {};
+            window.PRODUCTS_BY_TITLE = cachedLookup.byTitle || {};
+        }
+
         function extractAmountNumber(profitText) {
             if (typeof profitText === "number" && Number.isFinite(profitText)) return profitText;
             const match = String(profitText || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
@@ -391,7 +438,12 @@
                 .filter((l) => l.status === "Confirm")
                 .reduce((acc, l) => acc + Number(l.amount || 0), 0);
             const effectiveBalance = Math.max(Number(window.DB_USER_BALANCE || 0), confirmedSum);
-            document.getElementById("headerWalletText").innerText = "Wallet: ₹" + effectiveBalance.toFixed(2);
+            const txt = "Wallet: ₹" + effectiveBalance.toFixed(2);
+            const el = document.getElementById("headerWalletText");
+            if (el && el.innerText !== txt) el.innerText = txt;
+            if (window.CURRENT_USER_ID) {
+                writeCachedLeads(window.CURRENT_USER_ID, { balance: effectiveBalance });
+            }
         }
 
         function showToast(msg) {
@@ -522,6 +574,24 @@
             }
             window.open(url, "_blank");
         }
+
+        function hydrateLeadsFromCache() {
+            try {
+                const lastUid = localStorage.getItem(LAST_UID_KEY);
+                if (!lastUid) return;
+                const cached = readCachedLeads(lastUid);
+                if (!cached) return;
+                if (typeof cached.balance === "number") {
+                    window.DB_USER_BALANCE = cached.balance;
+                }
+                if (Array.isArray(cached.leads) && cached.leads.length > 0) {
+                    window.LEADS_DATA = cached.leads;
+                    renderLeads();
+                }
+            } catch (e) {}
+        }
+
+        hydrateLeadsFromCache();
     </script>
 
     <script type="module">
@@ -553,14 +623,19 @@
         const db = getFirestore(app);
 
         let rawLeadDocs = [];
+        let lastSyncedConfirmed = null;
 
         async function syncConfirmedBalanceToUserDoc(userId, list) {
             const confirmedSum = list
                 .filter((l) => l.status === "Confirm")
                 .reduce((acc, l) => acc + Number(l.amount || 0), 0);
 
-            if (confirmedSum > Number(window.DB_USER_BALANCE || 0)) {
+            if (
+                confirmedSum > Number(window.DB_USER_BALANCE || 0) &&
+                Math.abs(confirmedSum - Number(lastSyncedConfirmed ?? -1)) > 0.009
+            ) {
                 try {
+                    lastSyncedConfirmed = confirmedSum;
                     await setDoc(doc(db, "users", userId), {
                         balance: confirmedSum
                     }, { merge: true });
@@ -593,6 +668,9 @@
 
             list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
             window.LEADS_DATA = list;
+            if (window.CURRENT_USER_ID) {
+                writeCachedLeads(window.CURRENT_USER_ID, { leads: list });
+            }
             renderLeads();
             if (window.CURRENT_USER_ID) {
                 syncConfirmedBalanceToUserDoc(window.CURRENT_USER_ID, list);
@@ -613,20 +691,34 @@
                 });
                 window.PRODUCTS_BY_ID = byId;
                 window.PRODUCTS_BY_TITLE = byTitle;
-                rebuildLeadsList();
+                writeCachedProductsLookup(byId, byTitle);
+                if (rawLeadDocs.length > 0) {
+                    rebuildLeadsList();
+                }
             } catch (e) {
                 console.error("Products lookup error:", e);
             }
         }
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "login.html";
                 return;
             }
             window.CURRENT_USER_ID = user.uid;
 
-            await loadProductsLookup();
+            const cached = readCachedLeads(user.uid);
+            if (cached) {
+                if (typeof cached.balance === "number") {
+                    window.DB_USER_BALANCE = cached.balance;
+                }
+                if (Array.isArray(cached.leads) && cached.leads.length > 0) {
+                    window.LEADS_DATA = cached.leads;
+                    renderLeads();
+                }
+            }
+
+            loadProductsLookup();
 
             onSnapshot(doc(db, "users", user.uid), (uSnap) => {
                 if (uSnap.exists()) {
