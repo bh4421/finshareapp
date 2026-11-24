@@ -1,13 +1,27 @@
-[
-  {
+[{
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
-      "namespace": "android_app",
-      "package_name": "in.finshareapp.app",
-      "sha256_cert_fingerprints": [
-        "YOUR_SHA256_FINGERPRINT_HERE"
-      ]
-    }
-  }
-]
+        "namespace": "android_app",
+        "package_name": "in.finshareapp.twa",
+        "sha256_cert_fingerprints":
+        ["34:16:83:05:08:D6:54:EF:09:4B:71:CB:BE:98:35:84:AB:14:34:54:13:31:7B:CF:92:90:CA:31:CF:68:CA:F7"]
+      }
+  }]
+```[span_3](start_span)[span_3](end_span)
 
+2. **GitHub Mein `.well-known/assetlinks.json` Edit Karein**:
+   * Browser mein apni **`finshareapp`** repository (`main` branch) kholein[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span).
+   * **`.well-known`** folder → **`assetlinks.json`** par tap karein[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span).
+   * Upar right side mein **Edit (`pencil` icon)** par tap karein.
+   * Purana code hata kar upar wala naya code **Paste** karein aur **Commit changes** dabayein.
+
+3. **1–2 Minute Baad Live URL Check Karein**:
+   * Browser mein **`[https://finshareapp.in/.well-known/assetlinks.json](https://finshareapp.in/.well-known/assetlinks.json)`** (ya cache clear karne ke liye `?v=5` ke saath) khol kar check karein ki naya SHA-256 fingerprint (`34:16:83:...`) live dikh raha hai[span_8](start_span)[span_8](end_span).
+
+---
+
+### Aakhiri Tayari (Google Play Console Se Pehle)
+* **`signing.keystore`** aur **`signing-key-info.txt`** (password/alias/SHA-256 ke saath) ko phone ke safe folder ya cloud mein backup zaroor rakhein[span_9](start_span)[span_9](end_span)—future app updates usi key se sign honge.
+* Jab live `assetlinks.json` update ho jaaye, tab Google Play Console mein **`FinShare.aab`** (`2.70 MB`)[span_10](start_span)[span_10](end_span), **Privacy Policy URL** (`[https://finshareapp.in/privacy-policy.html](https://finshareapp.in/privacy-policy.html)`), aur **Data safety** details bhar kar review ke liye submit kar sakte hain.
+
+Kya aap abhi GitHub mein `.well-known/assetlinks.json` ko is naye code se update kar rahe hain[span_11](start_span)[span_11](end_span)[span_12](start_span)[span_12](end_span)?
