@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
     <title>Products - FinShare</title>
     <style>
         * {
@@ -278,7 +279,7 @@
 
     <script>
         const MAIN_CATS = ["Demat", "Banking", "Credit Card", "Loans", "Investment"];
-        const PRODUCTS_CACHE_KEY = "FINSHARE_PRODUCTS_CACHE_V1";
+        const PRODUCTS_CACHE_KEY = "FINSHARE_PRODUCTS_CACHE_V2";
         const FALLBACK_PRODUCTS = [
             {
                 id: "smallcase",
@@ -357,7 +358,7 @@
 
         function readCachedProducts() {
             try {
-                const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
+                const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
                 if (!raw) return null;
                 const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
@@ -368,7 +369,7 @@
 
         function writeCachedProducts(list) {
             try {
-                sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(list));
+                localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(list));
             } catch (e) {}
         }
 
@@ -429,7 +430,7 @@
                 const isActive = btn.dataset.pill.toLowerCase() === String(window.ACTIVE_CAT).toLowerCase();
                 btn.classList.toggle("active", isActive);
                 if (isActive) {
-                    btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                    btn.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" });
                 }
             });
 
