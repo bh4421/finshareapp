@@ -1207,13 +1207,13 @@
             <div class="info-card" id="withdrawalsHistoryCard">
                 <h3>Withdrawal Requests</h3>
                 <div id="withdrawalsHistoryBox">
-                    <p class="activity-text">Abhi koi withdrawal request nahi hai. ₹100.00 ya usse zyada balance par <strong>Withdraw</strong> click karein.</p>
+                    <p class="activity-text">No withdrawal requests yet. Click <strong>Withdraw</strong> when your balance is ₹100.00 or more.</p>
                 </div>
             </div>
 
             <div class="info-card">
                 <h3>Recent Activity</h3>
-                <p class="activity-text">Jab aapki koi lead database mein <strong>Confirm</strong> hoti hai, toh uska payout automatically aapke wallet mein add ho jata hai.</p>
+                <p class="activity-text">Once a lead is confirmed in the database, its payout is automatically added to your wallet.</p>
             </div>
         </section>
 
@@ -1746,6 +1746,15 @@
         window.FINSHARE_WITHDRAWALS = [];
         window.LEADS_SNAPSHOT_READY = false;
 
+        function hasBankAccountAdded(bankData) {
+            if (!bankData || typeof bankData !== "object") return false;
+            const acc = String(bankData.accountNumber || "").trim();
+            const ifsc = String(bankData.ifsc || "").trim();
+            const holder = String(bankData.holderName || "").trim();
+            const bankName = String(bankData.bankName || "").trim();
+            return Boolean(acc && ifsc && (holder || bankName));
+        }
+
         function extractRupeeNumber(val) {
             if (typeof val === "number" && Number.isFinite(val)) return val;
             const match = String(val || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
@@ -1832,13 +1841,13 @@
             const badge = document.getElementById("bankStatusBadge");
             if (!box) return;
 
-            if (!bankData || !bankData.accountNumber) {
+            if (!hasBankAccountAdded(bankData)) {
                 if (badge) badge.innerText = "";
                 box.innerHTML = `<p class="activity-text">No bank account added yet. Click <strong>Add Bank</strong> to save your payout bank details.</p>`;
                 return;
             }
 
-            const rawAcc = String(bankData.accountNumber);
+            const rawAcc = String(bankData.accountNumber).trim();
             const maskedAcc = rawAcc.length > 4
                 ? "••••" + rawAcc.slice(-4)
                 : rawAcc;
@@ -1870,7 +1879,7 @@
             if (!box) return;
             const list = window.FINSHARE_WITHDRAWALS || [];
             if (!list.length) {
-                box.innerHTML = `<p class="activity-text">Abhi koi withdrawal request nahi hai. ₹100.00 ya usse zyada balance par <strong>Withdraw</strong> click karein.</p>`;
+                box.innerHTML = `<p class="activity-text">No withdrawal requests yet. Click <strong>Withdraw</strong> when your balance is ₹100.00 or more.</p>`;
                 return;
             }
             box.innerHTML = list.map((w) => {
@@ -2131,6 +2140,10 @@
         }
 
         function handleWithdraw() {
+            if (!hasBankAccountAdded(window.CURRENT_USER_BANK)) {
+                showToast("Please add your bank account details in the Account tab before requesting a withdrawal.");
+                return;
+            }
             const bal = Number(window.FINSHARE_BALANCE || 0);
             if (bal < 100) {
                 showToast("Minimum ₹100.00 balance required for withdrawal.");
@@ -2144,9 +2157,7 @@
             }
             if (preview) {
                 const bank = window.CURRENT_USER_BANK;
-                preview.innerText = bank && bank.accountNumber
-                    ? `Payout Bank: ${bank.bankName || "Bank"} (${bank.accountNumber}) • IFSC: ${bank.ifsc || "-"}`
-                    : "Tip: Account tab mein Add Bank se bank details save karein.";
+                preview.innerText = `Payout Bank: ${bank.bankName || "Bank"} (${bank.accountNumber}) • IFSC: ${bank.ifsc || "-"}`;
             }
             document.getElementById("withdrawModal").classList.add("open");
         }
@@ -2297,15 +2308,25 @@
             e.preventDefault();
             if (!window.CURRENT_USER_ID) return;
 
+            const uSnap = await getDoc(doc(db, "users", window.CURRENT_USER_ID));
+            const uData = uSnap.exists() ? uSnap.data() : {};
+            const bank = uData.bankDetails || window.CURRENT_USER_BANK || {};
+
+            if (!hasBankAccountAdded(bank)) {
+                closeModal("withdrawModal");
+                showToast("Please add your bank account details in the Account tab before requesting a withdrawal.");
+                return;
+            }
+
             const amt = Number(document.getElementById("withdrawAmountInput").value || 0);
             const currentBal = Number(window.FINSHARE_BALANCE || 0);
 
             if (amt < 100) {
-                showToast("Minimum withdrawal ₹100.00 hai.");
+                showToast("Minimum withdrawal amount is ₹100.00.");
                 return;
             }
             if (amt > currentBal) {
-                showToast("Amount available balance se zyada nahi ho sakta.");
+                showToast("Amount cannot exceed your available balance.");
                 return;
             }
 
@@ -2314,9 +2335,6 @@
             btn.innerText = "Submitting...";
 
             try {
-                const uSnap = await getDoc(doc(db, "users", window.CURRENT_USER_ID));
-                const uData = uSnap.exists() ? uSnap.data() : {};
-                const bank = uData.bankDetails || window.CURRENT_USER_BANK || {};
                 const now = new Date();
                 const dateText = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
@@ -2333,7 +2351,7 @@
                         accountNumber: bank.accountNumber || "",
                         ifsc: bank.ifsc || ""
                     },
-                    bankSummary: bank.accountNumber ? `${bank.bankName || "Bank"} - ${bank.accountNumber}` : "Bank Not Added",
+                    bankSummary: `${bank.bankName || "Bank"} - ${bank.accountNumber}`,
                     dateText,
                     createdAt: now.toISOString()
                 });
@@ -2346,11 +2364,11 @@
                 }, { merge: true });
 
                 closeModal("withdrawModal");
-                showToast("Withdraw request Pending mein bhej di gayi hai!");
+                showToast("Withdrawal request submitted and marked as Pending.");
                 switchTab("earnings", { updateHash: true });
             } catch (err) {
                 console.error("Withdraw error:", err);
-                showToast("Withdraw request submit nahi ho saki.");
+                showToast("Could not submit withdrawal request. Please try again.");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Submit Withdraw Request";
