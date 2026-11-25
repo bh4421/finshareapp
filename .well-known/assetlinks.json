@@ -1,9 +1,12 @@
-[{
+[
+  {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
-        "namespace": "android_app",
-        "package_name": "in.finshareapp.twa",
-        "sha256_cert_fingerprints":
-        ["34:16:83:05:08:D6:54:EF:09:4B:71:CB:BE:98:35:84:AB:14:34:54:13:31:7B:CF:92:90:CA:31:CF:68:CA:F7"]
-      }
-  }]
+      "namespace": "android_app",
+      "package_name": "in.finshareapp.twa",
+      "sha256_cert_fingerprints": [
+        "84:2D:AA:FE:DA:2B:1F:E3:15:C8:E3:D5:E0:F2:2D:B8:6E:8A:6B:66:63:35:66:E7:5F:11:23:FF:17:49:45:9D"
+      ]
+    }
+  }
+]
