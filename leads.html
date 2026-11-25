@@ -1,1 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>My Leads - FinShare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding-bottom: 84px;
+        }
+        .app-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+        }
+
+        /* Top Blue Header */
+        .top-header {
+            background: linear-gradient(160deg, #1d4ed8 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .wallet-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Filter Card */
+        .filter-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            margin: 14px 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+        .filter-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .filter-sub {
+            font-size: 12.5px;
+            color: #64748b;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+        .status-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .status-pill {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .status-pill.active {
+            background: #16a34a;
+            color: #ffffff;
+            border-color: #16a34a;
+        }
+
+        /* Leads List */
+        .leads-list {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .lead-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .lead-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .lead-logo-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .product-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+            background: #ffffff;
+            display: block;
+        }
+        .lead-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .lead-meta {
+            font-size: 12.5px;
+            color: #475569;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+        .lead-bottom-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .badge-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        .badge-status.pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .badge-status.confirm {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .badge-status.rejected, .badge-status.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .lead-amount {
+            font-size: 13px;
+            font-weight: 800;
+            color: #16a34a;
+        }
+        .lead-date {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .btn-view-offer {
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 13px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .toast-bar {
+            position: fixed;
+            bottom: 78px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1100;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 0 10px;
+            z-index: 100;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="top-header">
+            <div class="header-row">
+                <div class="header-left">
+                    <button class="back-btn" onclick="window.location.href='index.html'" title="Back">←</button>
+                    <h1 class="header-title">My Leads</h1>
+                </div>
+                <span class="wallet-chip" id="headerWalletText">Wallet: ₹0.00</span>
+            </div>
+        </header>
+
+        <div class="filter-card">
+            <div class="filter-heading">Your leads</div>
+            <div class="filter-sub">Filter by status. Confirm hone par payment user wallet mein add hoga.</div>
+
+            <div class="status-pills" id="statusPills">
+                <button class="status-pill active" data-status="ALL" onclick="setStatusFilter('ALL')">All: <span id="cntAll">0</span></button>
+                <button class="status-pill" data-status="Confirm" onclick="setStatusFilter('Confirm')">Confirm: <span id="cntConfirm">0</span></button>
+                <button class="status-pill" data-status="Pending" onclick="setStatusFilter('Pending')">Pending: <span id="cntPending">0</span></button>
+                <button class="status-pill" data-status="Rejected" onclick="setStatusFilter('Rejected')">Rejected: <span id="cntRejected">0</span></button>
+                <button class="status-pill" data-status="Expired" onclick="setStatusFilter('Expired')">Expired: <span id="cntExpired">0</span></button>
+            </div>
+        </div>
+
+        <div class="leads-list" id="leadsContainer"></div>
+
+        <div class="toast-bar" id="toastBar"></div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="window.location.href='index.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='products.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <span>Products</span>
+            </button>
+
+            <button class="nav-item active" onclick="window.location.href='leads.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                </svg>
+                <span>Leads</span>
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='index.html#account'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Account</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const LEADS_CACHE_PREFIX = "FINSHARE_LEADS_CACHE_V1_";
+        const USER_DASHBOARD_CACHE_PREFIX = "FINSHARE_USER_DASH_CACHE_V1_";
+        const PRODUCTS_LOOKUP_CACHE_KEY = "FINSHARE_PRODUCTS_LOOKUP_CACHE_V1";
+        const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V2";
+        const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
+
+        const DEFAULT_OFFER_AMOUNTS = {
+            "angel-one-demat": 750,
+            "kotak-811-bank": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel-one": 150,
+            "axis-cc": 900
+        };
+
+        const DEFAULT_OFFER_AMOUNTS_BY_TITLE = {
+            "angel one demat": 750,
+            "kotak 811 savings": 450,
+            "smallcase": 300,
+            "jainam": 300,
+            "upstox": 200,
+            "angel one": 150,
+            "axis rewards card": 900
+        };
+
+        window.LEADS_DATA = [];
+        window.WITHDRAWALS_DATA = [];
+        window.PRODUCTS_BY_ID = {};
+        window.PRODUCTS_BY_TITLE = {};
+        window.ACTIVE_LEAD_STATUS = "ALL";
+        window.CURRENT_USER_ID = null;
+        window.DB_USER_BALANCE = null;
+        window.USER_DOC_LOADED = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("status")) {
+            window.ACTIVE_LEAD_STATUS = urlParams.get("status");
+        }
+
+        function readCachedLeads(uid) {
+            if (!uid) return null;
+            try {
+                const raw = localStorage.getItem(LEADS_CACHE_PREFIX + uid);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedLeads(uid, payload) {
+            if (!uid) return;
+            try {
+                const prev = readCachedLeads(uid) || {};
+                localStorage.setItem(LEADS_CACHE_PREFIX + uid, JSON.stringify({
+                    ...prev,
+                    ...payload
+                }));
+            } catch (e) {}
+        }
+
+        function readCachedUserDash(uid) {
+            if (!uid) return null;
+            try {
+                const raw = localStorage.getItem(USER_DASHBOARD_CACHE_PREFIX + uid);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function readCachedProductsLookup() {
+            try {
+                const raw = localStorage.getItem(PRODUCTS_LOOKUP_CACHE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeCachedProductsLookup(byId, byTitle) {
+            try {
+                localStorage.setItem(PRODUCTS_LOOKUP_CACHE_KEY, JSON.stringify({ byId, byTitle }));
+            } catch (e) {}
+        }
+
+        function seedLookupFromHomeCache() {
+            try {
+                const raw = localStorage.getItem(HOME_PRODUCTS_CACHE_KEY);
+                if (!raw) return;
+                const list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                list.forEach((p) => {
+                    if (!p) return;
+                    if (p.id && !window.PRODUCTS_BY_ID[p.id]) {
+                        window.PRODUCTS_BY_ID[p.id] = p;
+                    }
+                    if (p.title) {
+                        const key = String(p.title).trim().toLowerCase();
+                        if (key && !window.PRODUCTS_BY_TITLE[key]) {
+                            window.PRODUCTS_BY_TITLE[key] = p;
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
+        const cachedLookup = readCachedProductsLookup();
+        if (cachedLookup) {
+            window.PRODUCTS_BY_ID = cachedLookup.byId || {};
+            window.PRODUCTS_BY_TITLE = cachedLookup.byTitle || {};
+        }
+        seedLookupFromHomeCache();
+
+        function findMatchedProduct(data) {
+            const pid = String(data.productId || "").trim();
+            const titleKey = String(data.productTitle || data.title || "").trim().toLowerCase();
+            if (pid && window.PRODUCTS_BY_ID[pid]) return window.PRODUCTS_BY_ID[pid];
+            if (titleKey && window.PRODUCTS_BY_TITLE[titleKey]) return window.PRODUCTS_BY_TITLE[titleKey];
+            return null;
+        }
+
+        function extractAmountNumber(profitText) {
+            if (typeof profitText === "number" && Number.isFinite(profitText)) return profitText;
+            const match = String(profitText || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+            return match ? Number(match[1]) : 0;
+        }
+
+        function resolveLeadAmount(data, statusNorm) {
+            const savedAmt = Number(data.amount || 0);
+            if (savedAmt > 0) return savedAmt;
+
+            const pid = String(data.productId || "").trim();
+            const titleKey = String(data.productTitle || data.title || "").trim().toLowerCase();
+
+            const prodFromDb = findMatchedProduct(data);
+            if (prodFromDb && prodFromDb.profitText) {
+                const parsed = extractAmountNumber(prodFromDb.profitText);
+                if (parsed > 0) return parsed;
+            }
+
+            if (pid && DEFAULT_OFFER_AMOUNTS[pid]) return DEFAULT_OFFER_AMOUNTS[pid];
+            if (titleKey && DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey]) return DEFAULT_OFFER_AMOUNTS_BY_TITLE[titleKey];
+
+            return statusNorm === "Confirm" ? savedAmt : 0;
+        }
+
+        function computeWithdrawnSum(list) {
+            let sum = 0;
+            (list || []).forEach((w) => {
+                const st = String(w.status || "Pending").trim().toLowerCase();
+                if (st === "pending" || st === "success" || st === "approved" || st === "completed" || st === "confirm" || st === "confirmed") {
+                    sum += Number(w.amount || 0);
+                }
+            });
+            return sum;
+        }
+
+        function updateWalletDisplay() {
+            const confirmedSum = window.LEADS_DATA
+                .filter((l) => l.status === "Confirm")
+                .reduce((acc, l) => acc + Number(l.amount || 0), 0);
+
+            const withdrawnSum = computeWithdrawnSum(window.WITHDRAWALS_DATA);
+            const dashCache = window.CURRENT_USER_ID ? readCachedUserDash(window.CURRENT_USER_ID) : null;
+
+            let confirmedWalletBalance = 0;
+            if (typeof window.DB_USER_BALANCE === "number") {
+                confirmedWalletBalance = Math.max(0, Number(window.DB_USER_BALANCE));
+            } else if (dashCache && typeof dashCache.availableBalance === "number") {
+                confirmedWalletBalance = Math.max(0, Number(dashCache.availableBalance));
+            } else {
+                confirmedWalletBalance = Math.max(0, confirmedSum - withdrawnSum);
+            }
+
+            const txt = "Wallet: ₹" + confirmedWalletBalance.toFixed(2);
+            const el = document.getElementById("headerWalletText");
+            if (el && el.innerText !== txt) el.innerText = txt;
+            if (window.CURRENT_USER_ID) {
+                writeCachedLeads(window.CURRENT_USER_ID, { balance: confirmedWalletBalance });
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastBar");
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.style.display = "block";
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.style.display = "none";
+            }, 2600);
+        }
+
+        function escapeAttr(val) {
+            return String(val || "")
+                .replace(/&/g, "&amp;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function normalizeStatus(raw) {
+            const s = String(raw || "Pending").trim().toLowerCase();
+            if (s === "confirm" || s === "confirmed" || s === "approved" || s === "completed") return "Confirm";
+            if (s === "rejected" || s === "reject") return "Rejected";
+            if (s === "expired" || s === "expire") return "Expired";
+            return "Pending";
+        }
+
+        function renderLogo(item) {
+            const safeUrl = escapeAttr(item.logoUrl);
+            const safeTitle = escapeAttr(item.productTitle || item.title || "Offer");
+            const rawCode = String(item.code || safeTitle.slice(0, 2) || "FS").trim().toUpperCase();
+            const code = escapeAttr(rawCode);
+
+            if (safeUrl) {
+                return `
+                    <div class="lead-logo-box">
+                        <img
+                            src="${safeUrl}"
+                            alt="${safeTitle}"
+                            class="product-logo-img"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#eff6ff;color:#2563eb;font-weight:800;">${code}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="lead-logo-box" style="background:#eff6ff;color:#2563eb;font-weight:800;">
+                    ${code}
+                </div>
+            `;
+        }
+
+        function updateCounts() {
+            const all = window.LEADS_DATA.length;
+            const confirmCnt = window.LEADS_DATA.filter((l) => l.status === "Confirm").length;
+            const pendingCnt = window.LEADS_DATA.filter((l) => l.status === "Pending").length;
+            const rejectedCnt = window.LEADS_DATA.filter((l) => l.status === "Rejected").length;
+            const expiredCnt = window.LEADS_DATA.filter((l) => l.status === "Expired").length;
+
+            document.getElementById("cntAll").innerText = all;
+            document.getElementById("cntConfirm").innerText = confirmCnt;
+            document.getElementById("cntPending").innerText = pendingCnt;
+            document.getElementById("cntRejected").innerText = rejectedCnt;
+            document.getElementById("cntExpired").innerText = expiredCnt;
+        }
+
+        function renderLeads() {
+            updateCounts();
+            updateWalletDisplay();
+
+            document.querySelectorAll("#statusPills .status-pill").forEach((btn) => {
+                btn.classList.toggle("active", btn.dataset.status === window.ACTIVE_LEAD_STATUS);
+            });
+
+            const container = document.getElementById("leadsContainer");
+            const filtered = window.ACTIVE_LEAD_STATUS === "ALL"
+                ? window.LEADS_DATA
+                : window.LEADS_DATA.filter((l) => l.status === window.ACTIVE_LEAD_STATUS);
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="lead-card">
+                        <p class="lead-meta">No leads found for this status. Share an offer to start tracking new leads.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item) => {
+                const stClass = item.status.toLowerCase();
+                const amtText = "₹" + Number(item.amount || 0).toFixed(2);
+                const offerHref = escapeAttr(item.shareUrl || "products.html");
+
+                return `
+                    <article class="lead-card">
+                        <div class="lead-left">
+                            ${renderLogo(item)}
+                            <div style="min-width:0;flex:1;">
+                                <div class="lead-title">${escapeAttr(item.productTitle)}</div>
+                                <div class="lead-meta">${escapeAttr(item.customerName || "")}</div>
+                                ${item.contact ? `<div class="lead-meta">${escapeAttr(item.contact)}</div>` : ""}
+                                <div class="lead-bottom-row">
+                                    <span class="badge-status ${stClass}">${escapeAttr(item.status)}</span>
+                                    <span class="lead-amount">${amtText}</span>
+                                    ${item.dateText ? `<span class="lead-date">${escapeAttr(item.dateText)}</span>` : ""}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-view-offer" onclick="openOfferLink('${offerHref}')">View Offer</button>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function setStatusFilter(status) {
+            window.ACTIVE_LEAD_STATUS = status;
+            renderLeads();
+        }
+
+        function openOfferLink(url) {
+            if (!url || url === "products.html") {
+                window.location.href = "products.html";
+                return;
+            }
+            window.open(url, "_blank");
+        }
+
+        function hydrateLeadsFromCache() {
+            try {
+                const lastUid = localStorage.getItem(LAST_UID_KEY);
+                if (!lastUid) return;
+                const dashCache = readCachedUserDash(lastUid);
+                const cached = readCachedLeads(lastUid);
+
+                if (dashCache && typeof dashCache.availableBalance === "number") {
+                    window.DB_USER_BALANCE = Number(dashCache.availableBalance);
+                } else if (cached && typeof cached.balance === "number") {
+                    window.DB_USER_BALANCE = Number(cached.balance);
+                }
+
+                if (dashCache && Array.isArray(dashCache.withdrawals)) {
+                    window.WITHDRAWALS_DATA = dashCache.withdrawals;
+                }
+
+                if (cached && Array.isArray(cached.leads) && cached.leads.length > 0) {
+                    window.LEADS_DATA = cached.leads.map((l) => {
+                        const matched = findMatchedProduct(l);
+                        const resolvedLogo = (l.logoUrl || (matched && (matched.logoUrl || matched.logo)) || "").trim();
+                        return {
+                            ...l,
+                            logoUrl: resolvedLogo,
+                            code: l.code || (matched && matched.code) || ""
+                        };
+                    });
+                    renderLeads();
+                } else {
+                    updateWalletDisplay();
+                }
+            } catch (e) {}
+        }
+
+        hydrateLeadsFromCache();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            doc,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQe7Xl_TNHRRcn1993qQFnBFdvpbIb4wU",
+          authDomain: "finshareapp-3421a.firebaseapp.com",
+          projectId: "finshareapp-3421a",
+          storageBucket: "finshareapp-3421a.firebasestorage.app",
+          messagingSenderId: "805920794704",
+          appId: "1:805920794704:web:d92873a30707568abf8955",
+          measurementId: "G-WKKVMKPCK6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let rawLeadDocs = [];
+
+        function rebuildLeadsList() {
+            const list = rawLeadDocs.map((d) => {
+                const data = d.data();
+                const statusNorm = normalizeStatus(data.status);
+                const resolvedAmt = resolveLeadAmount(data, statusNorm);
+                const contactStr = data.contact || [data.customerMobile, data.customerEmail].filter(Boolean).join(" • ") || "";
+                const matchedProd = findMatchedProduct(data);
+                const resolvedLogo = (
+                    data.logoUrl ||
+                    data.logo ||
+                    (matchedProd && (matchedProd.logoUrl || matchedProd.logo)) ||
+                    ""
+                ).trim();
+
+                return {
+                    id: d.id,
+                    productTitle: data.productTitle || data.title || (matchedProd && matchedProd.title) || "Offer",
+                    customerName: data.customerName || data.leadName || "",
+                    contact: contactStr,
+                    amount: resolvedAmt,
+                    status: statusNorm,
+                    logoUrl: resolvedLogo,
+                    code: data.code || (matchedProd && matchedProd.code) || "",
+                    shareUrl: data.shareUrl || (data.productId ? `product-detail.html?id=${encodeURIComponent(data.productId)}` : "products.html"),
+                    dateText: data.dateText || "",
+                    createdAt: data.createdAt || ""
+                };
+            });
+
+            list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+            window.LEADS_DATA = list;
+            if (window.CURRENT_USER_ID) {
+                writeCachedLeads(window.CURRENT_USER_ID, { leads: list });
+            }
+            renderLeads();
+        }
+
+        async function loadProductsLookup() {
+            try {
+                const snap = await getDocs(collection(db, "products"));
+                const byId = { ...window.PRODUCTS_BY_ID };
+                const byTitle = { ...window.PRODUCTS_BY_TITLE };
+                snap.forEach((d) => {
+                    const pData = { id: d.id, ...d.data() };
+                    byId[d.id] = pData;
+                    if (pData.title) {
+                        byTitle[String(pData.title).trim().toLowerCase()] = pData;
+                    }
+                });
+                window.PRODUCTS_BY_ID = byId;
+                window.PRODUCTS_BY_TITLE = byTitle;
+                writeCachedProductsLookup(byId, byTitle);
+                if (rawLeadDocs.length > 0) {
+                    rebuildLeadsList();
+                } else if (window.LEADS_DATA.length > 0) {
+                    hydrateLeadsFromCache();
+                }
+            } catch (e) {
+                console.error("Products lookup error:", e);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            window.CURRENT_USER_ID = user.uid;
+            window.USER_DOC_LOADED = false;
+
+            const dashCache = readCachedUserDash(user.uid);
+            const cached = readCachedLeads(user.uid);
+
+            if (dashCache && typeof dashCache.availableBalance === "number") {
+                window.DB_USER_BALANCE = Number(dashCache.availableBalance);
+            } else if (cached && typeof cached.balance === "number") {
+                window.DB_USER_BALANCE = Number(cached.balance);
+            }
+
+            if (dashCache && Array.isArray(dashCache.withdrawals)) {
+                window.WITHDRAWALS_DATA = dashCache.withdrawals;
+            }
+
+            if (cached && Array.isArray(cached.leads) && cached.leads.length > 0) {
+                window.LEADS_DATA = cached.leads;
+                renderLeads();
+            } else {
+                updateWalletDisplay();
+            }
+
+            loadProductsLookup();
+
+            onSnapshot(doc(db, "users", user.uid), (uSnap) => {
+                window.USER_DOC_LOADED = true;
+                if (uSnap.exists() && typeof uSnap.data().balance === "number") {
+                    window.DB_USER_BALANCE = Number(uSnap.data().balance || 0);
+                } else {
+                    window.DB_USER_BALANCE = 0;
+                }
+                updateWalletDisplay();
+            }, (err) => {
+                console.error("Wallet snapshot error:", err);
+            });
+
+            const wq = query(collection(db, "withdrawals"), where("userId", "==", user.uid));
+            onSnapshot(wq, (wSnap) => {
+                const wList = [];
+                wSnap.forEach((d) => wList.push({ id: d.id, ...d.data() }));
+                window.WITHDRAWALS_DATA = wList;
+                if (!window.USER_DOC_LOADED) {
+                    updateWalletDisplay();
+                }
+            }, (err) => {
+                console.error("Withdrawals snapshot error:", err);
+            });
+
+            const q = query(collection(db, "leads"), where("userId", "==", user.uid));
+            onSnapshot(q, (snap) => {
+                rawLeadDocs = snap.docs;
+                rebuildLeadsList();
+            }, (err) => {
+                console.error("Leads snapshot error:", err);
+                renderLeads();
+            });
+        });
+    </script>
+</body>
+</html>
 
