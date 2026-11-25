@@ -6,6 +6,13 @@
     <meta name="theme-color" content="#2563eb">
     <meta name="google" content="notranslate">
     <link rel="manifest" href="/manifest.json">
+    <link rel="prefetch" href="about.html">
+    <link rel="prefetch" href="contact.html">
+    <link rel="prefetch" href="dmca.html">
+    <link rel="prefetch" href="disclaimer.html">
+    <link rel="prefetch" href="privacy-policy.html">
+    <link rel="prefetch" href="terms.html">
+    <link rel="prefetch" href="leads.html">
     <title>FinShare - FinShare Partner</title>
     <style>
         button, a, .card, .category-card, .product-card, .finshare-offer-card, .nav-item, .drawer-link-btn, .account-menu-item {
@@ -968,7 +975,7 @@
                         <span>Dashboard</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="window.location.href='leads.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('leads.html')">
                         <span>My Leads</span>
                         <span>›</span>
                     </button>
@@ -976,27 +983,27 @@
                         <span>Earnings</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='about.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('about.html')">
                         <span>About Us</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='contact.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('contact.html')">
                         <span>Contact Us</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='dmca.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('dmca.html')">
                         <span>DMCA</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='disclaimer.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('disclaimer.html')">
                         <span>Disclaimer</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='privacy-policy.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('privacy-policy.html')">
                         <span>Privacy Policy</span>
                         <span>›</span>
                     </button>
-                    <button class="drawer-link-btn" onclick="closeMenuDrawer(); window.location.href='terms.html'">
+                    <button class="drawer-link-btn" onclick="navigateDrawerPage('terms.html')">
                         <span>Terms &amp; Conditions</span>
                         <span>›</span>
                     </button>
@@ -1737,6 +1744,7 @@
         window.CURRENT_USER_ID = null;
         window.CURRENT_USER_BANK = null;
         window.FINSHARE_WITHDRAWALS = [];
+        window.LEADS_SNAPSHOT_READY = false;
 
         function extractRupeeNumber(val) {
             if (typeof val === "number" && Number.isFinite(val)) return val;
@@ -1792,6 +1800,10 @@
         function closeMenuDrawer() {
             const backdrop = document.getElementById("menuDrawerBackdrop");
             if (backdrop) backdrop.classList.remove("open");
+        }
+
+        function navigateDrawerPage(url) {
+            window.location.href = url;
         }
 
         function showToast(msg) {
@@ -2224,6 +2236,13 @@
         }
 
         window.recalculateEarningsUI = async function() {
+            const cachedUser = window.CURRENT_USER_ID ? readCachedUserDash(window.CURRENT_USER_ID) : null;
+            const cachedLeadsCount = Number(cachedUser?.totalLeads || 0);
+
+            if (!window.LEADS_SNAPSHOT_READY && latestLeadDocs.length === 0 && cachedLeadsCount > 0) {
+                return;
+            }
+
             let totalLeads = 0;
             let confirmedSum = 0;
             let pendingSum = 0;
@@ -2478,6 +2497,7 @@
             }
 
             window.CURRENT_USER_ID = user.uid;
+            window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
 
             const userCache = readCachedUserDash(user.uid);
@@ -2574,11 +2594,14 @@
 
             const leadsQuery = query(collection(db, "leads"), where("userId", "==", user.uid));
             onSnapshot(leadsQuery, (leadSnap) => {
+                window.LEADS_SNAPSHOT_READY = true;
                 latestLeadDocs = leadSnap.docs;
                 window.recalculateEarningsUI();
             }, (err) => {
                 console.error("Leads snapshot error:", err);
-                window.recalculateEarningsUI();
+                if (latestLeadDocs.length > 0) {
+                    window.recalculateEarningsUI();
+                }
             });
 
             const withdrawQuery = query(collection(db, "withdrawals"), where("userId", "==", user.uid));
