@@ -36,9 +36,6 @@
             min-height: 100vh;
             background-color: #f8fafc;
         }
-        .home-auth-pending {
-            display: none !important;
-        }
 
         /* Top Blue Header & Balance Card */
         .hero-header {
@@ -913,7 +910,7 @@
     </style>
 </head>
 <body>
-    <div class="app-wrapper" id="appWrapper">
+    <div class="app-wrapper">
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
@@ -1014,7 +1011,7 @@
             </aside>
         </div>
 
-        <main id="homeView" class="view-panel home-auth-pending">
+        <main id="homeView" class="view-panel">
             <div class="stats-grid">
                 <div class="stat-card clickable" onclick="window.location.href='leads.html'" title="Open My Leads">
                     <div class="stat-icon blue">
@@ -1499,15 +1496,6 @@
         const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V2";
         const USER_DASHBOARD_CACHE_PREFIX = "FINSHARE_USER_DASH_CACHE_V1_";
         const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
-
-        window.FINSHARE_AUTH_VERIFIED = false;
-
-        function setHomeAuthReady(ready) {
-            window.FINSHARE_AUTH_VERIFIED = Boolean(ready);
-            const homeEl = document.getElementById("homeView");
-            if (!homeEl) return;
-            homeEl.classList.toggle("home-auth-pending", !window.FINSHARE_AUTH_VERIFIED);
-        }
 
         const DEFAULT_HOME_PRODUCTS = [
             {
@@ -2093,12 +2081,7 @@
                 const viewEl = document.getElementById(viewIds[t]);
                 const isTarget = t === activeKey;
                 if (navEl) navEl.classList.toggle("active", isTarget);
-                if (viewEl) {
-                    viewEl.classList.toggle("active", isTarget);
-                    if (t === "home") {
-                        viewEl.classList.toggle("home-auth-pending", !window.FINSHARE_AUTH_VERIFIED);
-                    }
-                }
+                if (viewEl) viewEl.classList.toggle("active", isTarget);
             });
 
             if (options.updateHash) {
@@ -2117,7 +2100,7 @@
                 menuBtn.style.display = activeKey === "home" ? "flex" : "none";
             }
 
-            if (activeKey === "home" && window.FINSHARE_AUTH_VERIFIED) {
+            if (activeKey === "home") {
                 renderHomeProducts();
             }
             window.scrollTo(0, 0);
@@ -2211,6 +2194,7 @@
         window.addEventListener("DOMContentLoaded", () => {
             hydrateFromLastCachedSession();
             switchTab(getTabFromHash(), { updateHash: false });
+            renderHomeProducts();
             renderWithdrawalsList();
         });
 
@@ -2220,6 +2204,7 @@
 
         hydrateFromLastCachedSession();
         switchTab(getTabFromHash(), { updateHash: false });
+        renderHomeProducts();
         renderWithdrawalsList();
     </script>
 
@@ -2501,7 +2486,7 @@
                 localStorage.removeItem("isLoggedIn");
                 localStorage.removeItem("userName");
                 localStorage.removeItem("userPhone");
-                window.location.replace("login.html");
+                window.location.href = "login.html";
             } catch (err) {
                 console.error("Delete schedule error:", err);
                 closeModal("deleteAccountModal");
@@ -2519,17 +2504,15 @@
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("userName");
             localStorage.removeItem("userPhone");
-            window.location.replace("login.html");
+            window.location.href = "login.html";
         };
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                setHomeAuthReady(false);
-                window.location.replace("login.html");
+                window.location.href = "login.html";
                 return;
             }
 
-            setHomeAuthReady(true);
             window.CURRENT_USER_ID = user.uid;
             window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
@@ -2659,4 +2642,4 @@
         loadSiteConfigFromFirestore();
     </script>
 </body>
-</html>
+    </html>
