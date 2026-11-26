@@ -35,11 +35,6 @@
             margin: 0 auto;
             min-height: 100vh;
             background-color: #f8fafc;
-            transition: opacity 0.12s ease;
-        }
-        .app-wrapper.auth-hold {
-            opacity: 0;
-            pointer-events: none;
         }
 
         /* Top Blue Header & Balance Card */
@@ -915,7 +910,7 @@
     </style>
 </head>
 <body>
-    <div class="app-wrapper auth-hold" id="appWrapper">
+    <div class="app-wrapper" id="appWrapper">
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
@@ -1505,7 +1500,7 @@
         function setAuthHold(hold) {
             const wrapper = document.getElementById("appWrapper");
             if (!wrapper) return;
-            wrapper.classList.toggle("auth-hold", Boolean(hold));
+            wrapper.classList.remove("auth-hold");
         }
 
         const DEFAULT_HOME_PRODUCTS = [
