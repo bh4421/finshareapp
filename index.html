@@ -2000,7 +2000,6 @@
                 const payout = escapeAttr(item.profitText || item.payoutText || "Earn Profit");
                 const catLabel = escapeAttr(item.category || "Offer");
                 const safeId = escapeAttr(item.id);
-                const trackedUrl = buildHomeTrackedLink(item);
 
                 return `
                     <article class="finshare-offer-card" onclick="openHomeProductDetail('${safeId}')">
@@ -2020,7 +2019,7 @@
                             <button type="button" class="btn-offer-share" onclick="event.stopPropagation(); openHomeProductDetail('${safeId}')">
                                 Share
                             </button>
-                            <button type="button" class="btn-offer-copy" title="Copy Link" onclick="event.stopPropagation(); copyOfferLink('${String(trackedUrl).replace(/'/g, "\\'")}')">
+                            <button type="button" class="btn-offer-copy" title="Offer Details" onclick="event.stopPropagation(); openHomeProductDetail('${safeId}')">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
