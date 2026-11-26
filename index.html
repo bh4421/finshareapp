@@ -13,7 +13,6 @@
     <link rel="prefetch" href="privacy-policy.html">
     <link rel="prefetch" href="terms.html">
     <link rel="prefetch" href="leads.html">
-    <link rel="prefetch" href="login.html">
     <title>FinShare - FinShare Partner</title>
     <script>
         if (localStorage.getItem("isLoggedIn") !== "true") {
@@ -41,9 +40,6 @@
             margin: 0 auto;
             min-height: 100vh;
             background-color: #f8fafc;
-        }
-        .app-wrapper.auth-checking {
-            display: none;
         }
 
         /* Top Blue Header & Balance Card */
@@ -919,7 +915,7 @@
     </style>
 </head>
 <body>
-    <div class="app-wrapper auth-checking" id="appWrapper">
+    <div class="app-wrapper">
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
@@ -2171,7 +2167,6 @@
         }
 
         function hydrateFromLastCachedSession() {
-            if (localStorage.getItem("isLoggedIn") !== "true") return;
             try {
                 const lastUid = localStorage.getItem(LAST_UID_KEY);
                 if (!lastUid) return;
@@ -2202,10 +2197,6 @@
         }
 
         window.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("isLoggedIn") !== "true") {
-                window.location.replace("login.html");
-                return;
-            }
             hydrateFromLastCachedSession();
             switchTab(getTabFromHash(), { updateHash: false });
             renderHomeProducts();
@@ -2216,12 +2207,10 @@
             switchTab(getTabFromHash(), { updateHash: false });
         });
 
-        if (localStorage.getItem("isLoggedIn") === "true") {
-            hydrateFromLastCachedSession();
-            switchTab(getTabFromHash(), { updateHash: false });
-            renderHomeProducts();
-            renderWithdrawalsList();
-        }
+        hydrateFromLastCachedSession();
+        switchTab(getTabFromHash(), { updateHash: false });
+        renderHomeProducts();
+        renderWithdrawalsList();
     </script>
 
     <script type="module">
@@ -2242,7 +2231,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appWrapperEl = document.getElementById("appWrapper");
 
         let latestDbBalance = 0;
         let latestDbPending = 0;
@@ -2532,10 +2520,6 @@
             }
 
             localStorage.setItem("isLoggedIn", "true");
-            if (appWrapperEl) {
-                appWrapperEl.classList.remove("auth-checking");
-            }
-
             window.CURRENT_USER_ID = user.uid;
             window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
