@@ -36,6 +36,9 @@
             min-height: 100vh;
             background-color: #f8fafc;
         }
+        .home-auth-pending {
+            display: none !important;
+        }
 
         /* Top Blue Header & Balance Card */
         .hero-header {
@@ -1011,7 +1014,7 @@
             </aside>
         </div>
 
-        <main id="homeView" class="view-panel">
+        <main id="homeView" class="view-panel home-auth-pending">
             <div class="stats-grid">
                 <div class="stat-card clickable" onclick="window.location.href='leads.html'" title="Open My Leads">
                     <div class="stat-icon blue">
@@ -1497,10 +1500,13 @@
         const USER_DASHBOARD_CACHE_PREFIX = "FINSHARE_USER_DASH_CACHE_V1_";
         const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
 
-        function setAuthHold(hold) {
-            const wrapper = document.getElementById("appWrapper");
-            if (!wrapper) return;
-            wrapper.classList.remove("auth-hold");
+        window.FINSHARE_AUTH_VERIFIED = false;
+
+        function setHomeAuthReady(ready) {
+            window.FINSHARE_AUTH_VERIFIED = Boolean(ready);
+            const homeEl = document.getElementById("homeView");
+            if (!homeEl) return;
+            homeEl.classList.toggle("home-auth-pending", !window.FINSHARE_AUTH_VERIFIED);
         }
 
         const DEFAULT_HOME_PRODUCTS = [
@@ -2087,7 +2093,12 @@
                 const viewEl = document.getElementById(viewIds[t]);
                 const isTarget = t === activeKey;
                 if (navEl) navEl.classList.toggle("active", isTarget);
-                if (viewEl) viewEl.classList.toggle("active", isTarget);
+                if (viewEl) {
+                    viewEl.classList.toggle("active", isTarget);
+                    if (t === "home") {
+                        viewEl.classList.toggle("home-auth-pending", !window.FINSHARE_AUTH_VERIFIED);
+                    }
+                }
             });
 
             if (options.updateHash) {
@@ -2106,7 +2117,7 @@
                 menuBtn.style.display = activeKey === "home" ? "flex" : "none";
             }
 
-            if (activeKey === "home") {
+            if (activeKey === "home" && window.FINSHARE_AUTH_VERIFIED) {
                 renderHomeProducts();
             }
             window.scrollTo(0, 0);
@@ -2200,7 +2211,6 @@
         window.addEventListener("DOMContentLoaded", () => {
             hydrateFromLastCachedSession();
             switchTab(getTabFromHash(), { updateHash: false });
-            renderHomeProducts();
             renderWithdrawalsList();
         });
 
@@ -2210,7 +2220,6 @@
 
         hydrateFromLastCachedSession();
         switchTab(getTabFromHash(), { updateHash: false });
-        renderHomeProducts();
         renderWithdrawalsList();
     </script>
 
@@ -2515,11 +2524,12 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                setHomeAuthReady(false);
                 window.location.replace("login.html");
                 return;
             }
 
-            setAuthHold(false);
+            setHomeAuthReady(true);
             window.CURRENT_USER_ID = user.uid;
             window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
