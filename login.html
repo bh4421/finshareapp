@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="prefetch" href="index.html">
     <title>FinShare - Login / Register</title>
     <style>
         * {
@@ -78,7 +80,7 @@
             color: #1e293b;
             font-size: 14px;
             outline: none;
-            transition: all 0.2s;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
         }
         input:focus {
             border-color: #2563eb;
@@ -127,10 +129,10 @@
             margin-top: 5px;
             margin-bottom: 12px;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-            transition: opacity 0.2s;
+            transition: opacity 0.15s ease;
         }
         .btn-main:hover {
-            opacity: 0.9;
+            opacity: 0.92;
         }
         .btn-main:disabled {
             opacity: 0.6;
@@ -201,7 +203,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
-            getAuth, 
+            getAuth,
+            onAuthStateChanged,
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword, 
             updateProfile,
@@ -227,6 +230,22 @@
 
         const DEVICE_LOCK_KEY = "FINSHARE_LOCKED_UID";
         let isSignup = false;
+        let isSubmittingAuth = false;
+
+        onAuthStateChanged(auth, (user) => {
+            if (isSubmittingAuth) return;
+            if (user) {
+                const lockedUid = localStorage.getItem(DEVICE_LOCK_KEY);
+                if (!lockedUid || lockedUid === user.uid) {
+                    localStorage.setItem(DEVICE_LOCK_KEY, user.uid);
+                    localStorage.setItem("isLoggedIn", "true");
+                    if (user.displayName) {
+                        localStorage.setItem("userName", user.displayName);
+                    }
+                    window.location.replace("index.html");
+                }
+            }
+        });
 
         function showMessage(msg, isError = true) {
             const box = document.getElementById('statusBox');
@@ -307,6 +326,7 @@
             const password = document.getElementById('password').value;
             const submitBtn = document.getElementById('submitBtn');
 
+            isSubmittingAuth = true;
             submitBtn.disabled = true;
             submitBtn.innerText = isSignup ? "Creating Account..." : "Logging in...";
 
@@ -317,6 +337,7 @@
 
                 if (!fullName) {
                     showMessage("Kripya apna Full Name bharein.", true);
+                    isSubmittingAuth = false;
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Register";
                     return;
@@ -324,6 +345,7 @@
 
                 if (phoneNumber.length !== 10) {
                     showMessage("Kripya sahi 10-digit Mobile Number bharein.", true);
+                    isSubmittingAuth = false;
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Register";
                     return;
@@ -369,7 +391,7 @@
                     localStorage.setItem("userName", fullName);
                     localStorage.setItem("userPhone", phoneNumber);
                     
-                    window.location.href = "index.html";
+                    window.location.replace("index.html");
                 } catch (error) {
                     if (createdUser) {
                         try {
@@ -380,6 +402,7 @@
                     }
                     const cleanMsg = (error.message || "").replace("Firebase: ", "");
                     showMessage(cleanMsg || "Account create nahi ho saka.", true);
+                    isSubmittingAuth = false;
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Register";
                 }
@@ -418,7 +441,7 @@
                     if (signedInUser.displayName) {
                         localStorage.setItem("userName", signedInUser.displayName);
                     }
-                    window.location.href = "index.html";
+                    window.location.replace("index.html");
                 } catch (error) {
                     let errMessage = error.message;
                     if (errMessage.includes("No account found")) {
@@ -429,6 +452,7 @@
                         errMessage = "Invalid credentials. Please check your email/mobile and password.";
                     }
                     showMessage(errMessage, true);
+                    isSubmittingAuth = false;
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Login";
                 }
