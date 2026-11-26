@@ -600,7 +600,6 @@
             padding: 16px;
         }
         #homeView.view-panel {
-            display: none;
             padding: 0;
         }
         .view-panel.active {
@@ -1746,7 +1745,6 @@
         window.CURRENT_USER_BANK = null;
         window.FINSHARE_WITHDRAWALS = [];
         window.LEADS_SNAPSHOT_READY = false;
-        window.FINSHARE_AUTH_READY = false;
 
         function hasBankAccountAdded(bankData) {
             if (!bankData || typeof bankData !== "object") return false;
@@ -2041,7 +2039,7 @@
             if (selectedHomeProducts.length > 0) {
                 writeCachedHomeProducts(selectedHomeProducts);
             }
-            if (prevSerialized !== nextSerialized && window.FINSHARE_AUTH_READY) {
+            if (prevSerialized !== nextSerialized) {
                 renderHomeProducts();
             }
             if (typeof window.recalculateEarningsUI === "function") {
@@ -2081,7 +2079,7 @@
             tabs.forEach((t) => {
                 const navEl = document.getElementById(navIds[t]);
                 const viewEl = document.getElementById(viewIds[t]);
-                const isTarget = t === activeKey && window.FINSHARE_AUTH_READY;
+                const isTarget = t === activeKey;
                 if (navEl) navEl.classList.toggle("active", isTarget);
                 if (viewEl) viewEl.classList.toggle("active", isTarget);
             });
@@ -2099,10 +2097,10 @@
 
             const menuBtn = document.getElementById("homeMenuBtn");
             if (menuBtn) {
-                menuBtn.style.display = (activeKey === "home" && window.FINSHARE_AUTH_READY) ? "flex" : "none";
+                menuBtn.style.display = activeKey === "home" ? "flex" : "none";
             }
 
-            if (activeKey === "home" && window.FINSHARE_AUTH_READY) {
+            if (activeKey === "home") {
                 renderHomeProducts();
             }
             window.scrollTo(0, 0);
@@ -2195,16 +2193,18 @@
 
         window.addEventListener("DOMContentLoaded", () => {
             hydrateFromLastCachedSession();
+            switchTab(getTabFromHash(), { updateHash: false });
+            renderHomeProducts();
             renderWithdrawalsList();
         });
 
         window.addEventListener("hashchange", () => {
-            if (window.FINSHARE_AUTH_READY) {
-                switchTab(getTabFromHash(), { updateHash: false });
-            }
+            switchTab(getTabFromHash(), { updateHash: false });
         });
 
         hydrateFromLastCachedSession();
+        switchTab(getTabFromHash(), { updateHash: false });
+        renderHomeProducts();
         renderWithdrawalsList();
     </script>
 
@@ -2486,7 +2486,7 @@
                 localStorage.removeItem("isLoggedIn");
                 localStorage.removeItem("userName");
                 localStorage.removeItem("userPhone");
-                window.location.replace("login.html");
+                window.location.href = "login.html";
             } catch (err) {
                 console.error("Delete schedule error:", err);
                 closeModal("deleteAccountModal");
@@ -2498,24 +2498,21 @@
         };
 
         window.handleLogout = async function() {
-            window.FINSHARE_AUTH_READY = false;
             try {
                 await signOut(auth);
             } catch (e) {}
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("userName");
             localStorage.removeItem("userPhone");
-            window.location.replace("login.html");
+            window.location.href = "login.html";
         };
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.FINSHARE_AUTH_READY = false;
-                window.location.replace("login.html");
+                window.location.href = "login.html";
                 return;
             }
 
-            window.FINSHARE_AUTH_READY = true;
             window.CURRENT_USER_ID = user.uid;
             window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
@@ -2544,7 +2541,6 @@
                 }
             }
 
-            switchTab(getTabFromHash(), { updateHash: false });
             renderHomeProducts();
 
             try {
@@ -2646,4 +2642,4 @@
         loadSiteConfigFromFirestore();
     </script>
 </body>
-</html>
+    </html>
