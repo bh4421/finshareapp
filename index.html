@@ -35,6 +35,11 @@
             margin: 0 auto;
             min-height: 100vh;
             background-color: #f8fafc;
+            transition: opacity 0.12s ease;
+        }
+        .app-wrapper.auth-hold {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Top Blue Header & Balance Card */
@@ -910,7 +915,7 @@
     </style>
 </head>
 <body>
-    <div class="app-wrapper">
+    <div class="app-wrapper auth-hold" id="appWrapper">
         <header class="hero-header">
             <div class="top-bar">
                 <div class="user-info">
@@ -1496,6 +1501,12 @@
         const HOME_PRODUCTS_CACHE_KEY = "FINSHARE_HOME_PRODUCTS_CACHE_V2";
         const USER_DASHBOARD_CACHE_PREFIX = "FINSHARE_USER_DASH_CACHE_V1_";
         const LAST_UID_KEY = "FINSHARE_LAST_UID_V1";
+
+        function setAuthHold(hold) {
+            const wrapper = document.getElementById("appWrapper");
+            if (!wrapper) return;
+            wrapper.classList.toggle("auth-hold", Boolean(hold));
+        }
 
         const DEFAULT_HOME_PRODUCTS = [
             {
@@ -2486,7 +2497,7 @@
                 localStorage.removeItem("isLoggedIn");
                 localStorage.removeItem("userName");
                 localStorage.removeItem("userPhone");
-                window.location.href = "login.html";
+                window.location.replace("login.html");
             } catch (err) {
                 console.error("Delete schedule error:", err);
                 closeModal("deleteAccountModal");
@@ -2504,15 +2515,16 @@
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("userName");
             localStorage.removeItem("userPhone");
-            window.location.href = "login.html";
+            window.location.replace("login.html");
         };
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.location.href = "login.html";
+                window.location.replace("login.html");
                 return;
             }
 
+            setAuthHold(false);
             window.CURRENT_USER_ID = user.uid;
             window.LEADS_SNAPSHOT_READY = false;
             const shortId = "#FS" + user.uid.slice(-4).toUpperCase();
@@ -2642,4 +2654,4 @@
         loadSiteConfigFromFirestore();
     </script>
 </body>
-    </html>
+</html>
